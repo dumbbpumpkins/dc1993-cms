@@ -554,13 +554,14 @@ fetch("/api/site").then(r=>r.json()).then(data=>{
   document.getElementById("updatesText").textContent=s.updates_text||"";
   document.getElementById("footerText").textContent=s.footer_text||"";
   const books=data.books||[];
-  document.getElementById("bookGrid").innerHTML=books.length?books.map((b,i)=>`
-  <article class="card">
-    <div class="cover ${i%3===1?"alt":i%3===2?"warm":""}">${coverMarkup(b,i)}</div>
-    <div class="info"><div class="genre">${esc(b.genre)}</div><h3>${esc(b.title)}</h3>
-    ${b.subtitle?'<div style="color:var(--muted);margin-top:-7px;margin-bottom:12px">'+esc(b.subtitle)+'</div>':""}
-    <p>${esc(b.description)}</p>${storeLinks(b)}</div>
-  </article>`).join(""):'<div class="empty">Books will appear here soon.</div>';
+  document.getElementById("bookGrid").innerHTML=books.length?books.map((b,i)=>
+    '<article class="card">'+
+      '<div class="cover '+(i%3===1?"alt":i%3===2?"warm":"")+'">'+coverMarkup(b,i)+'</div>'+
+      '<div class="info"><div class="genre">'+esc(b.genre)+'</div><h3>'+esc(b.title)+'</h3>'+
+      (b.subtitle?'<div style="color:var(--muted);margin-top:-7px;margin-bottom:12px">'+esc(b.subtitle)+'</div>':"")+
+      '<p>'+esc(b.description)+'</p>'+storeLinks(b)+'</div>'+
+    '</article>'
+  ).join(""):'<div class="empty">Books will appear here soon.</div>';
 }).catch(()=>{document.getElementById("bookGrid").innerHTML='<div class="empty">The book list could not load.</div>'});
 </script>
 </body></html>`;
@@ -667,10 +668,10 @@ async function load(){DATA=await api("/api/admin/content");fillSettings();render
 function fillSettings(){for(const [k,v] of Object.entries(DATA.settings||{})){if($(k))$(k).value=v}}
 async function saveSettings(){const ids=["author_name","eyebrow","hero_title","hero_text","about_heading","about_text","updates_heading","updates_text","footer_text"];const body={};ids.forEach(id=>{if($(id))body[id]=$(id).value});await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});toast("Saved");await load()}
 function coverSrc(b){return b.cover_key?"/media/"+b.cover_key:b.cover_url||""}
-function renderBooks(){$("bookList").innerHTML=(DATA.books||[]).map((b,i)=>`<div class="bookrow">
-<div class="thumb">${coverSrc(b)?`<img src="${esc(coverSrc(b))}">`:esc(b.title)}</div>
-<div><strong>${esc(b.title)}</strong><small>${esc(b.status)} · ${b.visible?"Visible":"Hidden"}</small></div>
-<div class="rowBtns"><button class="mini" onclick="moveBook(${i},-1)">↑</button><button class="mini" onclick="moveBook(${i},1)">↓</button><button class="mini" onclick="editBook('${esc(b.id)}')">Edit</button></div></div>`).join("")||'<p class="hint">No books yet.</p>'}
+function renderBooks(){$("bookList").innerHTML=(DATA.books||[]).map((b,i)=>'<div class="bookrow">'+
+'<div class="thumb">'+(coverSrc(b)?'<img src="'+esc(coverSrc(b))+'">':esc(b.title))+'</div>'+
+'<div><strong>'+esc(b.title)+'</strong><small>'+esc(b.status)+' · '+(b.visible?"Visible":"Hidden")+'</small></div>'+
+'<div class="rowBtns"><button class="mini" onclick="moveBook('+i+',-1)">↑</button><button class="mini" onclick="moveBook('+i+',1)">↓</button><button class="mini" onclick="editBook(\''+esc(b.id)+'\')">Edit</button></div></div>').join("")||'<p class="hint">No books yet.</p>'}
 async function moveBook(i,d){const arr=[...DATA.books];const j=i+d;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];await api("/api/admin/books/reorder",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ids:arr.map(x=>x.id)})});await load();toast("Order updated")}
 function clearBook(){["b_id","b_title","b_subtitle","b_genre","b_description","b_cover_key","b_cover_url","b_paperback_url","b_ebook_url","b_apple_url","b_kobo_url"].forEach(id=>$(id).value="");$("b_status").value="Available";$("b_sort_order").value=(DATA.books.length+1);$("b_visible").checked=true;$("b_cover_file").value="";$("coverPreview").style.display="none"}
 function newBook(){editing=null;clearBook();$("editorTitle").textContent="Add book";$("deleteBtn").style.display="none";$("editor").style.display="block";$("editor").scrollIntoView({behavior:"smooth"})}
