@@ -1,5 +1,18 @@
 {
   "name": "dc1993-cms",
   "main": "worker.js",
-  "compatibility_date": "2026-09-19"
+  "compatibility_date": "2026-09-19",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dc1993-content",
+      "database_id": "30fbb7a2-a689-4317-968d-42ac9405e2d9"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "COVERS",
+      "bucket_name": "dc1993-covers"
+    }
+  ]
 }
