@@ -10,4 +10,4 @@ Cloudflare Worker source for the editable author site at dc1993.com.
 
 These are configured in the Cloudflare dashboard and are not stored in this repository.
 
-<!-- trigger deploy -->.
+<!-- trigger deploy -->
