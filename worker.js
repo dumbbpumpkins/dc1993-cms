@@ -541,10 +541,14 @@ function coverMarkup(b,i){
   return '<div class="coverplaceholder">'+esc(b.title)+'</div>';
 }
 function storeLinks(b){
+  const status=String(b.status||"Coming Soon").trim();
+  if(status.toLowerCase()==="coming soon"){
+    return '<span class="badge">Coming Soon</span>';
+  }
   const items=[
     ["Paperback",b.paperback_url],["Ebook / Kindle",b.ebook_url],["Apple Books",b.apple_url],["Kobo",b.kobo_url]
   ].filter(x=>safeUrl(x[1]));
-  if(!items.length) return '<span class="badge">'+esc(b.status||"Coming Soon")+'</span>';
+  if(!items.length) return '<span class="badge">'+esc(status)+'</span>';
   return '<div class="buy">'+items.map(x=>'<a target="_blank" rel="noopener" href="'+esc(safeUrl(x[1]))+'">'+esc(x[0])+'</a>').join("")+'</div>';
 }
 fetch("/api/site").then(r=>r.json()).then(data=>{
