@@ -529,7 +529,16 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 
 <script>
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-const safeUrl=u=>{try{const x=new URL(u,location.origin);return ["http:","https:"].includes(x.protocol)?x.href:""}catch{return ""}};
+const safeUrl=u=>{
+  const raw=String(u??"").trim();
+  if(!raw || raw==="#" || raw.toLowerCase()==="javascript:void(0)") return "";
+  try{
+    const x=new URL(raw,location.origin);
+    if(!["http:","https:"].includes(x.protocol)) return "";
+    if(x.origin===location.origin && (raw.startsWith("#") || raw.startsWith("/#"))) return "";
+    return x.href;
+  }catch{return ""}
+};
 document.getElementById("year").textContent=new Date().getFullYear();
 document.getElementById("menuBtn").onclick=()=>document.getElementById("nav").classList.toggle("open");
 document.querySelectorAll("#nav a").forEach(a=>a.onclick=()=>document.getElementById("nav").classList.remove("open"));
