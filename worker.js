@@ -443,6 +443,9 @@ background:linear-gradient(145deg,#29202d,#140f17);overflow:hidden}
 .fakebook:nth-child(1){right:8px;top:8px;transform:rotate(7deg);background:linear-gradient(145deg,#302725,#171413)}
 .fakebook:nth-child(2){left:20px;top:75px;transform:rotate(-5deg)}
 .fakebook .small{font-size:10px;letter-spacing:.18em}.fakebook .big{position:absolute;left:28px;top:155px;font:700 42px/.9 Georgia,serif}.fakebook .author{position:absolute;left:28px;bottom:30px;font-size:9px;letter-spacing:.18em}
+.hero-cover{position:absolute;width:245px;height:370px;object-fit:cover;border-radius:8px 18px 18px 8px;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.hero-cover:nth-child(1){right:8px;top:8px;transform:rotate(7deg)}
+.hero-cover:nth-child(2){left:20px;top:75px;transform:rotate(-5deg)}
 .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-height:70px;display:flex;align-items:center;justify-content:center;gap:24px;color:var(--muted);font-size:11px;letter-spacing:.15em}
 section.main{padding:110px 0}
 .sectionhead{max-width:720px;margin-bottom:46px}.sectionhead h2{font-size:clamp(38px,5vw,62px);margin:0 0 16px}.sectionhead p{color:var(--muted);line-height:1.7}
@@ -460,7 +463,10 @@ linear-gradient(145deg,#281e2c,#120d15);position:relative;overflow:hidden}
 .buy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}.buy a{border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-decoration:none;text-align:center;font-size:12px}.buy a:hover{border-color:rgba(192,155,115,.5)}
 .about{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:60px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:75px 0}.about h2{font-size:clamp(42px,5vw,64px);margin:0}.about p{color:var(--muted);line-height:1.8;white-space:pre-line}
 .updates{margin:100px 0;padding:48px;border:1px solid var(--line);border-radius:26px;background:radial-gradient(circle at 85% 20%,rgba(118,99,126,.23),transparent 22rem),var(--panel)}.updates h2{font-size:clamp(36px,4.5vw,56px);margin:0 0 14px}.updates p{color:var(--muted);line-height:1.7;max-width:760px}
-footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px}
+footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
+.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}
+.admin-link{font-size:10px;color:rgba(170,161,152,.52);text-decoration:none;letter-spacing:.10em;text-transform:uppercase}
+.admin-link:hover{color:var(--accent)}
 .empty{padding:50px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);grid-column:1/-1}
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;padding-top:56px;gap:20px}.art{min-height:440px}.grid{grid-template-columns:1fr 1fr}.about{grid-template-columns:1fr}
@@ -469,15 +475,15 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
   .wrap{width:min(100% - 28px,var(--max))}
   header{height:78px}.brand span:last-child{font-size:20px;max-width:210px}nav{display:none;position:absolute;top:78px;left:14px;right:14px;background:#171411;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:50;flex-direction:column}.menu{display:block}nav.open{display:flex}
   .hero{min-height:auto;padding:54px 0 66px;gap:22px}
-  h1{font-size:clamp(44px,13vw,62px);line-height:1.01;letter-spacing:-.04em}
+  h1{font-size:clamp(40px,11.5vw,54px);line-height:1.02;letter-spacing:-.035em}
   .lead{font-size:16px;line-height:1.65}
   .actions{display:grid;grid-template-columns:1fr;margin-top:28px}.actions .btn{width:100%}
-  .art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook{width:195px;height:300px;padding:22px}.fakebook:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}
-  .strip{justify-content:flex-start;overflow:hidden;padding:0 14px;gap:18px;white-space:nowrap;font-size:9px}
+  .art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook{padding:22px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}
+  .strip{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 14px;gap:18px;white-space:nowrap;font-size:9px;scrollbar-width:none}.strip::-webkit-scrollbar{display:none}
   section.main{padding:78px 0}.grid{grid-template-columns:1fr}.info p{min-height:0}
   .about{padding:58px 0;gap:22px}.updates{margin:72px 0;padding:30px 24px}
   .buy{grid-template-columns:1fr}
-  footer{flex-direction:column}
+  footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}
 }
 </style>
 </head>
@@ -498,7 +504,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 <div class="actions"><a class="btn primary" href="#books">Explore the books</a><a class="btn secondary" href="#about">About the author</a></div>
 </div>
 <div class="art" aria-hidden="true">
-<div class="book-fan"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div>
+<div class="book-fan" id="heroBooks"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div>
 </div>
 </section>
 </div>
@@ -518,7 +524,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 
 <section id="updates" class="updates"><p class="eyebrow">STAY IN THE LOOP</p><h2 id="updatesHeading"></h2><p id="updatesText"></p></section>
 
-<footer><strong id="footerName"></strong><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span></footer>
+<footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><a class="admin-link" href="/admin">Admin</a></div></footer>
 </div>
 
 <script>
@@ -554,6 +560,13 @@ fetch("/api/site").then(r=>r.json()).then(data=>{
   document.getElementById("updatesText").textContent=s.updates_text||"";
   document.getElementById("footerText").textContent=s.footer_text||"";
   const books=data.books||[];
+  const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);
+  if(heroCovers.length){
+    document.getElementById("heroBooks").innerHTML=heroCovers.map(b=>{
+      const src=b.cover_key?"/media/"+encodeURIComponent(b.cover_key).replace(/%2F/g,"/"):safeUrl(b.cover_url);
+      return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">';
+    }).join("");
+  }
   document.getElementById("bookGrid").innerHTML=books.length?books.map((b,i)=>
     '<article class="card">'+
       '<div class="cover '+(i%3===1?"alt":i%3===2?"warm":"")+'">'+coverMarkup(b,i)+'</div>'+
