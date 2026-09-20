@@ -509,7 +509,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
   .art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook{padding:22px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}
   .strip{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 14px;gap:18px;white-space:nowrap;font-size:9px;scrollbar-width:none}.strip::-webkit-scrollbar{display:none}
   section.main{padding:78px 0}.grid{grid-template-columns:1fr}.info p{min-height:0}
-  .about{padding:50px 0;gap:22px}.about-profile{width:100%}.about-identity{display:grid;grid-template-columns:120px minmax(0,1fr);align-items:center;gap:18px;width:100%}.author-photo-wrap{width:120px}.author-photo{width:120px;height:120px}.about h2{font-size:clamp(32px,9.2vw,42px);line-height:.98;max-width:none}.about p{line-height:1.68}.updates{margin:72px 0;padding:30px 24px}
+  .about{padding:50px 0;gap:22px}.about-profile{width:100%}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:16px;width:100%}.author-photo-wrap{width:104px}.author-photo{width:104px;height:104px}.about h2{font-size:clamp(28px,8.2vw,36px);line-height:.98;letter-spacing:-.02em;max-width:none;overflow-wrap:normal;word-break:normal}.about p{line-height:1.68}.updates{margin:72px 0;padding:30px 24px}
   .buy{grid-template-columns:1fr}
   footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}
 }
