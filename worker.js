@@ -181,7 +181,7 @@ async function handleApi(request, env, url) {
     const body = await request.json();
     const allowed = [
       "author_name","eyebrow","hero_title","hero_text",
-      "about_heading","about_text","updates_heading","updates_text","footer_text"
+      "about_heading","about_text","author_photo_key","updates_heading","updates_text","footer_text"
     ];
     const stmts = [];
     for (const key of allowed) {
@@ -267,6 +267,34 @@ async function handleApi(request, env, url) {
       );
     }
     return json({ ok: true });
+  }
+
+  if (path === "/api/admin/upload-author-photo" && request.method === "POST") {
+    if (!env.COVERS) return json({ error: "R2 binding COVERS is missing." }, 500);
+
+    const form = await request.formData();
+    const file = form.get("file");
+    const oldKey = String(form.get("oldKey") || "");
+
+    if (!file || typeof file === "string") return json({ error: "Choose an image first." }, 400);
+    if (!String(file.type || "").startsWith("image/")) return json({ error: "Author photo must be an image." }, 400);
+    if (file.size > 8 * 1024 * 1024) return json({ error: "Author photo must be under 8 MB." }, 400);
+
+    const ext = extensionFor(file.type, file.name);
+    const key = `author/profile-${Date.now()}.${ext}`;
+
+    await env.COVERS.put(key, file.stream(), {
+      httpMetadata: {
+        contentType: file.type || "image/jpeg",
+        cacheControl: "public, max-age=31536000, immutable"
+      }
+    });
+
+    if (oldKey.startsWith("author/") && oldKey !== key) {
+      await env.COVERS.delete(oldKey).catch(() => {});
+    }
+
+    return json({ ok: true, photo_key: key, url: `/media/${key}` });
   }
 
   if (path === "/api/admin/upload-cover" && request.method === "POST") {
@@ -461,10 +489,10 @@ linear-gradient(145deg,#281e2c,#120d15);position:relative;overflow:hidden}
 .info{padding:28px}.genre{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.info h3{font-size:31px;margin:8px 0 12px}.info p{color:var(--muted);line-height:1.65;min-height:80px}
 .badge{display:inline-flex;border:1px solid rgba(192,155,115,.35);color:var(--accent);border-radius:999px;padding:10px 13px;font-size:12px;font-weight:700}
 .buy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}.buy a{border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-decoration:none;text-align:center;font-size:12px}.buy a:hover{border-color:rgba(192,155,115,.5)}
-.about{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:60px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:75px 0}.about h2{font-size:clamp(42px,5vw,64px);margin:0}.about p{color:var(--muted);line-height:1.8;white-space:pre-line}
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:54px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:68px 0}.about-profile{min-width:0}.about-identity{display:flex;align-items:center;gap:24px;min-width:0}.author-photo-wrap{display:none;flex:0 0 auto}.author-photo{width:126px;height:126px;object-fit:cover;border-radius:50%;border:1px solid var(--line);box-shadow:0 18px 45px rgba(0,0,0,.28)}.about h2{font-size:clamp(38px,4.2vw,54px);line-height:1;letter-spacing:-.025em;margin:0;overflow-wrap:anywhere}.about p{color:var(--muted);line-height:1.72;white-space:pre-line}
 .updates{margin:100px 0;padding:48px;border:1px solid var(--line);border-radius:26px;background:radial-gradient(circle at 85% 20%,rgba(118,99,126,.23),transparent 22rem),var(--panel)}.updates h2{font-size:clamp(36px,4.5vw,56px);margin:0 0 14px}.updates p{color:var(--muted);line-height:1.7;max-width:760px}
 footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
-.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}
+.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}.footer-links{display:flex;gap:14px;align-items:center}
 .admin-link{font-size:10px;color:rgba(170,161,152,.52);text-decoration:none;letter-spacing:.10em;text-transform:uppercase}
 .admin-link:hover{color:var(--accent)}
 .empty{padding:50px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);grid-column:1/-1}
@@ -481,7 +509,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
   .art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook{padding:22px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}
   .strip{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 14px;gap:18px;white-space:nowrap;font-size:9px;scrollbar-width:none}.strip::-webkit-scrollbar{display:none}
   section.main{padding:78px 0}.grid{grid-template-columns:1fr}.info p{min-height:0}
-  .about{padding:58px 0;gap:22px}.updates{margin:72px 0;padding:30px 24px}
+  .about{padding:50px 0;gap:28px}.about-identity{gap:18px}.author-photo{width:92px;height:92px}.about h2{font-size:clamp(34px,10vw,44px);line-height:1}.about p{line-height:1.68}.updates{margin:72px 0;padding:30px 24px}
   .buy{grid-template-columns:1fr}
   footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}
 }
@@ -518,13 +546,13 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 </section>
 
 <section id="about" class="about">
-<div><p class="eyebrow">ABOUT THE AUTHOR</p><h2 id="aboutHeading"></h2></div>
+<div class="about-profile"><p class="eyebrow">ABOUT THE AUTHOR</p><div class="about-identity"><div class="author-photo-wrap" id="authorPhotoWrap"><img class="author-photo" id="aboutPhoto" alt="Author photo"></div><h2 id="aboutHeading"></h2></div></div>
 <div><p id="aboutText"></p></div>
 </section>
 
 <section id="updates" class="updates"><p class="eyebrow">STAY IN THE LOOP</p><h2 id="updatesHeading"></h2><p id="updatesText"></p></section>
 
-<footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><a class="admin-link" href="/admin">Admin</a></div></footer>
+<footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links"><a class="admin-link" href="mailto:dcunn1993@gmail.com">Contact</a><a class="admin-link" href="/admin">Admin</a></div></div></footer>
 </div>
 
 <script>
@@ -569,6 +597,13 @@ fetch("/api/site").then(r=>r.json()).then(data=>{
   document.getElementById("heroText").textContent=s.hero_text||"";
   document.getElementById("aboutHeading").textContent=s.about_heading||s.author_name||"";
   document.getElementById("aboutText").textContent=s.about_text||"";
+  const photoKey=String(s.author_photo_key||"").trim();
+  if(photoKey){
+    document.getElementById("aboutPhoto").src="/media/"+encodeURIComponent(photoKey).replace(/%2F/g,"/");
+    document.getElementById("authorPhotoWrap").style.display="block";
+  }else{
+    document.getElementById("authorPhotoWrap").style.display="none";
+  }
   document.getElementById("updatesHeading").textContent=s.updates_heading||"";
   document.getElementById("updatesText").textContent=s.updates_text||"";
   document.getElementById("footerText").textContent=s.footer_text||"";
@@ -626,7 +661,7 @@ input[type=text],input[type=url],input[type=number],input[type=password],textare
 textarea{min-height:120px;resize:vertical;line-height:1.5}input:focus,textarea:focus,select:focus{border-color:rgba(192,155,115,.65)}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:999px;padding:12px 17px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#17120f}.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}.danger{background:transparent;color:#ff9a9a;border:1px solid rgba(216,108,108,.35)}
 .bookrow{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.bookrow:last-child{border-bottom:0}.thumb{width:72px;height:105px;border-radius:8px;background:#28202d;overflow:hidden;display:grid;place-items:center;font:700 11px Georgia,serif;text-align:center;padding:8px}.thumb img{width:100%;height:100%;object-fit:cover}.bookrow strong{display:block}.bookrow small{display:block;color:var(--muted);margin-top:5px}.rowBtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.mini{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 10px;cursor:pointer}
-.check{display:flex;align-items:center;gap:8px;margin-top:26px}.check input{width:20px;height:20px}.preview{max-width:170px;border-radius:9px;margin-top:10px}
+.check{display:flex;align-items:center;gap:8px;margin-top:26px}.check input{width:20px;height:20px}.preview{max-width:170px;border-radius:9px;margin-top:10px}.authorPreview{width:130px;height:130px;object-fit:cover;border-radius:50%;border:1px solid var(--line);margin-top:12px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#ece5dd;color:#18130f;padding:12px 16px;border-radius:999px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
 hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.box{padding:20px 16px}.bookrow{grid-template-columns:58px minmax(0,1fr)}.thumb{width:58px;height:86px}.rowBtns{grid-column:1/-1;justify-content:flex-start}.check{margin-top:0}.top h1{font-size:22px}}
@@ -674,8 +709,12 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 </div>
 </section>
 
-<section class="panel" id="about"><div class="box"><h2>About</h2><p class="hint">Edit your author bio whenever you want.</p>
-<div class="grid"><div class="full"><label>Heading</label><input id="about_heading" type="text"></div><div class="full"><label>About text</label><textarea id="about_text" style="min-height:230px"></textarea></div></div>
+<section class="panel" id="about"><div class="box"><h2>About</h2><p class="hint">Edit your author bio and profile photo whenever you want.</p>
+<div class="grid">
+<div class="full"><label>Heading</label><input id="about_heading" type="text"></div>
+<div class="full"><label>Author photo</label><input id="author_photo_file" type="file" accept="image/*"><input id="author_photo_key" type="hidden"><img id="authorPhotoPreview" class="authorPreview" style="display:none" alt="Author photo preview"></div>
+<div class="full"><label>About text</label><textarea id="about_text" style="min-height:230px"></textarea></div>
+</div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save about section</button></div></div></section>
 
 <section class="panel" id="updates"><div class="box"><h2>Updates</h2><p class="hint">Control the update/newsletter area on the homepage.</p>
@@ -691,8 +730,41 @@ $("logout").onclick=async e=>{e.preventDefault();await fetch("/api/logout",{meth
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
 async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/admin";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
 async function load(){DATA=await api("/api/admin/content");fillSettings();renderBooks()}
-function fillSettings(){for(const [k,v] of Object.entries(DATA.settings||{})){if($(k))$(k).value=v}}
-async function saveSettings(){const ids=["author_name","eyebrow","hero_title","hero_text","about_heading","about_text","updates_heading","updates_text","footer_text"];const body={};ids.forEach(id=>{if($(id))body[id]=$(id).value});await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});toast("Saved");await load()}
+function fillSettings(){
+  for(const [k,v] of Object.entries(DATA.settings||{})){if($(k))$(k).value=v}
+  const key=String((DATA.settings||{}).author_photo_key||"").trim();
+  if($("author_photo_key"))$("author_photo_key").value=key;
+  if($("authorPhotoPreview")){
+    $("authorPhotoPreview").src=key?"/media/"+key:"";
+    $("authorPhotoPreview").style.display=key?"block":"none";
+  }
+  if($("author_photo_file"))$("author_photo_file").value="";
+}
+if($("author_photo_file"))$("author_photo_file").onchange=()=>{
+  const f=$("author_photo_file").files[0];
+  if(f){
+    $("authorPhotoPreview").src=URL.createObjectURL(f);
+    $("authorPhotoPreview").style.display="block";
+  }
+};
+async function saveSettings(){
+  if($("author_photo_file")){
+    const file=$("author_photo_file").files[0];
+    if(file){
+      const fd=new FormData();
+      fd.append("file",file);
+      fd.append("oldKey",$("author_photo_key").value||"");
+      const up=await api("/api/admin/upload-author-photo",{method:"POST",body:fd});
+      $("author_photo_key").value=up.photo_key||"";
+    }
+  }
+  const ids=["author_name","eyebrow","hero_title","hero_text","about_heading","about_text","author_photo_key","updates_heading","updates_text","footer_text"];
+  const body={};
+  ids.forEach(id=>{if($(id))body[id]=$(id).value});
+  await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+  toast("Saved");
+  await load();
+}
 function coverSrc(b){return b.cover_key?"/media/"+b.cover_key:b.cover_url||""}
 function renderBooks(){$("bookList").innerHTML=(DATA.books||[]).map((b,i)=>'<div class="bookrow">'+
 '<div class="thumb">'+(coverSrc(b)?'<img src="'+esc(coverSrc(b))+'">':esc(b.title))+'</div>'+
