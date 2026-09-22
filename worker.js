@@ -1,4 +1,3 @@
-
 const COOKIE_NAME = "dc1993_admin";
 
 export default {
@@ -65,6 +64,12 @@ async function ensureSchema(env) {
       hero_text: "Welcome to the official home of Dylan Cunningham. Explore current novels, upcoming releases, and purchase options as they become available.",
       about_heading: "Dylan Cunningham",
       about_text: "Dylan Cunningham writes character-driven fiction centered on people under pressure, the relationships that hold them together, and the emotional consequences that follow them home.",
+      projects_heading: "Beyond the books",
+      projects_text: "Independent technical projects built around the same thing I enjoy most: understanding complicated systems and making them work better.",
+      remnant_title: "The Remnant Suite",
+      remnant_text: "A Windows desktop application for large-scale digital media preservation and organization. I lead the product design, workflow development, quality assurance, testing, and technical systems behind the project, including databases, metadata, duplicate detection, recognition workflows, and audit logging.",
+      witness_title: "Witness Systems",
+      witness_text: "An independent IoT and security systems project focused on connecting hardware, software, networking, and device management into practical monitoring solutions. The work includes systems integration, troubleshooting, configuration, and extending the capabilities of commercial hardware.",
       updates_heading: "New books. Release dates. No noise.",
       updates_text: "Follow along for new releases, project updates, and publication news.",
       footer_text: "All rights reserved."
@@ -72,6 +77,20 @@ async function ensureSchema(env) {
 
     await env.DB.batch(
       Object.entries(defaults).map(([key, value]) =>
+        env.DB.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").bind(key, value)
+      )
+    );
+  } else {
+    const projectDefaults = {
+      projects_heading: "Beyond the books",
+      projects_text: "Independent technical projects built around the same thing I enjoy most: understanding complicated systems and making them work better.",
+      remnant_title: "The Remnant Suite",
+      remnant_text: "A Windows desktop application for large-scale digital media preservation and organization. I lead the product design, workflow development, quality assurance, testing, and technical systems behind the project, including databases, metadata, duplicate detection, recognition workflows, and audit logging.",
+      witness_title: "Witness Systems",
+      witness_text: "An independent IoT and security systems project focused on connecting hardware, software, networking, and device management into practical monitoring solutions. The work includes systems integration, troubleshooting, configuration, and extending the capabilities of commercial hardware."
+    };
+    await env.DB.batch(
+      Object.entries(projectDefaults).map(([key, value]) =>
         env.DB.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").bind(key, value)
       )
     );
@@ -181,7 +200,9 @@ async function handleApi(request, env, url) {
     const body = await request.json();
     const allowed = [
       "author_name","eyebrow","hero_title","hero_text",
-      "about_heading","about_text","author_photo_key","updates_heading","updates_text","footer_text"
+      "about_heading","about_text","author_photo_key",
+      "projects_heading","projects_text","remnant_title","remnant_text","witness_title","witness_text",
+      "updates_heading","updates_text","footer_text"
     ];
     const stmts = [];
     for (const key of allowed) {
@@ -490,6 +511,7 @@ linear-gradient(145deg,#281e2c,#120d15);position:relative;overflow:hidden}
 .badge{display:inline-flex;border:1px solid rgba(192,155,115,.35);color:var(--accent);border-radius:999px;padding:10px 13px;font-size:12px;font-weight:700}
 .buy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}.buy a{border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-decoration:none;text-align:center;font-size:12px}.buy a:hover{border-color:rgba(192,155,115,.5)}
 .about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:54px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:68px 0}.about-profile{min-width:0}.about-identity{display:flex;align-items:center;gap:24px;min-width:0}.author-photo-wrap{display:none;flex:0 0 auto}.author-photo{width:126px;height:126px;object-fit:cover;border-radius:50%;border:1px solid var(--line);box-shadow:0 18px 45px rgba(0,0,0,.28)}.about h2{font-size:clamp(38px,4.2vw,54px);line-height:1;letter-spacing:-.025em;margin:0;overflow-wrap:anywhere}.about p{color:var(--muted);line-height:1.72;white-space:pre-line}
+.projects{padding:96px 0 12px}.projects .sectionhead{margin-bottom:32px}.project-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.project-card{border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.03);padding:30px}.project-card h3{font-size:32px;margin:0 0 14px}.project-card p{color:var(--muted);line-height:1.72;margin:0}
 .updates{margin:100px 0;padding:48px;border:1px solid var(--line);border-radius:26px;background:radial-gradient(circle at 85% 20%,rgba(118,99,126,.23),transparent 22rem),var(--panel)}.updates h2{font-size:clamp(36px,4.5vw,56px);margin:0 0 14px}.updates p{color:var(--muted);line-height:1.7;max-width:760px}
 footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}
 .footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}.footer-links{display:flex;gap:14px;align-items:center}
@@ -509,7 +531,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
   .art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook{padding:22px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}
   .strip{justify-content:flex-start;overflow-x:auto;overflow-y:hidden;padding:0 14px;gap:18px;white-space:nowrap;font-size:9px;scrollbar-width:none}.strip::-webkit-scrollbar{display:none}
   section.main{padding:78px 0}.grid{grid-template-columns:1fr}.info p{min-height:0}
-  .about{padding:50px 0;gap:22px}.about-profile{width:100%}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:16px;width:100%}.author-photo-wrap{width:104px}.author-photo{width:104px;height:104px}.about h2{font-size:clamp(28px,8.2vw,36px);line-height:.98;letter-spacing:-.02em;max-width:none;overflow-wrap:normal;word-break:normal}.about p{line-height:1.68}.updates{margin:72px 0;padding:30px 24px}
+  .about{padding:50px 0;gap:22px}.about-profile{width:100%}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:16px;width:100%}.author-photo-wrap{width:104px}.author-photo{width:104px;height:104px}.about h2{font-size:clamp(28px,8.2vw,36px);line-height:.98;letter-spacing:-.02em;max-width:none;overflow-wrap:normal;word-break:normal}.about p{line-height:1.68}.projects{padding-top:70px}.project-grid{grid-template-columns:1fr}.project-card{padding:24px}.updates{margin:72px 0;padding:30px 24px}
   .buy{grid-template-columns:1fr}
   footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}
 }
@@ -520,7 +542,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 <header>
 <a class="brand" href="#"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a>
 <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
-<nav id="nav"><a href="#books">Books</a><a href="#about">About</a><a href="#updates">Updates</a></nav>
+<nav id="nav"><a href="#books">Books</a><a href="#about">About</a><a href="#projects">Projects</a><a href="#updates">Updates</a></nav>
 </header>
 
 <main>
@@ -548,6 +570,14 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 <section id="about" class="about">
 <div class="about-profile"><p class="eyebrow">ABOUT THE AUTHOR</p><div class="about-identity"><div class="author-photo-wrap" id="authorPhotoWrap"><img class="author-photo" id="aboutPhoto" alt="Author photo"></div><h2 id="aboutHeading"></h2></div></div>
 <div><p id="aboutText"></p></div>
+</section>
+
+<section id="projects" class="projects">
+<div class="sectionhead"><p class="eyebrow">PROJECTS</p><h2 id="projectsHeading"></h2><p id="projectsText"></p></div>
+<div class="project-grid">
+<article class="project-card"><p class="eyebrow">DESKTOP SOFTWARE</p><h3 id="remnantTitle"></h3><p id="remnantText"></p></article>
+<article class="project-card"><p class="eyebrow">SYSTEMS &amp; IOT</p><h3 id="witnessTitle"></h3><p id="witnessText"></p></article>
+</div>
 </section>
 
 <section id="updates" class="updates"><p class="eyebrow">STAY IN THE LOOP</p><h2 id="updatesHeading"></h2><p id="updatesText"></p></section>
@@ -604,6 +634,12 @@ fetch("/api/site").then(r=>r.json()).then(data=>{
   }else{
     document.getElementById("authorPhotoWrap").style.display="none";
   }
+  document.getElementById("projectsHeading").textContent=s.projects_heading||"Beyond the books";
+  document.getElementById("projectsText").textContent=s.projects_text||"";
+  document.getElementById("remnantTitle").textContent=s.remnant_title||"The Remnant Suite";
+  document.getElementById("remnantText").textContent=s.remnant_text||"";
+  document.getElementById("witnessTitle").textContent=s.witness_title||"Witness Systems";
+  document.getElementById("witnessText").textContent=s.witness_text||"";
   document.getElementById("updatesHeading").textContent=s.updates_heading||"";
   document.getElementById("updatesText").textContent=s.updates_text||"";
   document.getElementById("footerText").textContent=s.footer_text||"";
@@ -672,6 +708,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <button class="active" data-tab="home">Homepage</button>
 <button data-tab="books">Books</button>
 <button data-tab="about">About</button>
+<button data-tab="projects">Projects</button>
 <button data-tab="updates">Updates</button>
 </div>
 
@@ -717,6 +754,17 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 </div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save about section</button></div></div></section>
 
+<section class="panel" id="projects"><div class="box"><h2>Projects</h2><p class="hint">Edit the technical projects that appear between About and Updates.</p>
+<div class="grid">
+<div class="full"><label>Section heading</label><input id="projects_heading" type="text"></div>
+<div class="full"><label>Section introduction</label><textarea id="projects_text"></textarea></div>
+<div><label>Remnant title</label><input id="remnant_title" type="text"></div>
+<div><label>Witness title</label><input id="witness_title" type="text"></div>
+<div class="full"><label>Remnant description</label><textarea id="remnant_text" style="min-height:170px"></textarea></div>
+<div class="full"><label>Witness description</label><textarea id="witness_text" style="min-height:170px"></textarea></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="saveSettings()">Save projects</button></div></div></section>
+
 <section class="panel" id="updates"><div class="box"><h2>Updates</h2><p class="hint">Control the update/newsletter area on the homepage.</p>
 <div class="grid"><div class="full"><label>Heading</label><input id="updates_heading" type="text"></div><div class="full"><label>Text</label><textarea id="updates_text"></textarea></div></div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save updates section</button></div></div></section>
@@ -758,7 +806,7 @@ async function saveSettings(){
       $("author_photo_key").value=up.photo_key||"";
     }
   }
-  const ids=["author_name","eyebrow","hero_title","hero_text","about_heading","about_text","author_photo_key","updates_heading","updates_text","footer_text"];
+  const ids=["author_name","eyebrow","hero_title","hero_text","about_heading","about_text","author_photo_key","projects_heading","projects_text","remnant_title","remnant_text","witness_title","witness_text","updates_heading","updates_text","footer_text"];
   const body={};
   ids.forEach(id=>{if($(id))body[id]=$(id).value});
   await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
