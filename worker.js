@@ -81,7 +81,11 @@ async function ensureSchema(env) {
       home_about_heading: "Meet the author.",
       home_about_text: "Writing, software, systems, and probably a cat nearby.",
       home_books_button: "Explore the books",
+      home_books_button_url: "/books",
+      home_books_button_visible: "1",
       home_projects_button: "See my projects",
+      home_projects_button_url: "/projects",
+      home_projects_button_visible: "1",
       nav_home: "Home",
       nav_books: "Books",
       nav_projects: "Projects",
@@ -133,7 +137,11 @@ async function ensureSchema(env) {
       home_about_heading: "Meet the author.",
       home_about_text: "Writing, software, systems, and probably a cat nearby.",
       home_books_button: "Explore the books",
+      home_books_button_url: "/books",
+      home_books_button_visible: "1",
       home_projects_button: "See my projects",
+      home_projects_button_url: "/projects",
+      home_projects_button_visible: "1",
       nav_home: "Home",
       nav_books: "Books",
       nav_projects: "Projects",
@@ -272,7 +280,7 @@ async function handleApi(request, env, url) {
       "home_books_eyebrow","home_books_heading","home_books_text",
       "home_projects_eyebrow","home_projects_heading","home_projects_text",
       "home_about_eyebrow","home_about_heading","home_about_text",
-      "home_books_button","home_projects_button",
+      "home_books_button","home_books_button_url","home_books_button_visible","home_projects_button","home_projects_button_url","home_projects_button_visible",
       "nav_home","nav_books","nav_projects","nav_about","contact_email","footer_contact_label","footer_admin_label",
       "books_eyebrow","books_heading","books_text",
       "about_eyebrow","about_heading","about_text","author_photo_key",
@@ -595,7 +603,7 @@ document.getElementById("year").textContent=new Date().getFullYear();document.ge
 function mediaUrl(key){return key?"/media/"+encodeURIComponent(key).replace(/%2F/g,"/"):""}
 function coverMarkup(b,i){const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);if(src)return '<img src="'+esc(src)+'" alt="'+esc(b.title)+' cover">';return '<div class="coverplaceholder">'+esc(b.title)+'</div>'}
 function storeLinks(b){const status=String(b.status||"Coming Soon").trim();if(status.toLowerCase()==="coming soon")return '<span class="badge">Coming Soon</span>';const items=[["Paperback",b.paperback_url],["Ebook / Kindle",b.ebook_url],["Apple Books",b.apple_url],["Kobo",b.kobo_url]].filter(x=>safeUrl(x[1]));if(!items.length)return '<span class="badge">'+esc(status)+'</span>';return '<div class="buy">'+items.map(x=>'<a target="_blank" rel="noopener" href="'+esc(safeUrl(x[1]))+'">'+esc(x[0])+'</a>').join("")+'</div>'}
-fetch("/api/site").then(r=>r.json()).then(data=>{const s=data.settings||{};document.title=(routeTitle=>routeTitle+" | "+(s.author_name||"Dylan Cunningham"))("${pageTitle}");["brandName","footerName","footerName2"].forEach(id=>setText(id,s.author_name||"Dylan Cunningham"));setText("footerText",s.footer_text||"");setText("navHome",s.nav_home||"Home");setText("navBooks",s.nav_books||"Books");setText("navProjects",s.nav_projects||"Projects");setText("navAbout",s.nav_about||"About");setText("footerContactLabel",s.footer_contact_label||"Contact");setText("footerAdminLabel",s.footer_admin_label||"Admin");const contactLink=document.getElementById("contactLink");if(contactLink)contactLink.href="mailto:"+(s.contact_email||"dcunn1993@gmail.com");setText("eyebrow",s.eyebrow||"FICTION THAT STAYS WITH YOU");setText("heroTitle",s.hero_title||"");setText("heroText",s.hero_text||"");setText("homeBooksButton",s.home_books_button||"Explore the books");setText("homeProjectsButton",s.home_projects_button||"See my projects");setText("homeBooksEyebrow",s.home_books_eyebrow||"BOOKS");setText("homeBooksHeading",s.home_books_heading||"Stories that stay with you.");setText("homeBooksText",s.home_books_text||"Browse published novels and upcoming releases.");setText("homeProjectsEyebrow",s.home_projects_eyebrow||"PROJECTS");setText("homeProjectsHeading",s.home_projects_heading||"Beyond the books.");setText("homeProjectsText",s.home_projects_text||"Explore The Remnant Suite and Witness Systems.");setText("homeAboutEyebrow",s.home_about_eyebrow||"ABOUT");setText("homeAboutHeading",s.home_about_heading||"Meet the author.");setText("homeAboutText",s.home_about_text||"Writing, software, systems, and probably a cat nearby.");setText("updatesEyebrow",s.updates_eyebrow||"STAY IN THE LOOP");setText("updatesHeading",s.updates_heading||"");setText("updatesText",s.updates_text||"");setText("booksEyebrow",s.books_eyebrow||"THE BOOKS");setText("booksHeading",s.books_heading||"Choose your next story.");setText("booksText",s.books_text||"Current releases and upcoming novels from Dylan Cunningham.");setText("aboutEyebrow",s.about_eyebrow||"ABOUT THE AUTHOR");setText("projectsEyebrow",s.projects_eyebrow||"PROJECTS");setText("projectsHeading",s.projects_heading||"Beyond the books");setText("projectsText",s.projects_text||"");setText("remnantEyebrow",s.remnant_eyebrow||"DESKTOP SOFTWARE");setText("remnantTitle",s.remnant_title||"The Remnant Suite");setText("remnantText",s.remnant_text||"");setSkillTags("remnantSkills",s.remnant_skills||"");setText("witnessEyebrow",s.witness_eyebrow||"SYSTEMS & IOT");setText("witnessTitle",s.witness_title||"Witness Systems");setText("witnessText",s.witness_text||"");setSkillTags("witnessSkills",s.witness_skills||"");setText("aboutHeading",s.about_heading||s.author_name||"");setText("aboutText",s.about_text||"");
+fetch("/api/site").then(r=>r.json()).then(data=>{const s=data.settings||{};document.title=(routeTitle=>routeTitle+" | "+(s.author_name||"Dylan Cunningham"))("${pageTitle}");["brandName","footerName","footerName2"].forEach(id=>setText(id,s.author_name||"Dylan Cunningham"));setText("footerText",s.footer_text||"");setText("navHome",s.nav_home||"Home");setText("navBooks",s.nav_books||"Books");setText("navProjects",s.nav_projects||"Projects");setText("navAbout",s.nav_about||"About");setText("footerContactLabel",s.footer_contact_label||"Contact");setText("footerAdminLabel",s.footer_admin_label||"Admin");const contactLink=document.getElementById("contactLink");if(contactLink)contactLink.href="mailto:"+(s.contact_email||"dcunn1993@gmail.com");setText("eyebrow",s.eyebrow||"FICTION THAT STAYS WITH YOU");setText("heroTitle",s.hero_title||"");setText("heroText",s.hero_text||"");setText("homeBooksButton",s.home_books_button||"Explore the books");setText("homeProjectsButton",s.home_projects_button||"See my projects");const homeBooksButton=document.getElementById("homeBooksButton"),homeProjectsButton=document.getElementById("homeProjectsButton");if(homeBooksButton){homeBooksButton.href=s.home_books_button_url||"/books";homeBooksButton.style.display=String(s.home_books_button_visible??"1")==="0"?"none":""}if(homeProjectsButton){homeProjectsButton.href=s.home_projects_button_url||"/projects";homeProjectsButton.style.display=String(s.home_projects_button_visible??"1")==="0"?"none":""}setText("homeBooksEyebrow",s.home_books_eyebrow||"BOOKS");setText("homeBooksHeading",s.home_books_heading||"Stories that stay with you.");setText("homeBooksText",s.home_books_text||"Browse published novels and upcoming releases.");setText("homeProjectsEyebrow",s.home_projects_eyebrow||"PROJECTS");setText("homeProjectsHeading",s.home_projects_heading||"Beyond the books.");setText("homeProjectsText",s.home_projects_text||"Explore The Remnant Suite and Witness Systems.");setText("homeAboutEyebrow",s.home_about_eyebrow||"ABOUT");setText("homeAboutHeading",s.home_about_heading||"Meet the author.");setText("homeAboutText",s.home_about_text||"Writing, software, systems, and probably a cat nearby.");setText("updatesEyebrow",s.updates_eyebrow||"STAY IN THE LOOP");setText("updatesHeading",s.updates_heading||"");setText("updatesText",s.updates_text||"");setText("booksEyebrow",s.books_eyebrow||"THE BOOKS");setText("booksHeading",s.books_heading||"Choose your next story.");setText("booksText",s.books_text||"Current releases and upcoming novels from Dylan Cunningham.");setText("aboutEyebrow",s.about_eyebrow||"ABOUT THE AUTHOR");setText("projectsEyebrow",s.projects_eyebrow||"PROJECTS");setText("projectsHeading",s.projects_heading||"Beyond the books");setText("projectsText",s.projects_text||"");setText("remnantEyebrow",s.remnant_eyebrow||"DESKTOP SOFTWARE");setText("remnantTitle",s.remnant_title||"The Remnant Suite");setText("remnantText",s.remnant_text||"");setSkillTags("remnantSkills",s.remnant_skills||"");setText("witnessEyebrow",s.witness_eyebrow||"SYSTEMS & IOT");setText("witnessTitle",s.witness_title||"Witness Systems");setText("witnessText",s.witness_text||"");setSkillTags("witnessSkills",s.witness_skills||"");setText("aboutHeading",s.about_heading||s.author_name||"");setText("aboutText",s.about_text||"");
 const photoKey=String(s.author_photo_key||"").trim(),photo=document.getElementById("aboutPhoto"),photoWrap=document.getElementById("authorPhotoWrap");if(photo&&photoWrap&&photoKey){photo.src=mediaUrl(photoKey);photoWrap.style.display="block"}
 [["remnantImage","remnant_image_key"],["witnessImage","witness_image_key"]].forEach(([id,key])=>{const img=document.getElementById(id);if(img){const src=mediaUrl(String(s[key]||"").trim());img.src=src;if(!src){const wrap=img.closest(".project-image");if(wrap)wrap.style.display="none"}}});
 const books=data.books||[],hero=document.getElementById("heroBooks");if(hero){const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);if(heroCovers.length)hero.innerHTML=heroCovers.map(b=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">'}).join("")}
@@ -669,7 +677,11 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <div><label>About card heading</label><input id="home_about_heading" type="text"></div>
 <div class="full"><label>About card text</label><textarea id="home_about_text"></textarea></div>
 <div><label>Primary button text</label><input id="home_books_button" type="text"></div>
+<div><label>Primary button destination</label><input id="home_books_button_url" type="text" placeholder="/books or https://..."></div>
+<div class="full"><label class="check"><input id="home_books_button_visible" type="checkbox"> Show primary button</label></div>
 <div><label>Secondary button text</label><input id="home_projects_button" type="text"></div>
+<div><label>Secondary button destination</label><input id="home_projects_button_url" type="text" placeholder="/projects or https://..."></div>
+<div class="full"><label class="check"><input id="home_projects_button_visible" type="checkbox"> Show secondary button</label></div>
 <div class="full"><hr><h2 style="font-size:24px">Site-wide labels</h2><p class="hint">Edit navigation, contact information, and footer labels.</p></div>
 <div><label>Home nav label</label><input id="nav_home" type="text"></div>
 <div><label>Books nav label</label><input id="nav_books" type="text"></div>
@@ -752,7 +764,8 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");set
 async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/admin";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
 async function load(){DATA=await api("/api/admin/content");fillSettings();renderBooks()}
 function fillSettings(){
-  for(const [k,v] of Object.entries(DATA.settings||{})){if($(k))$(k).value=v}
+  for(const [k,v] of Object.entries(DATA.settings||{})){if($(k)&&$(k).type!=="checkbox")$(k).value=v}
+  ["home_books_button_visible","home_projects_button_visible"].forEach(id=>{if($(id))$(id).checked=String((DATA.settings||{})[id]??"1")!=="0"});
   const key=String((DATA.settings||{}).author_photo_key||"").trim();
   if($("author_photo_key"))$("author_photo_key").value=key;
   if($("authorPhotoPreview")){
@@ -800,9 +813,9 @@ async function saveSettings(){
       $(name+"_image_key").value=up.image_key||"";
     }
   }
-  const ids=["author_name","eyebrow","hero_title","hero_text","home_books_eyebrow","home_books_heading","home_books_text","home_projects_eyebrow","home_projects_heading","home_projects_text","home_about_eyebrow","home_about_heading","home_about_text","home_books_button","home_projects_button","nav_home","nav_books","nav_projects","nav_about","contact_email","footer_contact_label","footer_admin_label","books_eyebrow","books_heading","books_text","about_eyebrow","about_heading","about_text","author_photo_key","projects_eyebrow","projects_heading","projects_text","remnant_eyebrow","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_eyebrow","witness_title","witness_image_key","witness_text","witness_skills","updates_eyebrow","updates_heading","updates_text","footer_text"];
+  const ids=["author_name","eyebrow","hero_title","hero_text","home_books_eyebrow","home_books_heading","home_books_text","home_projects_eyebrow","home_projects_heading","home_projects_text","home_about_eyebrow","home_about_heading","home_about_text","home_books_button","home_books_button_url","home_books_button_visible","home_projects_button","home_projects_button_url","home_projects_button_visible","nav_home","nav_books","nav_projects","nav_about","contact_email","footer_contact_label","footer_admin_label","books_eyebrow","books_heading","books_text","about_eyebrow","about_heading","about_text","author_photo_key","projects_eyebrow","projects_heading","projects_text","remnant_eyebrow","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_eyebrow","witness_title","witness_image_key","witness_text","witness_skills","updates_eyebrow","updates_heading","updates_text","footer_text"];
   const body={};
-  ids.forEach(id=>{if($(id))body[id]=$(id).value});
+  ids.forEach(id=>{if(!$(id))return;body[id]=$(id).type==="checkbox"?($(id).checked?"1":"0"):$(id).value});
   await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
   toast("Saved");
   await load();
