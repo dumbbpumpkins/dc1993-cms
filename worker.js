@@ -9,6 +9,15 @@ export default {
         return handleApi(request, env, url);
       }
 
+      if (url.pathname === "/favicon.svg") {
+        return new Response(faviconSvg(), {
+          headers: {
+            "content-type": "image/svg+xml; charset=utf-8",
+            "cache-control": "public, max-age=86400"
+          }
+        });
+      }
+
       if (url.pathname.startsWith("/media/")) {
         return handleMedia(request, env, url);
       }
@@ -71,14 +80,32 @@ async function ensureSchema(env) {
       home_about_eyebrow: "ABOUT",
       home_about_heading: "Meet the author.",
       home_about_text: "Writing, software, systems, and probably a cat nearby.",
+      home_books_button: "Explore the books",
+      home_projects_button: "See my projects",
+      nav_home: "Home",
+      nav_books: "Books",
+      nav_projects: "Projects",
+      nav_about: "About",
+      contact_email: "dcunn1993@gmail.com",
+      footer_contact_label: "Contact",
+      footer_admin_label: "Admin",
+      books_eyebrow: "THE BOOKS",
+      books_heading: "Choose your next story.",
+      books_text: "Current releases and upcoming novels from Dylan Cunningham.",
+      about_eyebrow: "ABOUT THE AUTHOR",
       about_heading: "Dylan Cunningham",
       about_text: "Dylan Cunningham writes character-driven fiction centered on people under pressure, the relationships that hold them together, and the emotional consequences that follow them home.",
+      projects_eyebrow: "PROJECTS",
       projects_heading: "Beyond the books",
       projects_text: "Independent technical projects built around the same thing I enjoy most: understanding complicated systems and making them work better.",
+      remnant_eyebrow: "DESKTOP SOFTWARE",
+      remnant_eyebrow: "DESKTOP SOFTWARE",
       remnant_title: "The Remnant Suite",
       remnant_image_key: "",
       remnant_text: "A Windows desktop application for large-scale digital media preservation and organization. I lead the product design, workflow development, quality assurance, testing, and technical systems behind the project, including databases, metadata, duplicate detection, recognition workflows, and audit logging.",
       remnant_skills: "",
+      witness_eyebrow: "SYSTEMS & IOT",
+      witness_eyebrow: "SYSTEMS & IOT",
       witness_title: "Witness Systems",
       witness_image_key: "",
       witness_text: "An independent IoT and security systems project focused on connecting hardware, software, networking, and device management into practical monitoring solutions. The work includes systems integration, troubleshooting, configuration, and extending the capabilities of commercial hardware.",
@@ -105,7 +132,21 @@ async function ensureSchema(env) {
       home_about_eyebrow: "ABOUT",
       home_about_heading: "Meet the author.",
       home_about_text: "Writing, software, systems, and probably a cat nearby.",
+      home_books_button: "Explore the books",
+      home_projects_button: "See my projects",
+      nav_home: "Home",
+      nav_books: "Books",
+      nav_projects: "Projects",
+      nav_about: "About",
+      contact_email: "dcunn1993@gmail.com",
+      footer_contact_label: "Contact",
+      footer_admin_label: "Admin",
+      books_eyebrow: "THE BOOKS",
+      books_heading: "Choose your next story.",
+      books_text: "Current releases and upcoming novels from Dylan Cunningham.",
+      about_eyebrow: "ABOUT THE AUTHOR",
       updates_eyebrow: "STAY IN THE LOOP",
+      projects_eyebrow: "PROJECTS",
       projects_heading: "Beyond the books",
       projects_text: "Independent technical projects built around the same thing I enjoy most: understanding complicated systems and making them work better.",
       remnant_title: "The Remnant Suite",
@@ -231,8 +272,11 @@ async function handleApi(request, env, url) {
       "home_books_eyebrow","home_books_heading","home_books_text",
       "home_projects_eyebrow","home_projects_heading","home_projects_text",
       "home_about_eyebrow","home_about_heading","home_about_text",
-      "about_heading","about_text","author_photo_key",
-      "projects_heading","projects_text","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_title","witness_image_key","witness_text","witness_skills",
+      "home_books_button","home_projects_button",
+      "nav_home","nav_books","nav_projects","nav_about","contact_email","footer_contact_label","footer_admin_label",
+      "books_eyebrow","books_heading","books_text",
+      "about_eyebrow","about_heading","about_text","author_photo_key",
+      "projects_eyebrow","projects_heading","projects_text","remnant_eyebrow","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_eyebrow","witness_title","witness_image_key","witness_text","witness_skills",
       "updates_eyebrow","updates_heading","updates_text","footer_text"
     ];
     const stmts = [];
@@ -505,24 +549,28 @@ function html(body) {
   });
 }
 
+function faviconSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">\n  <rect width="64" height="64" rx="16" fill="#11100f"/>\n  <circle cx="32" cy="32" r="24" fill="none" stroke="#3a342f" stroke-width="2"/>\n  <text x="32" y="40" text-anchor="middle" font-family="Georgia,serif" font-size="25" fill="#c09b73">DC</text>\n</svg>`;
+}
+
 function publicPage(pathname = "/") {
   const route = ["/", "/books", "/projects", "/about"].includes(pathname) ? pathname : "/";
   const pageTitle = route === "/books" ? "Books" : route === "/projects" ? "Projects" : route === "/about" ? "About" : "Home";
   const body = route === "/books" ? `
-<section class="page-hero compact"><p class="eyebrow">THE BOOKS</p><h1>Choose your next story.</h1><p class="lead">Current releases and upcoming novels from Dylan Cunningham.</p></section>
+<section class="page-hero compact"><p class="eyebrow" id="booksEyebrow">THE BOOKS</p><h1 id="booksHeading">Choose your next story.</h1><p class="lead" id="booksText">Current releases and upcoming novels from Dylan Cunningham.</p></section>
 <section class="main"><div class="grid" id="bookGrid"><div class="empty">Loading books…</div></div></section>` : route === "/projects" ? `
-<section class="page-hero compact"><p class="eyebrow">PROJECTS</p><h1 id="projectsHeading">Beyond the books</h1><p class="lead" id="projectsText"></p></section>
+<section class="page-hero compact"><p class="eyebrow" id="projectsEyebrow">PROJECTS</p><h1 id="projectsHeading">Beyond the books</h1><p class="lead" id="projectsText"></p></section>
 <section class="project-page-grid">
-<article class="project-card large"><div class="project-image" id="remnantImageWrap"><img id="remnantImage" alt="The Remnant Suite project image"></div><div class="project-copy"><p class="eyebrow">DESKTOP SOFTWARE</p><h2 id="remnantTitle"></h2><p id="remnantText"></p><div class="skill-tags" id="remnantSkills"></div></div></article>
-<article class="project-card large"><div class="project-image" id="witnessImageWrap"><img id="witnessImage" alt="Witness Systems project image"></div><div class="project-copy"><p class="eyebrow">SYSTEMS &amp; IOT</p><h2 id="witnessTitle"></h2><p id="witnessText"></p><div class="skill-tags" id="witnessSkills"></div></div></article>
+<article class="project-card large"><div class="project-image" id="remnantImageWrap"><img id="remnantImage" alt="The Remnant Suite project image"></div><div class="project-copy"><p class="eyebrow" id="remnantEyebrow">DESKTOP SOFTWARE</p><h2 id="remnantTitle"></h2><p id="remnantText"></p><div class="skill-tags" id="remnantSkills"></div></div></article>
+<article class="project-card large"><div class="project-image" id="witnessImageWrap"><img id="witnessImage" alt="Witness Systems project image"></div><div class="project-copy"><p class="eyebrow" id="witnessEyebrow">SYSTEMS &amp; IOT</p><h2 id="witnessTitle"></h2><p id="witnessText"></p><div class="skill-tags" id="witnessSkills"></div></div></article>
 </section>` : route === "/about" ? `
-<section class="about-page"><div class="about-profile"><p class="eyebrow">ABOUT THE AUTHOR</p><div class="about-identity"><div class="author-photo-wrap" id="authorPhotoWrap"><img class="author-photo" id="aboutPhoto" alt="Author photo"></div><h1 id="aboutHeading"></h1></div></div><div class="about-copy"><p id="aboutText"></p></div></section>` : `
-<section class="hero"><div class="copy"><p class="eyebrow" id="eyebrow">FICTION THAT STAYS WITH YOU</p><h1 id="heroTitle">Stories about love, loss, memory, and the places we call home.</h1><p class="lead" id="heroText"></p><div class="actions"><a class="btn primary" href="/books">Explore the books</a><a class="btn secondary" href="/projects">See my projects</a></div></div><div class="art" aria-hidden="true"><div class="book-fan" id="heroBooks"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div></div></section>
+<section class="about-page"><div class="about-profile"><p class="eyebrow" id="aboutEyebrow">ABOUT THE AUTHOR</p><div class="about-identity"><div class="author-photo-wrap" id="authorPhotoWrap"><img class="author-photo" id="aboutPhoto" alt="Author photo"></div><h1 id="aboutHeading"></h1></div></div><div class="about-copy"><p id="aboutText"></p></div></section>` : `
+<section class="hero"><div class="copy"><p class="eyebrow" id="eyebrow">FICTION THAT STAYS WITH YOU</p><h1 id="heroTitle">Stories about love, loss, memory, and the places we call home.</h1><p class="lead" id="heroText"></p><div class="actions"><a class="btn primary" id="homeBooksButton" href="/books">Explore the books</a><a class="btn secondary" id="homeProjectsButton" href="/projects">See my projects</a></div></div><div class="art" aria-hidden="true"><div class="book-fan" id="heroBooks"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div></div></section>
 <section class="home-links"><a href="/books"><span class="eyebrow" id="homeBooksEyebrow">BOOKS</span><h2 id="homeBooksHeading">Stories that stay with you.</h2><p id="homeBooksText">Browse published novels and upcoming releases.</p></a><a href="/projects"><span class="eyebrow" id="homeProjectsEyebrow">PROJECTS</span><h2 id="homeProjectsHeading">Beyond the books.</h2><p id="homeProjectsText">Explore The Remnant Suite and Witness Systems.</p></a><a href="/about"><span class="eyebrow" id="homeAboutEyebrow">ABOUT</span><h2 id="homeAboutHeading">Meet the author.</h2><p id="homeAboutText">Writing, software, systems, and probably a cat nearby.</p></a></section>
 <section class="updates"><p class="eyebrow" id="updatesEyebrow">STAY IN THE LOOP</p><h2 id="updatesHeading"></h2><p id="updatesText"></p></section>`;
 
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><meta name="description" content="Official website of author and developer Dylan Cunningham."><title>${pageTitle} | Dylan Cunningham</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><meta name="description" content="Official website of author and developer Dylan Cunningham."><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${pageTitle} | Dylan Cunningham</title>
 <style>
 :root{--bg:#11100f;--panel:#1c1916;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--accent2:#76637e;--line:rgba(255,255,255,.10);--max:1180px}
 *{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}body{margin:0;background:radial-gradient(circle at 88% 8%,rgba(118,99,126,.16),transparent 28rem),radial-gradient(circle at 8% 4%,rgba(192,155,115,.10),transparent 24rem),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}img{display:block;max-width:100%}a{color:inherit}.wrap{width:min(var(--max),calc(100% - 36px));margin:auto}
@@ -537,7 +585,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);f
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:56px;gap:20px}.art{min-height:440px}.grid{grid-template-columns:1fr 1fr}.home-links{grid-template-columns:1fr}.page-hero.compact h1{font-size:clamp(40px,7.5vw,60px)}.project-card.large{grid-template-columns:1fr}.project-copy h2{font-size:clamp(34px,6.5vw,46px)}.about-page{grid-template-columns:1fr;gap:20px}.about-page h1{font-size:clamp(38px,6.5vw,52px)}}
 @media(max-width:620px){.wrap{width:min(100% - 28px,var(--max))}header{height:78px}.brand span:last-child{font-size:20px;max-width:210px}nav{display:none;position:absolute;top:78px;left:14px;right:14px;background:#171411;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:50;flex-direction:column}.menu{display:block}nav.open{display:flex}.hero{min-height:auto;padding:54px 0 66px;gap:22px}h1{font-size:clamp(36px,10.2vw,48px);line-height:1.02}.lead{font-size:16px}.actions{display:grid;grid-template-columns:1fr}.actions .btn{width:100%}.art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}.grid{grid-template-columns:1fr}.info h3{font-size:27px;line-height:1.06}.info p{min-height:0}.buy{grid-template-columns:repeat(2,minmax(0,1fr))}.buy a{padding:11px 8px}.page-hero{padding:66px 0 34px}.page-hero.compact h1{font-size:clamp(36px,10vw,46px)}.home-links h2{font-size:28px}.project-copy{padding:28px 22px}.project-copy h2{font-size:clamp(34px,9vw,43px);line-height:1.04}.project-image,.project-image img{min-height:230px}.about-page{padding:68px 0 90px}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px}.author-photo{width:104px;height:104px}.about-page h1{font-size:clamp(32px,8.8vw,41px);line-height:1.02}.about-copy p{margin-top:20px}.updates{margin:52px 0 76px;padding:30px 24px}.updates h2{font-size:clamp(32px,9vw,44px)}footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}}
 </style></head>
-<body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a href="/" ${route==="/"?'class="active"':''}>Home</a><a href="/books" ${route==="/books"?'class="active"':''}>Books</a><a href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a href="/about" ${route==="/about"?'class="active"':''}>About</a></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links"><a class="admin-link" href="mailto:dcunn1993@gmail.com">Contact</a><a class="admin-link" href="/admin">Admin</a></div></div></footer></div>
+<body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a id="navHome" href="/" ${route==="/"?'class="active"':''}>Home</a><a id="navBooks" href="/books" ${route==="/books"?'class="active"':''}>Books</a><a id="navProjects" href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a id="navAbout" href="/about" ${route==="/about"?'class="active"':''}>About</a></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links"><a class="admin-link" id="contactLink" href="mailto:dcunn1993@gmail.com"><span id="footerContactLabel">Contact</span></a><a class="admin-link" href="/admin"><span id="footerAdminLabel">Admin</span></a></div></div></footer></div>
 <script>
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const safeUrl=u=>{const raw=String(u??"").trim();if(!raw||raw==="#"||raw.toLowerCase()==="javascript:void(0)")return"";try{const x=new URL(raw,location.origin);if(!["http:","https:"].includes(x.protocol))return"";return x.href}catch{return""}};
@@ -547,7 +595,7 @@ document.getElementById("year").textContent=new Date().getFullYear();document.ge
 function mediaUrl(key){return key?"/media/"+encodeURIComponent(key).replace(/%2F/g,"/"):""}
 function coverMarkup(b,i){const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);if(src)return '<img src="'+esc(src)+'" alt="'+esc(b.title)+' cover">';return '<div class="coverplaceholder">'+esc(b.title)+'</div>'}
 function storeLinks(b){const status=String(b.status||"Coming Soon").trim();if(status.toLowerCase()==="coming soon")return '<span class="badge">Coming Soon</span>';const items=[["Paperback",b.paperback_url],["Ebook / Kindle",b.ebook_url],["Apple Books",b.apple_url],["Kobo",b.kobo_url]].filter(x=>safeUrl(x[1]));if(!items.length)return '<span class="badge">'+esc(status)+'</span>';return '<div class="buy">'+items.map(x=>'<a target="_blank" rel="noopener" href="'+esc(safeUrl(x[1]))+'">'+esc(x[0])+'</a>').join("")+'</div>'}
-fetch("/api/site").then(r=>r.json()).then(data=>{const s=data.settings||{};document.title=(routeTitle=>routeTitle+" | "+(s.author_name||"Dylan Cunningham"))("${pageTitle}");["brandName","footerName","footerName2"].forEach(id=>setText(id,s.author_name||"Dylan Cunningham"));setText("footerText",s.footer_text||"");setText("eyebrow",s.eyebrow||"FICTION THAT STAYS WITH YOU");setText("heroTitle",s.hero_title||"");setText("heroText",s.hero_text||"");setText("homeBooksEyebrow",s.home_books_eyebrow||"BOOKS");setText("homeBooksHeading",s.home_books_heading||"Stories that stay with you.");setText("homeBooksText",s.home_books_text||"Browse published novels and upcoming releases.");setText("homeProjectsEyebrow",s.home_projects_eyebrow||"PROJECTS");setText("homeProjectsHeading",s.home_projects_heading||"Beyond the books.");setText("homeProjectsText",s.home_projects_text||"Explore The Remnant Suite and Witness Systems.");setText("homeAboutEyebrow",s.home_about_eyebrow||"ABOUT");setText("homeAboutHeading",s.home_about_heading||"Meet the author.");setText("homeAboutText",s.home_about_text||"Writing, software, systems, and probably a cat nearby.");setText("updatesEyebrow",s.updates_eyebrow||"STAY IN THE LOOP");setText("updatesHeading",s.updates_heading||"");setText("updatesText",s.updates_text||"");setText("projectsHeading",s.projects_heading||"Beyond the books");setText("projectsText",s.projects_text||"");setText("remnantTitle",s.remnant_title||"The Remnant Suite");setText("remnantText",s.remnant_text||"");setSkillTags("remnantSkills",s.remnant_skills||"");setText("witnessTitle",s.witness_title||"Witness Systems");setText("witnessText",s.witness_text||"");setSkillTags("witnessSkills",s.witness_skills||"");setText("aboutHeading",s.about_heading||s.author_name||"");setText("aboutText",s.about_text||"");
+fetch("/api/site").then(r=>r.json()).then(data=>{const s=data.settings||{};document.title=(routeTitle=>routeTitle+" | "+(s.author_name||"Dylan Cunningham"))("${pageTitle}");["brandName","footerName","footerName2"].forEach(id=>setText(id,s.author_name||"Dylan Cunningham"));setText("footerText",s.footer_text||"");setText("navHome",s.nav_home||"Home");setText("navBooks",s.nav_books||"Books");setText("navProjects",s.nav_projects||"Projects");setText("navAbout",s.nav_about||"About");setText("footerContactLabel",s.footer_contact_label||"Contact");setText("footerAdminLabel",s.footer_admin_label||"Admin");const contactLink=document.getElementById("contactLink");if(contactLink)contactLink.href="mailto:"+(s.contact_email||"dcunn1993@gmail.com");setText("eyebrow",s.eyebrow||"FICTION THAT STAYS WITH YOU");setText("heroTitle",s.hero_title||"");setText("heroText",s.hero_text||"");setText("homeBooksButton",s.home_books_button||"Explore the books");setText("homeProjectsButton",s.home_projects_button||"See my projects");setText("homeBooksEyebrow",s.home_books_eyebrow||"BOOKS");setText("homeBooksHeading",s.home_books_heading||"Stories that stay with you.");setText("homeBooksText",s.home_books_text||"Browse published novels and upcoming releases.");setText("homeProjectsEyebrow",s.home_projects_eyebrow||"PROJECTS");setText("homeProjectsHeading",s.home_projects_heading||"Beyond the books.");setText("homeProjectsText",s.home_projects_text||"Explore The Remnant Suite and Witness Systems.");setText("homeAboutEyebrow",s.home_about_eyebrow||"ABOUT");setText("homeAboutHeading",s.home_about_heading||"Meet the author.");setText("homeAboutText",s.home_about_text||"Writing, software, systems, and probably a cat nearby.");setText("updatesEyebrow",s.updates_eyebrow||"STAY IN THE LOOP");setText("updatesHeading",s.updates_heading||"");setText("updatesText",s.updates_text||"");setText("booksEyebrow",s.books_eyebrow||"THE BOOKS");setText("booksHeading",s.books_heading||"Choose your next story.");setText("booksText",s.books_text||"Current releases and upcoming novels from Dylan Cunningham.");setText("aboutEyebrow",s.about_eyebrow||"ABOUT THE AUTHOR");setText("projectsEyebrow",s.projects_eyebrow||"PROJECTS");setText("projectsHeading",s.projects_heading||"Beyond the books");setText("projectsText",s.projects_text||"");setText("remnantEyebrow",s.remnant_eyebrow||"DESKTOP SOFTWARE");setText("remnantTitle",s.remnant_title||"The Remnant Suite");setText("remnantText",s.remnant_text||"");setSkillTags("remnantSkills",s.remnant_skills||"");setText("witnessEyebrow",s.witness_eyebrow||"SYSTEMS & IOT");setText("witnessTitle",s.witness_title||"Witness Systems");setText("witnessText",s.witness_text||"");setSkillTags("witnessSkills",s.witness_skills||"");setText("aboutHeading",s.about_heading||s.author_name||"");setText("aboutText",s.about_text||"");
 const photoKey=String(s.author_photo_key||"").trim(),photo=document.getElementById("aboutPhoto"),photoWrap=document.getElementById("authorPhotoWrap");if(photo&&photoWrap&&photoKey){photo.src=mediaUrl(photoKey);photoWrap.style.display="block"}
 [["remnantImage","remnant_image_key"],["witnessImage","witness_image_key"]].forEach(([id,key])=>{const img=document.getElementById(id);if(img){const src=mediaUrl(String(s[key]||"").trim());img.src=src;if(!src){const wrap=img.closest(".project-image");if(wrap)wrap.style.display="none"}}});
 const books=data.books||[],hero=document.getElementById("heroBooks");if(hero){const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);if(heroCovers.length)hero.innerHTML=heroCovers.map(b=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">'}).join("")}
@@ -557,7 +605,7 @@ const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.leng
 
 function loginPage() {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DC1993 Admin</title><style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>DC1993 Admin</title><style>
 *{box-sizing:border-box}body{margin:0;background:#11100f;color:#f2eee9;font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}
 .card{width:min(430px,100%);background:#1c1916;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:30px}
 h1{font-family:Georgia,serif;font-size:40px;margin:0 0 8px}.sub{color:#aaa198;line-height:1.6;margin-bottom:24px}
@@ -572,7 +620,7 @@ button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;back
 function adminPage() {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DC1993 Admin</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>DC1993 Admin</title>
 <style>
 :root{--bg:#11100f;--panel:#1c1916;--panel2:#24201c;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--line:rgba(255,255,255,.11);--danger:#d86c6c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
@@ -620,11 +668,27 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <div><label>About card small heading</label><input id="home_about_eyebrow" type="text"></div>
 <div><label>About card heading</label><input id="home_about_heading" type="text"></div>
 <div class="full"><label>About card text</label><textarea id="home_about_text"></textarea></div>
+<div><label>Primary button text</label><input id="home_books_button" type="text"></div>
+<div><label>Secondary button text</label><input id="home_projects_button" type="text"></div>
+<div class="full"><hr><h2 style="font-size:24px">Site-wide labels</h2><p class="hint">Edit navigation, contact information, and footer labels.</p></div>
+<div><label>Home nav label</label><input id="nav_home" type="text"></div>
+<div><label>Books nav label</label><input id="nav_books" type="text"></div>
+<div><label>Projects nav label</label><input id="nav_projects" type="text"></div>
+<div><label>About nav label</label><input id="nav_about" type="text"></div>
+<div class="full"><label>Contact email</label><input id="contact_email" type="text"></div>
+<div><label>Contact link label</label><input id="footer_contact_label" type="text"></div>
+<div><label>Admin link label</label><input id="footer_admin_label" type="text"></div>
 <div class="full"><label>Footer text</label><input id="footer_text" type="text"></div>
 </div><div class="actions"><button class="btn primary" onclick="saveSettings()">Save homepage</button></div></div>
 </section>
 
 <section class="panel" id="books">
+<div class="box"><h2>Books page</h2><p class="hint">Edit the wording shown above your book list.</p>
+<div class="grid">
+<div class="full"><label>Small heading</label><input id="books_eyebrow" type="text"></div>
+<div class="full"><label>Page heading</label><input id="books_heading" type="text"></div>
+<div class="full"><label>Subheader / intro text</label><textarea id="books_text"></textarea></div>
+</div><div class="actions"><button class="btn primary" onclick="saveSettings()">Save books page text</button></div></div>
 <div class="box"><h2>Books</h2><p class="hint">Add, edit, hide, reorder, and attach purchase links. Cover uploads go straight to Cloudflare R2.</p>
 <div id="bookList"></div><div class="actions"><button class="btn primary" onclick="newBook()">+ Add book</button></div></div>
 <div class="box" id="editor" style="display:none"><h2 id="editorTitle">Book</h2><div class="grid">
@@ -649,6 +713,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 
 <section class="panel" id="about"><div class="box"><h2>About</h2><p class="hint">Edit your author bio and profile photo whenever you want.</p>
 <div class="grid">
+<div class="full"><label>Small heading</label><input id="about_eyebrow" type="text"></div>
 <div class="full"><label>Heading</label><input id="about_heading" type="text"></div>
 <div class="full"><label>Author photo</label><input id="author_photo_file" type="file" accept="image/*"><input id="author_photo_key" type="hidden"><img id="authorPhotoPreview" class="authorPreview" style="display:none" alt="Author photo preview"></div>
 <div class="full"><label>About text</label><textarea id="about_text" style="min-height:230px"></textarea></div>
@@ -657,8 +722,11 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 
 <section class="panel" id="projects"><div class="box"><h2>Projects</h2><p class="hint">Edit the dedicated Projects page and upload a showcase image for each program.</p>
 <div class="grid">
+<div class="full"><label>Small heading</label><input id="projects_eyebrow" type="text"></div>
 <div class="full"><label>Page heading</label><input id="projects_heading" type="text"></div>
 <div class="full"><label>Page introduction</label><textarea id="projects_text"></textarea></div>
+<div><label>Remnant category label</label><input id="remnant_eyebrow" type="text"></div>
+<div><label>Witness category label</label><input id="witness_eyebrow" type="text"></div>
 <div><label>Remnant title</label><input id="remnant_title" type="text"></div>
 <div><label>Witness title</label><input id="witness_title" type="text"></div>
 <div class="full"><label>Remnant showcase image</label><input id="remnant_image_file" type="file" accept="image/*"><input id="remnant_image_key" type="hidden"><img id="remnantImagePreview" class="projectPreview" style="display:none" alt="Remnant project image preview"></div>
@@ -732,7 +800,7 @@ async function saveSettings(){
       $(name+"_image_key").value=up.image_key||"";
     }
   }
-  const ids=["author_name","eyebrow","hero_title","hero_text","home_books_eyebrow","home_books_heading","home_books_text","home_projects_eyebrow","home_projects_heading","home_projects_text","home_about_eyebrow","home_about_heading","home_about_text","about_heading","about_text","author_photo_key","projects_heading","projects_text","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_title","witness_image_key","witness_text","witness_skills","updates_eyebrow","updates_heading","updates_text","footer_text"];
+  const ids=["author_name","eyebrow","hero_title","hero_text","home_books_eyebrow","home_books_heading","home_books_text","home_projects_eyebrow","home_projects_heading","home_projects_text","home_about_eyebrow","home_about_heading","home_about_text","home_books_button","home_projects_button","nav_home","nav_books","nav_projects","nav_about","contact_email","footer_contact_label","footer_admin_label","books_eyebrow","books_heading","books_text","about_eyebrow","about_heading","about_text","author_photo_key","projects_eyebrow","projects_heading","projects_text","remnant_eyebrow","remnant_title","remnant_image_key","remnant_text","remnant_skills","witness_eyebrow","witness_title","witness_image_key","witness_text","witness_skills","updates_eyebrow","updates_heading","updates_text","footer_text"];
   const body={};
   ids.forEach(id=>{if($(id))body[id]=$(id).value});
   await api("/api/admin/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
