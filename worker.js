@@ -696,34 +696,22 @@ h1{
   border-color:rgba(208,165,110,.38);
   background:rgba(208,165,110,.055);
 }
-.home-links{gap:18px}
+.home-links{gap:22px}
 .home-links a{
-  position:relative;
-  border-radius:20px;
-  padding:34px 32px;
-  border-color:rgba(236,220,203,.12);
-  background:
-    linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),
-    rgba(20,17,20,.72);
-  box-shadow:0 18px 44px rgba(0,0,0,.12);
-  transition:transform .2s ease,border-color .2s ease,background .2s ease;
+  display:block;
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:30px;
+  background:rgba(255,255,255,.025);
+  box-shadow:none;
+  transition:none;
 }
-.home-links a:before{
-  content:"";
-  position:absolute;
-  left:31px;
-  top:0;
-  width:42px;
-  height:1px;
-  background:var(--accent);
-  opacity:.72;
-}
+.home-links a:before{content:none}
 .home-links a:hover{
-  transform:translateY(-3px);
-  border-color:rgba(208,165,110,.28);
-  background:
-    linear-gradient(145deg,rgba(208,165,110,.05),rgba(255,255,255,.014)),
-    rgba(20,17,20,.82);
+  transform:none;
+  border-color:var(--line);
+  background:rgba(255,255,255,.025);
 }
 .home-links h2{font-weight:500}
 .card,.project-card.large,.instagram-feature{
@@ -778,8 +766,6 @@ footer{border-top-color:rgba(208,165,110,.18)}
 @media(max-width:620px){
   header{height:78px}
   .hero{padding-top:58px;padding-bottom:72px}
-  .home-links a{padding:29px 26px}
-  .home-links a:before{left:25px}
   .page-hero{padding-top:72px}
 }
 </style></head>
