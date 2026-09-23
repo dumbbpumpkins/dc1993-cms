@@ -610,8 +610,28 @@ function publicPage(pathname = "/") {
 <article class="project-card large"><div class="project-image" id="witnessImageWrap"><img id="witnessImage" alt="Witness Systems project image"></div><div class="project-copy"><p class="eyebrow" id="witnessEyebrow">SYSTEMS &amp; IOT</p><h2 id="witnessTitle"></h2><p id="witnessText"></p><div class="skill-tags" id="witnessSkills"></div></div></article>
 </section>` : route === "/about" ? `
 <section class="about-page"><div class="about-profile"><p class="eyebrow" id="aboutEyebrow">ABOUT THE AUTHOR</p><div class="about-identity"><div class="author-photo-wrap" id="authorPhotoWrap"><img class="author-photo" id="aboutPhoto" alt="Author photo"></div><h1 id="aboutHeading"></h1></div></div><div class="about-copy"><p id="aboutText"></p></div></section>` : `
-<section class="hero"><div class="copy"><p class="eyebrow" id="eyebrow">FICTION THAT STAYS WITH YOU</p><h1 id="heroTitle">Stories about love, loss, memory, and the places we call home.</h1><p class="lead" id="heroText"></p><div class="actions"><a class="btn primary" id="homeBooksButton" href="/books">Explore the books</a><a class="btn secondary" id="homeProjectsButton" href="/projects">See my projects</a></div></div><div class="art" aria-hidden="true"><div class="book-fan" id="heroBooks"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div></div></section>
-<section class="home-links"><a href="/books"><span class="eyebrow" id="homeBooksEyebrow">BOOKS</span><h2 id="homeBooksHeading">Stories that stay with you.</h2><p id="homeBooksText">Browse published novels and upcoming releases.</p></a><a href="/projects"><span class="eyebrow" id="homeProjectsEyebrow">PROJECTS</span><h2 id="homeProjectsHeading">Beyond the books.</h2><p id="homeProjectsText">Explore The Remnant Suite and Witness Systems.</p></a><a href="/about"><span class="eyebrow" id="homeAboutEyebrow">ABOUT</span><h2 id="homeAboutHeading">Meet the author.</h2><p id="homeAboutText">Writing, software, systems, and probably a cat nearby.</p></a></section>
+<section class="hero home-hero"><div class="copy"><p class="eyebrow" id="eyebrow">FICTION THAT STAYS WITH YOU</p><h1 id="heroTitle">Stories about love, loss, memory, and the places we call home.</h1><p class="lead" id="heroText"></p><div class="actions"><a class="btn primary" id="homeBooksButton" href="/books">Explore the books</a><a class="btn secondary" id="homeProjectsButton" href="/projects">See my projects</a></div></div><div class="art" aria-hidden="true"><div class="book-fan" id="heroBooks"><div class="fakebook"><div class="small">A NOVEL</div><div class="big">FALLING<br>INTO<br>NOTHING</div><div class="author">DYLAN CUNNINGHAM</div></div><div class="fakebook"><div class="small">A NOVEL</div><div class="big">SCHOLA</div><div class="author">DYLAN CUNNINGHAM</div></div></div></div></section>
+<section class="home-feature">
+  <div class="home-feature-copy">
+    <span class="eyebrow" id="homeBooksEyebrow">BOOKS</span>
+    <h2 id="homeBooksHeading">Stories that stay with you.</h2>
+    <p id="homeBooksText">Browse published novels and upcoming releases.</p>
+    <a class="text-link" href="/books">Browse all books <span aria-hidden="true">→</span></a>
+  </div>
+  <div class="home-shelf" id="homeShelf" aria-label="Featured books"></div>
+</section>
+<section class="home-paths" aria-label="Explore more">
+  <a class="home-path" href="/projects">
+    <span class="eyebrow" id="homeProjectsEyebrow">PROJECTS</span>
+    <div><h2 id="homeProjectsHeading">Beyond the books.</h2><p id="homeProjectsText">Explore The Remnant Suite and Witness Systems.</p></div>
+    <span class="home-path-arrow" aria-hidden="true">↗</span>
+  </a>
+  <a class="home-path" href="/about">
+    <span class="eyebrow" id="homeAboutEyebrow">ABOUT</span>
+    <div><h2 id="homeAboutHeading">Meet the author.</h2><p id="homeAboutText">Writing, software, systems, and probably a cat nearby.</p></div>
+    <span class="home-path-arrow" aria-hidden="true">↗</span>
+  </a>
+</section>
 <section class="updates"><p class="eyebrow" id="updatesEyebrow">STAY IN THE LOOP</p><h2 id="updatesHeading"></h2><p id="updatesText"></p></section>
 <section class="instagram-feature" id="instagramFeature" hidden><div class="instagram-head"><p class="eyebrow">SOCIAL</p><h2 id="instagramHeading">Latest from Instagram</h2></div><div class="instagram-grid" id="instagramGrid"></div></section>`;
 
@@ -768,6 +788,149 @@ footer{border-top-color:rgba(208,165,110,.18)}
   .hero{padding-top:58px;padding-bottom:72px}
   .page-hero{padding-top:72px}
 }
+
+/* Homepage revamp */
+.home-hero{
+  position:relative;
+  padding-top:96px;
+  padding-bottom:118px;
+}
+.home-hero:after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(208,165,110,.34),transparent);
+}
+.home-feature{
+  display:grid;
+  grid-template-columns:minmax(0,.82fr) minmax(420px,1.18fr);
+  gap:70px;
+  align-items:center;
+  padding:112px 0 108px;
+  border-bottom:1px solid rgba(236,220,203,.11);
+}
+.home-feature-copy h2{
+  font:500 clamp(42px,5vw,68px)/.98 Georgia,"Times New Roman",serif;
+  letter-spacing:-.03em;
+  margin:0 0 22px;
+  max-width:560px;
+}
+.home-feature-copy p{
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.75;
+  max-width:510px;
+  margin:0;
+}
+.text-link{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  margin-top:28px;
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:700;
+  font-size:14px;
+}
+.text-link span{font-size:18px;transition:transform .18s ease}
+.text-link:hover span{transform:translateX(4px)}
+.home-shelf{
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-end;
+  gap:18px;
+  min-height:430px;
+  padding:22px 0 6px;
+}
+.home-shelf-book{
+  position:relative;
+  width:min(29%,190px);
+  aspect-ratio:2/3;
+  border-radius:5px 13px 13px 5px;
+  overflow:hidden;
+  background:#171319;
+  box-shadow:0 26px 58px rgba(0,0,0,.38);
+  transform-origin:bottom center;
+}
+.home-shelf-book:nth-child(1){transform:translateY(22px) rotate(-3deg)}
+.home-shelf-book:nth-child(2){transform:translateY(-8px);z-index:2}
+.home-shelf-book:nth-child(3){transform:translateY(24px) rotate(3deg)}
+.home-shelf-book img{width:100%;height:100%;object-fit:cover}
+.home-shelf-placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  text-align:center;
+  color:var(--text);
+  font:500 24px/1.05 Georgia,serif;
+  border:1px solid var(--line);
+}
+.home-paths{
+  padding:18px 0 42px;
+}
+.home-path{
+  display:grid;
+  grid-template-columns:170px minmax(0,1fr) 48px;
+  gap:28px;
+  align-items:center;
+  padding:42px 4px;
+  text-decoration:none;
+  border-bottom:1px solid rgba(236,220,203,.11);
+}
+.home-path:first-child{border-top:1px solid rgba(236,220,203,.11)}
+.home-path .eyebrow{margin:0}
+.home-path h2{
+  margin:0 0 8px;
+  font-size:clamp(32px,4vw,50px);
+  font-weight:500;
+  letter-spacing:-.02em;
+}
+.home-path p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.65;
+}
+.home-path-arrow{
+  justify-self:end;
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  color:var(--accent);
+  font-size:19px;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.home-path:hover .home-path-arrow{
+  transform:translate(2px,-2px);
+  border-color:rgba(208,165,110,.40);
+  background:rgba(208,165,110,.055);
+}
+@media(max-width:900px){
+  .home-feature{grid-template-columns:1fr;gap:34px;padding:82px 0}
+  .home-shelf{justify-content:center;min-height:390px}
+  .home-shelf-book{width:min(29%,180px)}
+  .home-path{grid-template-columns:135px minmax(0,1fr) 44px}
+}
+@media(max-width:620px){
+  .home-hero{padding-top:60px;padding-bottom:76px}
+  .home-feature{padding:68px 0 62px;gap:30px}
+  .home-feature-copy h2{font-size:clamp(38px,11vw,50px)}
+  .home-shelf{min-height:285px;gap:10px;padding-top:10px}
+  .home-shelf-book{width:31%;max-width:126px}
+  .home-path{grid-template-columns:1fr 42px;gap:14px 12px;padding:34px 0}
+  .home-path .eyebrow{grid-column:1/-1;margin-bottom:4px}
+  .home-path div{grid-column:1}
+  .home-path-arrow{grid-column:2;grid-row:2;align-self:center}
+  .home-path h2{font-size:34px;line-height:1.02}
+  .home-path p{font-size:15px}
+}
 </style></head>
 <body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a id="navHome" href="/" ${route==="/"?'class="active"':''}>Home</a><a id="navBooks" href="/books" ${route==="/books"?'class="active"':''}>Books</a><a id="navProjects" href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a id="navAbout" href="/about" ${route==="/about"?'class="active"':''}>About</a><span class="header-socials" id="headerSocials"><span class="follow-label">Follow</span><span class="header-social-links" id="headerSocialLinks"></span></span></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links" id="footerLinks"><a class="admin-link" id="contactLink" href="mailto:dcunn1993@gmail.com"><span id="footerContactLabel">Contact</span></a><a class="admin-link" href="/admin"><span id="footerAdminLabel">Admin</span></a></div></div></footer></div>
 <script>
@@ -785,6 +948,7 @@ fetch("/api/site").then(r=>r.json()).then(data=>{const s=data.settings||{};docum
 const photoKey=String(s.author_photo_key||"").trim(),photo=document.getElementById("aboutPhoto"),photoWrap=document.getElementById("authorPhotoWrap");if(photo&&photoWrap&&photoKey){photo.src=mediaUrl(photoKey);photoWrap.style.display="block"}
 [["remnantImage","remnant_image_key"],["witnessImage","witness_image_key"]].forEach(([id,key])=>{const img=document.getElementById(id);if(img){const src=mediaUrl(String(s[key]||"").trim());img.src=src;if(!src){const wrap=img.closest(".project-image");if(wrap)wrap.style.display="none"}}});
 const books=data.books||[],hero=document.getElementById("heroBooks");if(hero){const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);if(heroCovers.length)hero.innerHTML=heroCovers.map(b=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">'}).join("")}
+const homeShelf=document.getElementById("homeShelf");if(homeShelf){const featured=books.slice(0,3);homeShelf.innerHTML=featured.map((b,i)=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<a class="home-shelf-book" href="/books" aria-label="'+esc(b.title)+'">'+(src?'<img src="'+esc(src)+'" alt="'+esc(b.title)+' cover">':'<span class="home-shelf-placeholder">'+esc(b.title)+'</span>')+'</a>'}).join("")}
 const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.length?books.map((b,i)=>'<article class="card"><div class="cover '+(i%3===1?"alt":i%3===2?"warm":"")+'">'+coverMarkup(b,i)+'</div><div class="info"><div class="genre">'+esc(b.genre)+'</div><h3>'+esc(b.title)+'</h3>'+(b.subtitle?'<div style="color:var(--muted);margin-top:-7px;margin-bottom:12px">'+esc(b.subtitle)+'</div>':"")+'<p>'+esc(b.description)+'</p>'+storeLinks(b)+'</div></article>').join(""):'<div class="empty">Books will appear here soon.</div>'}).catch(()=>{const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML='<div class="empty">The book list could not load.</div>'});
 </script></body></html>`;
 }
