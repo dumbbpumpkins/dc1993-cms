@@ -630,6 +630,158 @@ header{height:86px;display:flex;align-items:center;justify-content:space-between
 footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}.footer-links{display:flex;gap:14px}.admin-link{font-size:10px;color:rgba(170,161,152,.52);text-decoration:none;letter-spacing:.10em;text-transform:uppercase}
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:56px;gap:20px}.art{min-height:440px}.grid{grid-template-columns:1fr 1fr}.home-links{grid-template-columns:1fr}.page-hero.compact h1{font-size:clamp(40px,7.5vw,60px)}.project-card.large{grid-template-columns:1fr}.project-copy h2{font-size:clamp(34px,6.5vw,46px)}.about-page{grid-template-columns:1fr;gap:20px}.about-page h1{font-size:clamp(38px,6.5vw,52px)}}
 @media(max-width:620px){.wrap{width:min(100% - 28px,var(--max))}header{height:78px}.brand span:last-child{font-size:20px;max-width:210px}nav{display:none;position:absolute;top:78px;left:14px;right:14px;background:#171411;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:50;flex-direction:column;align-items:stretch;gap:0}nav>a{padding:12px 2px}.header-socials{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:10px 0 0;padding:14px 0 0;border-left:0;border-top:1px solid var(--line)}.follow-label{padding:2px 2px 7px;font-size:10px}.header-social-links{display:flex;flex-direction:column;align-items:stretch;gap:0}.header-socials a{padding:12px 2px;font-size:14px}.menu{display:block}nav.open{display:flex}.hero{min-height:auto;padding:54px 0 66px;gap:22px}h1{font-size:clamp(36px,10.2vw,48px);line-height:1.02}.lead{font-size:16px}.actions{display:grid;grid-template-columns:1fr}.actions .btn{width:100%}.art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}.grid{grid-template-columns:1fr}.info h3{font-size:27px;line-height:1.06}.info p{min-height:0}.buy{grid-template-columns:repeat(2,minmax(0,1fr))}.buy a{padding:11px 8px}.page-hero{padding:66px 0 34px}.page-hero.compact h1{font-size:clamp(36px,10vw,46px)}.home-links h2{font-size:28px}.project-copy{padding:28px 22px}.project-copy h2{font-size:clamp(34px,9vw,43px);line-height:1.04}.project-image,.project-image img{min-height:230px}.about-page{padding:68px 0 90px}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px}.author-photo{width:104px;height:104px}.about-page h1{font-size:clamp(32px,8.8vw,41px);line-height:1.02}.about-copy p{margin-top:20px}.updates{margin:52px 0 28px;padding:30px 24px}.updates h2{font-size:clamp(32px,9vw,44px)}.instagram-feature{margin:0 0 76px;padding:24px 14px}.instagram-head{padding:0 10px}.instagram-head h2{font-size:clamp(30px,8vw,40px)}.instagram-grid{grid-template-columns:1fr;width:100%}.instagram-slot{display:none}.instagram-slot:first-child{display:block;width:100%;max-width:100%;overflow:hidden}.instagram-slot:first-child .instagram-media{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important}.instagram-slot:first-child iframe{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}}
+
+/* Theme playground: Literary Night */
+body{
+  background:
+    radial-gradient(circle at 82% 4%,rgba(119,92,136,.20),transparent 31rem),
+    radial-gradient(circle at 10% 12%,rgba(193,151,101,.13),transparent 27rem),
+    linear-gradient(180deg,#0f0e10 0%,#131113 48%,#0d0c0e 100%);
+  color:#f5f0e9;
+}
+:root{
+  --bg:#0f0e10;
+  --panel:#191619;
+  --text:#f5f0e9;
+  --muted:#b9aea5;
+  --accent:#d0a56e;
+  --accent2:#876f93;
+  --line:rgba(236,220,203,.13);
+}
+header{
+  height:92px;
+  border-bottom:1px solid rgba(208,165,110,.20);
+}
+.mark{
+  border-color:rgba(208,165,110,.32);
+  background:rgba(208,165,110,.055);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.brand span:last-child{letter-spacing:.015em}
+nav a{transition:color .18s ease}
+nav a:hover{color:var(--text)}
+.eyebrow{
+  color:#d7ad78;
+  letter-spacing:.24em;
+}
+h1,h2,h3{
+  font-weight:500;
+  text-wrap:balance;
+}
+h1{
+  line-height:.96;
+  letter-spacing:-.041em;
+  text-shadow:0 2px 26px rgba(0,0,0,.20);
+}
+.lead{color:#c2b7ae}
+.hero{
+  min-height:680px;
+  padding-top:78px;
+  padding-bottom:104px;
+}
+.primary{
+  background:linear-gradient(180deg,#d7ad78,#c49761);
+  color:#17110c;
+  box-shadow:0 10px 30px rgba(178,128,72,.16);
+}
+.secondary{
+  border-color:rgba(236,220,203,.18);
+  background:rgba(255,255,255,.025);
+}
+.btn{
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.secondary:hover{
+  border-color:rgba(208,165,110,.38);
+  background:rgba(208,165,110,.055);
+}
+.home-links{gap:18px}
+.home-links a{
+  position:relative;
+  border-radius:20px;
+  padding:34px 32px;
+  border-color:rgba(236,220,203,.12);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),
+    rgba(20,17,20,.72);
+  box-shadow:0 18px 44px rgba(0,0,0,.12);
+  transition:transform .2s ease,border-color .2s ease,background .2s ease;
+}
+.home-links a:before{
+  content:"";
+  position:absolute;
+  left:31px;
+  top:0;
+  width:42px;
+  height:1px;
+  background:var(--accent);
+  opacity:.72;
+}
+.home-links a:hover{
+  transform:translateY(-3px);
+  border-color:rgba(208,165,110,.28);
+  background:
+    linear-gradient(145deg,rgba(208,165,110,.05),rgba(255,255,255,.014)),
+    rgba(20,17,20,.82);
+}
+.home-links h2{font-weight:500}
+.card,.project-card.large,.instagram-feature{
+  border-color:rgba(236,220,203,.12);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.008)),
+    rgba(19,16,19,.70);
+  box-shadow:0 22px 55px rgba(0,0,0,.14);
+}
+.card{border-radius:20px}
+.info{padding:30px}
+.info h3{font-weight:500;letter-spacing:-.015em}
+.buy a,.skill-tag{
+  border-color:rgba(236,220,203,.14);
+  background:rgba(255,255,255,.018);
+}
+.buy a:hover{
+  border-color:rgba(208,165,110,.32);
+  background:rgba(208,165,110,.05);
+}
+.badge{
+  border-color:rgba(208,165,110,.42);
+  background:rgba(208,165,110,.055);
+}
+.page-hero{padding-top:104px}
+.page-hero:after{
+  content:"";
+  display:block;
+  width:68px;
+  height:1px;
+  margin-top:34px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+}
+.updates{
+  border-color:rgba(208,165,110,.18);
+  background:
+    radial-gradient(circle at 86% 15%,rgba(119,92,136,.25),transparent 23rem),
+    linear-gradient(145deg,rgba(208,165,110,.045),rgba(255,255,255,.012)),
+    #171419;
+  box-shadow:0 24px 70px rgba(0,0,0,.16);
+}
+.project-image{
+  background:
+    radial-gradient(circle at 50% 20%,rgba(119,92,136,.15),transparent 55%),
+    #141216;
+}
+.author-photo{
+  border-color:rgba(208,165,110,.28);
+  box-shadow:0 20px 55px rgba(0,0,0,.34),0 0 0 6px rgba(208,165,110,.035);
+}
+footer{border-top-color:rgba(208,165,110,.18)}
+@media(max-width:620px){
+  header{height:78px}
+  .hero{padding-top:58px;padding-bottom:72px}
+  .home-links a{padding:29px 26px}
+  .home-links a:before{left:25px}
+  .page-hero{padding-top:72px}
+}
 </style></head>
 <body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a id="navHome" href="/" ${route==="/"?'class="active"':''}>Home</a><a id="navBooks" href="/books" ${route==="/books"?'class="active"':''}>Books</a><a id="navProjects" href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a id="navAbout" href="/about" ${route==="/about"?'class="active"':''}>About</a><span class="header-socials" id="headerSocials"><span class="follow-label">Follow</span><span class="header-social-links" id="headerSocialLinks"></span></span></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links" id="footerLinks"><a class="admin-link" id="contactLink" href="mailto:dcunn1993@gmail.com"><span id="footerContactLabel">Contact</span></a><a class="admin-link" href="/admin"><span id="footerAdminLabel">Admin</span></a></div></div></footer></div>
 <script>
