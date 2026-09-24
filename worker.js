@@ -27,6 +27,11 @@ export default {
         return privateHtml(authed ? storyBiblePage() : loginPage("/story-bible"));
       }
 
+      if (url.pathname === "/hot-guys" || url.pathname === "/hot-guys/") {
+        const authed = await isAuthenticated(request, env);
+        return privateHtml(authed ? hotGuysPage() : loginPage("/hot-guys"));
+      }
+
       if (url.pathname === "/admin" || url.pathname === "/admin/") {
         const authed = await isAuthenticated(request, env);
         return privateHtml(authed ? adminPage() : loginPage("/admin"));
@@ -39,7 +44,10 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(syncStoryBible(env));
+    ctx.waitUntil(Promise.allSettled([
+      syncStoryBible(env),
+      env.ORBISMO_HOT_GUYS_API_KEY ? syncHotGuys(env) : Promise.resolve()
+    ]));
   }
 };
 
@@ -73,6 +81,16 @@ async function ensureSchema(env) {
     `),
     env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS story_bible_cache (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        snapshot_json TEXT NOT NULL DEFAULT '{}',
+        synced_at TEXT NOT NULL DEFAULT '',
+        sync_status TEXT NOT NULL DEFAULT 'never',
+        sync_error TEXT NOT NULL DEFAULT '',
+        content_hash TEXT NOT NULL DEFAULT ''
+      )
+    `),
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS hot_guys_cache (
         id INTEGER PRIMARY KEY CHECK (id = 1),
         snapshot_json TEXT NOT NULL DEFAULT '{}',
         synced_at TEXT NOT NULL DEFAULT '',
@@ -355,6 +373,98 @@ async function handleApi(request, env, url) {
         error: err?.message || String(err)
       }, 502);
     }
+  }
+
+  if (path === "/api/hot-guys" && request.method === "GET") {
+    let cache = await getHotGuysCache(env);
+    const last = Date.parse(cache.synced_at || "");
+    const stale = !cache.snapshot || !Number.isFinite(last) || (Date.now() - last) > 65000;
+    if (stale && env.ORBISMO_HOT_GUYS_API_KEY) {
+      try {
+        await syncHotGuys(env);
+        cache = await getHotGuysCache(env);
+      } catch (err) {
+        cache = { ...(await getHotGuysCache(env)), status: "error", error: err?.message || String(err) };
+      }
+    }
+    return privateJson(cache);
+  }
+
+  if (path === "/api/hot-guys/sync" && request.method === "POST") {
+    try {
+      await syncHotGuys(env);
+      return privateJson(await getHotGuysCache(env));
+    } catch (err) {
+      return privateJson({ ...(await getHotGuysCache(env)), error: err?.message || String(err) }, 502);
+    }
+  }
+
+  if (path === "/api/hot-guys/person/create" && request.method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    const name = String(body.name || "").trim();
+    if (!name) return privateJson({ error: "Name is required." }, 400);
+    const session = await openHotGuysSession(env);
+    const found = await hotGuysTool(session, env, "search_entities", { query: name, entity_type: "person", view: "compact", limit: 20 });
+    const duplicate = (found.results || []).find(x => String(x.name || "").trim().toLowerCase() === name.toLowerCase());
+    if (duplicate) return privateJson({ error: "A person with that name already exists.", entity_id: duplicate.entity_id }, 409);
+    const props = cleanHotGuysProperties(body.properties || {});
+    props.person_type = "human";
+    const created = await hotGuysTool(session, env, "create_entities", {
+      entities: [{ entity_type: "person", name, description: String(body.description || "").trim(), properties: props, tags: ["hot-guy"] }],
+      skip_existing: true
+    });
+    const entityId = created.created?.[0]?.entity_id;
+    if (!entityId) return privateJson({ error: "Orbismo did not create the person." }, 502);
+    await hotGuysTool(session, env, "create_relationships", {
+      relationships: [{ source_id: entityId, target_id: "group/the_roster", relationship_type: "MEMBER_OF", properties: { role: "roster entry" } }],
+      skip_duplicates: true
+    });
+    await syncHotGuys(env);
+    return privateJson({ ok: true, entity_id: entityId, cache: await getHotGuysCache(env) });
+  }
+
+  if (path === "/api/hot-guys/person/update" && request.method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    const entityId = String(body.entity_id || "");
+    if (!entityId.startsWith("person/")) return privateJson({ error: "Invalid person." }, 400);
+    const updates = {
+      name: String(body.name || "").trim(),
+      description: String(body.description || "").trim(),
+      properties: cleanHotGuysProperties(body.properties || {})
+    };
+    if (!updates.name) delete updates.name;
+    const session = await openHotGuysSession(env);
+    await hotGuysTool(session, env, "update_entity", { entity_id: entityId, updates, merge_mode: "merge" });
+    await syncHotGuys(env);
+    return privateJson({ ok: true, cache: await getHotGuysCache(env) });
+  }
+
+  if (path === "/api/hot-guys/lore/save" && request.method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    const entityId = String(body.entity_id || "");
+    const loreId = String(body.lore_id || "");
+    const title = String(body.title || "").trim();
+    const content = String(body.content || "").trim();
+    if (!entityId.startsWith("person/") || !title || !content) return privateJson({ error: "Person, title, and note are required." }, 400);
+    const session = await openHotGuysSession(env);
+    if (loreId) {
+      await hotGuysTool(session, env, "update_entity_lore", { entity_id: entityId, lore_id: loreId, title, content });
+    } else {
+      await hotGuysTool(session, env, "create_entity_lore", { entity_id: entityId, title, content });
+    }
+    await syncHotGuys(env);
+    return privateJson({ ok: true, cache: await getHotGuysCache(env) });
+  }
+
+  if (path === "/api/hot-guys/lore/delete" && request.method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    const entityId = String(body.entity_id || "");
+    const loreId = String(body.lore_id || "");
+    if (!entityId.startsWith("person/") || !loreId) return privateJson({ error: "Invalid lore note." }, 400);
+    const session = await openHotGuysSession(env);
+    await hotGuysTool(session, env, "delete_entity_lore", { entity_id: entityId, lore_id: loreId });
+    await syncHotGuys(env);
+    return privateJson({ ok: true, cache: await getHotGuysCache(env) });
   }
 
   if (path === "/api/admin/content" && request.method === "GET") {
@@ -1057,6 +1167,181 @@ const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.leng
 }
 
 
+const HOT_GUYS_WORLD_ID = "0b8b5a5d-42bb-4e12-a143-046eff715257";
+const HOT_GUYS_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + HOT_GUYS_WORLD_ID + "/mcp";
+
+function cleanHotGuysProperties(input) {
+  const out = {};
+  for (const key of ["first_noticed","last_noted","known_from","attraction_status"]) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) out[key] = String(input[key] || "").trim();
+  }
+  for (const key of ["favorite_features","vibe_tags","aliases"]) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+    const raw = input[key];
+    out[key] = Array.isArray(raw)
+      ? raw.map(x => String(x).trim()).filter(Boolean).slice(0, 50)
+      : String(raw || "").split(/[\n,]+/).map(x => x.trim()).filter(Boolean).slice(0, 50);
+  }
+  return out;
+}
+
+async function getHotGuysCache(env) {
+  await ensureSchema(env);
+  const row = await env.DB.prepare("SELECT snapshot_json, synced_at, sync_status, sync_error FROM hot_guys_cache WHERE id=1").first();
+  if (!row) return { snapshot: null, synced_at: "", status: "never", error: "" };
+  let snapshot = null;
+  try { snapshot = JSON.parse(row.snapshot_json || "null"); } catch {}
+  return { snapshot, synced_at: row.synced_at || "", status: row.sync_status || "never", error: row.sync_error || "" };
+}
+
+async function markHotGuysSyncError(env, message) {
+  const now = new Date().toISOString();
+  const clean = String(message || "Unknown sync error").slice(0, 1500);
+  await env.DB.prepare(`
+    INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+    VALUES (1, '{}', ?, 'error', ?, '')
+    ON CONFLICT(id) DO UPDATE SET synced_at=excluded.synced_at, sync_status='error', sync_error=excluded.sync_error
+  `).bind(now, clean).run();
+}
+
+function hotGuysHeaders(env, sessionId = "") {
+  const headers = {
+    "authorization": "Bearer " + env.ORBISMO_HOT_GUYS_API_KEY,
+    "content-type": "application/json",
+    "accept": "application/json, text/event-stream",
+    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
+  };
+  if (sessionId) headers["mcp-session-id"] = sessionId;
+  return headers;
+}
+
+async function openHotGuysSession(env) {
+  if (!env.ORBISMO_HOT_GUYS_API_KEY) throw new Error("ORBISMO_HOT_GUYS_API_KEY secret is not configured.");
+  const res = await fetch(HOT_GUYS_MCP_URL, {
+    method: "POST",
+    headers: hotGuysHeaders(env),
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: 1, method: "initialize",
+      params: { protocolVersion: ORBISMO_PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: "dc1993-hot-guys", version: "1.0.0" } }
+    })
+  });
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || "Hot Guys Orbismo MCP initialize failed.");
+  const sessionId = res.headers.get("mcp-session-id") || "";
+  if (sessionId) {
+    const notify = await fetch(HOT_GUYS_MCP_URL, {
+      method: "POST",
+      headers: hotGuysHeaders(env, sessionId),
+      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized", params: {} })
+    });
+    if (!notify.ok) throw new Error("Hot Guys Orbismo initialization acknowledgement failed.");
+  }
+  return { sessionId, nextId: 2 };
+}
+
+async function hotGuysTool(session, env, name, args) {
+  const id = session.nextId++;
+  const res = await fetch(HOT_GUYS_MCP_URL, {
+    method: "POST",
+    headers: hotGuysHeaders(env, session.sessionId),
+    body: JSON.stringify({ jsonrpc: "2.0", id, method: "tools/call", params: { name, arguments: args || {} } })
+  });
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || ("Hot Guys Orbismo tool failed: " + name));
+  const result = rpc.result || {};
+  if (result.isError) {
+    const msg = Array.isArray(result.content) ? result.content.map(x => x?.text || "").filter(Boolean).join(" ") : "Hot Guys Orbismo tool returned an error.";
+    throw new Error(msg || ("Hot Guys Orbismo tool returned an error: " + name));
+  }
+  if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent;
+  if (Array.isArray(result.content)) {
+    const text = result.content.filter(x => x && x.type === "text").map(x => x.text || "").join("\n").trim();
+    if (text) { try { return JSON.parse(text); } catch { return { text }; } }
+  }
+  return result;
+}
+
+async function completeHotGuysEntityBlocks(session, env, entity) {
+  let relCursor = entity?.relationships?.next_cursor || null;
+  while (relCursor) {
+    const page = await hotGuysTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id], view: "full", active_only: false,
+      relationships: { limit: 100, cursor: relCursor, embed_target: "name" },
+      lore: { limit: 1, include_content: false }
+    });
+    const item = page.entities?.[0]; if (!item) break;
+    entity.relationships.items.push(...(item.relationships?.items || []));
+    relCursor = item.relationships?.next_cursor || null;
+  }
+  if (entity.relationships) { entity.relationships.returned = entity.relationships.items?.length || 0; entity.relationships.next_cursor = null; }
+
+  let loreCursor = entity?.lore?.next_cursor || null;
+  while (loreCursor) {
+    const page = await hotGuysTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id], view: "full", active_only: false,
+      relationships: { limit: 1, embed_target: "name" },
+      lore: { limit: 50, cursor: loreCursor, include_content: true }
+    });
+    const item = page.entities?.[0]; if (!item) break;
+    entity.lore.items.push(...(item.lore?.items || []));
+    loreCursor = item.lore?.next_cursor || null;
+  }
+  if (entity.lore) { entity.lore.returned = entity.lore.items?.length || 0; entity.lore.next_cursor = null; }
+}
+
+async function syncHotGuys(env) {
+  await ensureSchema(env);
+  if (!env.ORBISMO_HOT_GUYS_API_KEY) {
+    const msg = "ORBISMO_HOT_GUYS_API_KEY secret is not configured.";
+    await markHotGuysSyncError(env, msg); throw new Error(msg);
+  }
+  try {
+    const session = await openHotGuysSession(env);
+    const context = await hotGuysTool(session, env, "get_world_context", { include_stats: true });
+    const instructions = await hotGuysTool(session, env, "get_world_instructions", {});
+    const compact = []; let cursor = null;
+    do {
+      const page = await hotGuysTool(session, env, "search_entities", { view: "compact", limit: 100, ...(cursor ? { cursor } : {}) });
+      compact.push(...(page.results || [])); cursor = page.next_cursor || null;
+    } while (cursor);
+
+    const entities = [];
+    for (let i = 0; i < compact.length; i += 20) {
+      const batch = await hotGuysTool(session, env, "get_entities", {
+        entity_ids: compact.slice(i, i + 20).map(x => x.entity_id),
+        view: "full", active_only: false,
+        relationships: { limit: 100, embed_target: "name" },
+        lore: { limit: 50, include_content: true }
+      });
+      for (const entity of batch.entities || []) { await completeHotGuysEntityBlocks(session, env, entity); entities.push(entity); }
+    }
+
+    entities.sort((a,b) => String(a.name || "").localeCompare(String(b.name || "")));
+    const core = { version: 1, source: "Orbismo", world_id: HOT_GUYS_WORLD_ID, schema: context, world_instructions: instructions?.instructions || "", entities };
+    const contentHash = await sha256Hex(JSON.stringify(core));
+    const now = new Date().toISOString();
+    const current = await env.DB.prepare("SELECT content_hash FROM hot_guys_cache WHERE id=1").first();
+
+    if (current?.content_hash === contentHash) {
+      await env.DB.prepare(`
+        INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+        VALUES (1, '{}', ?, 'ok', '', ?)
+        ON CONFLICT(id) DO UPDATE SET synced_at=excluded.synced_at, sync_status='ok', sync_error='', content_hash=excluded.content_hash
+      `).bind(now, contentHash).run();
+      return;
+    }
+
+    const snapshot = { ...core, generated_at: now, entity_count: entities.length };
+    await env.DB.prepare(`
+      INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+      VALUES (1, ?, ?, 'ok', '', ?)
+      ON CONFLICT(id) DO UPDATE SET snapshot_json=excluded.snapshot_json, synced_at=excluded.synced_at, sync_status='ok', sync_error='', content_hash=excluded.content_hash
+    `).bind(JSON.stringify(snapshot), now, contentHash).run();
+  } catch (err) {
+    await markHotGuysSyncError(env, err?.message || String(err)); throw err;
+  }
+}
+
 const ORBISMO_WORLD_ID = "ae5af97f-66fa-40cf-9cea-8b9c63c09437";
 const ORBISMO_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + ORBISMO_WORLD_ID + "/mcp";
 const ORBISMO_PROTOCOL_VERSION = "2025-03-26";
@@ -1498,9 +1783,59 @@ setInterval(()=>load().catch(()=>{}),60000);
 </body></html>`;
 }
 
+function hotGuysPage() {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>HG · DC1993</title>
+<style>
+:root{--bg:#100e0f;--panel:#1b1719;--panel2:#241e21;--line:rgba(255,255,255,.09);--text:#f5eff2;--muted:#aa9fa4;--accent:#c49a83}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}a{color:inherit}.shell{width:min(1180px,calc(100% - 28px));margin:auto;padding:24px 0 70px}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:18px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}.top h1{font:700 clamp(40px,7vw,68px)/1 Georgia,serif;margin:0}.sub{color:var(--muted);line-height:1.55;margin:9px 0 0}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 15px;font-weight:700;text-decoration:none;cursor:pointer}.btn.primary{background:var(--accent);color:#1a1314;border-color:transparent}
+.statusbar{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:13px;margin-bottom:16px}.dot{width:8px;height:8px;border-radius:50%;background:#777}.dot.ok{background:#77b88a}.dot.error{background:#df7e86}.dot.syncing{background:#d3a565}
+.controls{display:grid;grid-template-columns:1fr 190px auto;gap:10px;margin-bottom:16px}.control{width:100%;border:1px solid var(--line);background:#151114;color:var(--text);padding:13px 14px;border-radius:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px}.stat b{display:block;font:700 29px Georgia,serif}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;cursor:pointer}.card:hover{border-color:rgba(196,154,131,.45)}.card h2{font:700 25px Georgia,serif;margin:5px 0 7px}.meta{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}.desc{color:var(--muted);line-height:1.5}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.chip{font-size:11px;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:#d8cdd2}.empty{background:var(--panel);border:1px solid var(--line);border-radius:18px;color:var(--muted);padding:44px 20px;text-align:center;grid-column:1/-1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:50}.modal.open{display:flex}.dialog{width:min(840px,100%);background:#171316;border:1px solid var(--line);border-radius:22px;padding:20px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.modalhead h2{font:700 34px Georgia,serif;margin:0}.close{border:0;background:transparent;color:var(--text);font-size:29px;cursor:pointer}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.full{grid-column:1/-1}label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#c8bbc1;margin-bottom:6px;font-weight:700}input,textarea,select{width:100%;border:1px solid var(--line);background:#100d0f;color:var(--text);border-radius:11px;padding:12px 13px;outline:none}textarea{min-height:100px;resize:vertical;line-height:1.5}
+.section{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.section h3{font:700 22px Georgia,serif;margin:0}.note{background:var(--panel2);border-radius:13px;padding:14px;margin-top:10px}.note h4{font:700 18px Georgia,serif;margin:0 0 7px}.note p{white-space:pre-wrap;color:#e2d8dd;line-height:1.58;margin:0}.noteactions{display:flex;gap:7px;margin-top:10px}.mini{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:7px 9px;cursor:pointer;font-size:12px}.mini.danger{color:#ffadb4}.savebar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.error{color:#ffadb4}
+@media(max-width:760px){.top{display:block}.actions{justify-content:flex-start;margin-top:14px}.controls{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body><div class="shell">
+<div class="top"><div><p class="eyebrow">PRIVATE ARCHIVE</p><h1>Hot Guys</h1><p class="sub">Who, why, and exactly when the problem began.</p></div><div class="actions"><button class="btn primary" id="syncBtn">Sync now</button><a class="btn" href="/admin">Admin</a></div></div>
+<div class="statusbar"><span class="dot" id="dot"></span><span id="status">Loading…</span></div>
+<div class="controls"><input class="control" id="search" type="search" placeholder="Search names, features, vibes, lore…"><select class="control" id="filter"><option value="">All statuses</option><option>current</option><option>recurring</option><option>former</option><option>one-off</option><option>unknown</option></select><button class="btn primary" id="addBtn">+ Add guy</button></div>
+<div class="stats" id="stats"></div><div class="grid" id="grid"></div></div>
+<div class="modal" id="modal"><div class="dialog"><div class="modalhead"><h2 id="modalTitle">Entry</h2><button class="close" id="close">×</button></div><input type="hidden" id="entityId">
+<div class="formgrid"><div><label>Name / label</label><input id="name"></div><div><label>Attraction status</label><select id="attraction_status"><option value=""></option><option>current</option><option>recurring</option><option>former</option><option>one-off</option><option>unknown</option></select></div><div class="full"><label>Description</label><textarea id="description"></textarea></div><div><label>First noticed</label><input id="first_noticed" placeholder="2026-09-24 or Summer 2020"></div><div><label>Last noted</label><input id="last_noted" placeholder="2026-09-24"></div><div class="full"><label>Known from</label><input id="known_from" placeholder="Instagram, actor, real life, photo…"></div><div><label>Favorite features</label><textarea id="favorite_features" placeholder="One per line"></textarea></div><div><label>Vibe tags</label><textarea id="vibe_tags" placeholder="One per line"></textarea></div><div class="full"><label>Aliases / labels</label><textarea id="aliases" placeholder="One per line"></textarea></div></div>
+<div class="savebar"><button class="btn primary" id="savePerson">Save entry</button></div>
+<div class="section" id="loreSection"><div class="sectionhead"><h3>Dated notes</h3><button class="mini" id="newNote">+ Add note</button></div><div id="notes"></div><div id="noteEditor" style="display:none;margin-top:12px"><input type="hidden" id="loreId"><label>Note title</label><input id="loreTitle" placeholder="2026-09-24 — Blue plaid photo"><label style="margin-top:10px">Note</label><textarea id="loreContent" style="min-height:150px"></textarea><div class="savebar"><button class="btn primary" id="saveNote">Save note</button><button class="btn" id="cancelNote">Cancel</button></div></div></div>
+</div></div>
+<script>
+let CACHE=null,SNAP=null,PEOPLE=[],CURRENT=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const arr=v=>Array.isArray(v)?v:[];
+const fmt=d=>{if(!d)return"Never";try{return new Date(d).toLocaleString()}catch{return d}};
+async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/hot-guys";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function hay(p){return [p.name,p.short_description,JSON.stringify(p.properties||{}),...(p.lore?.items||[]).map(x=>(x.title||"")+" "+(x.content||""))].join(" ").toLowerCase()}
+function stat(label,n){return '<div class="stat"><b>'+esc(n)+'</b><span>'+esc(label)+'</span></div>'}
+function card(p){const pr=p.properties||{};const features=arr(pr.favorite_features).slice(0,5).map(x=>'<span class="chip">'+esc(x)+'</span>').join("");return '<div class="card" data-id="'+esc(p.entity_id)+'"><div class="meta">'+esc(pr.attraction_status||"unclassified")+'</div><h2>'+esc(p.name)+'</h2><div class="desc">'+esc(p.short_description||pr.known_from||"")+'</div>'+(features?'<div class="chips">'+features+'</div>':'')+'</div>'}
+function render(){PEOPLE=(SNAP?.entities||[]).filter(x=>x.entity_type==="person"&&((x.tags||[]).includes("hot-guy")||(x.relationships?.items||[]).some(r=>r.entity_id==="group/the_roster")));const q=$("search").value.trim().toLowerCase(),status=$("filter").value;const shown=PEOPLE.filter(p=>(!q||hay(p).includes(q))&&(!status||String(p.properties?.attraction_status||"unknown")===status));const current=PEOPLE.filter(p=>p.properties?.attraction_status==="current").length,recurring=PEOPLE.filter(p=>p.properties?.attraction_status==="recurring").length,notes=PEOPLE.reduce((n,p)=>n+(p.lore?.items||[]).length,0);$("stats").innerHTML=stat("Roster",PEOPLE.length)+stat("Current",current)+stat("Recurring",recurring)+stat("Notes",notes);$("grid").innerHTML=shown.map(card).join("")||'<div class="empty">'+(PEOPLE.length?"Nothing matches that filter.":"The roster is empty. This is either peaceful or temporary.")+'</div>'}
+async function load(force=false){$("dot").className="dot syncing";$("status").textContent=force?"Syncing…":"Loading…";CACHE=await api(force?"/api/hot-guys/sync":"/api/hot-guys",force?{method:"POST"}:{});SNAP=CACHE.snapshot;$("dot").className="dot "+(CACHE.status==="ok"?"ok":CACHE.status==="error"?"error":"");$("status").innerHTML='Last synced: '+esc(fmt(CACHE.synced_at))+(CACHE.error?' · <span class="error">'+esc(CACHE.error)+'</span>':'');render()}
+function blank(){CURRENT=null;$("entityId").value="";$("name").value="";$("description").value="";["first_noticed","last_noted","known_from"].forEach(k=>$(k).value="");$("attraction_status").value="";["favorite_features","vibe_tags","aliases"].forEach(k=>$(k).value="");$("notes").innerHTML="";$("loreSection").style.display="none";$("noteEditor").style.display="none";$("modalTitle").textContent="Add to the roster";$("modal").classList.add("open")}
+function openPerson(id){CURRENT=PEOPLE.find(x=>x.entity_id===id);if(!CURRENT)return;const pr=CURRENT.properties||{};$("entityId").value=CURRENT.entity_id;$("name").value=CURRENT.name||"";$("description").value=CURRENT.short_description||"";["first_noticed","last_noted","known_from","attraction_status"].forEach(k=>$(k).value=pr[k]||"");["favorite_features","vibe_tags","aliases"].forEach(k=>$(k).value=arr(pr[k]).join("\n"));$("modalTitle").textContent=CURRENT.name;$("loreSection").style.display="block";renderNotes();$("noteEditor").style.display="none";$("modal").classList.add("open")}
+function renderNotes(){const items=[...(CURRENT?.lore?.items||[])].sort((a,b)=>String(a.title||"").localeCompare(String(b.title||"")));$("notes").innerHTML=items.map(n=>'<div class="note"><h4>'+esc(n.title||"Untitled")+'</h4><p>'+esc(n.content||"")+'</p><div class="noteactions"><button class="mini editNote" data-id="'+esc(n.lore_id)+'">Edit</button><button class="mini danger deleteNote" data-id="'+esc(n.lore_id)+'">Delete</button></div></div>').join("")||'<div class="desc" style="margin-top:10px">No dated notes yet.</div>'}
+function personBody(){return {entity_id:$("entityId").value,name:$("name").value,description:$("description").value,properties:{first_noticed:$("first_noticed").value,last_noted:$("last_noted").value,known_from:$("known_from").value,attraction_status:$("attraction_status").value,favorite_features:$("favorite_features").value,vibe_tags:$("vibe_tags").value,aliases:$("aliases").value}}}
+$("syncBtn").onclick=()=>load(true).catch(showError);$("search").oninput=render;$("filter").onchange=render;$("addBtn").onclick=blank;$("close").onclick=()=>$("modal").classList.remove("open");$("grid").onclick=e=>{const c=e.target.closest(".card");if(c)openPerson(c.dataset.id)};
+$("savePerson").onclick=async()=>{try{const body=personBody();const j=await api(body.entity_id?"/api/hot-guys/person/update":"/api/hot-guys/person/create",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});CACHE=j.cache||CACHE;SNAP=CACHE?.snapshot||SNAP;render();openPerson(j.entity_id||body.entity_id)}catch(e){alert(e.message)}};
+$("newNote").onclick=()=>{$("loreId").value="";$("loreTitle").value="";$("loreContent").value="";$("noteEditor").style.display="block";$("loreTitle").focus()};$("cancelNote").onclick=()=>$("noteEditor").style.display="none";
+$("notes").onclick=async e=>{const edit=e.target.closest(".editNote"),del=e.target.closest(".deleteNote");if(edit){const n=(CURRENT?.lore?.items||[]).find(x=>x.lore_id===edit.dataset.id);if(!n)return;$("loreId").value=n.lore_id;$("loreTitle").value=n.title||"";$("loreContent").value=n.content||"";$("noteEditor").style.display="block";$("loreTitle").focus()}if(del){if(!confirm("Delete this note? This cannot be undone."))return;try{const j=await api("/api/hot-guys/lore/delete",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({entity_id:CURRENT.entity_id,lore_id:del.dataset.id})});CACHE=j.cache;SNAP=CACHE.snapshot;render();openPerson(CURRENT.entity_id)}catch(err){alert(err.message)}}};
+$("saveNote").onclick=async()=>{if(!CURRENT)return;try{const j=await api("/api/hot-guys/lore/save",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({entity_id:CURRENT.entity_id,lore_id:$("loreId").value,title:$("loreTitle").value,content:$("loreContent").value})});CACHE=j.cache;SNAP=CACHE.snapshot;render();openPerson(CURRENT.entity_id)}catch(err){alert(err.message)}};
+function showError(e){$("dot").className="dot error";$("status").innerHTML='<span class="error">'+esc(e.message)+'</span>'}
+load().catch(showError);setInterval(()=>load().catch(()=>{}),60000);
+</script></body></html>`;
+}
+
 function loginPage(next = "/admin") {
-  const target = next === "/story-bible" ? "/story-bible" : "/admin";
-  const heading = target === "/story-bible" ? "Story Bible" : "Site Admin";
+  const target = next === "/story-bible" ? "/story-bible" : next === "/hot-guys" ? "/hot-guys" : "/admin";
+  const heading = target === "/story-bible" ? "Story Bible" : target === "/hot-guys" ? "HG" : "Site Admin";
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${heading} · DC1993</title><style>
@@ -1510,7 +1845,7 @@ h1{font-family:Georgia,serif;font-size:40px;margin:0 0 8px}.sub{color:#aaa198;li
 label{display:block;font-size:13px;margin-bottom:8px}.input{width:100%;padding:14px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#12100f;color:white;font-size:16px}
 button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;background:#c09b73;color:#17120f;font-weight:700;font-size:15px}
 #error{color:#ff9b9b;min-height:20px;margin-top:12px;font-size:13px}</style></head>
-<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
+<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : target === "/hot-guys" ? "Private archive. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
 <script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});if(r.ok){location=${JSON.stringify(target)}}else{const j=await r.json().catch(()=>({}));document.getElementById("error").textContent=j.error||"Could not sign in."}}</script>
 </body></html>`;
 }
@@ -1540,7 +1875,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.box{padding:20px 16px}.bookrow{grid-template-columns:58px minmax(0,1fr)}.thumb{width:58px;height:86px}.rowBtns{grid-column:1/-1;justify-content:flex-start}.check{margin-top:0}.top h1{font-size:22px}}
 </style></head>
 <body><div class="shell">
-<div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
+<div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/hot-guys">HG</a><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
 <div class="tabs">
 <button class="active" data-tab="home">Homepage</button>
 <button data-tab="books">Books</button>
