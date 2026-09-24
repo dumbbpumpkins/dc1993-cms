@@ -1,3 +1,4 @@
+// Deployment refresh: Hot Guys dashboard + read/write Orbismo integration.
 const COOKIE_NAME = "dc1993_admin";
 
 export default {
