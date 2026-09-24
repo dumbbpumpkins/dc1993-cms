@@ -22,15 +22,24 @@ export default {
         return handleMedia(request, env, url);
       }
 
+      if (url.pathname === "/story-bible" || url.pathname === "/story-bible/") {
+        const authed = await isAuthenticated(request, env);
+        return privateHtml(authed ? storyBiblePage() : loginPage("/story-bible"));
+      }
+
       if (url.pathname === "/admin" || url.pathname === "/admin/") {
         const authed = await isAuthenticated(request, env);
-        return html(authed ? adminPage() : loginPage());
+        return privateHtml(authed ? adminPage() : loginPage("/admin"));
       }
 
       return html(publicPage(url.pathname));
     } catch (err) {
       return new Response("Server error: " + (err?.message || String(err)), { status: 500 });
     }
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(syncStoryBible(env));
   }
 };
 
@@ -60,6 +69,16 @@ async function ensureSchema(env) {
         kobo_url TEXT NOT NULL DEFAULT '',
         visible INTEGER NOT NULL DEFAULT 1,
         sort_order INTEGER NOT NULL DEFAULT 0
+      )
+    `),
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS story_bible_cache (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        snapshot_json TEXT NOT NULL DEFAULT '{}',
+        synced_at TEXT NOT NULL DEFAULT '',
+        sync_status TEXT NOT NULL DEFAULT 'never',
+        sync_error TEXT NOT NULL DEFAULT '',
+        content_hash TEXT NOT NULL DEFAULT ''
       )
     `)
   ]);
@@ -303,6 +322,22 @@ async function handleApi(request, env, url) {
 
   if (!(await isAuthenticated(request, env))) {
     return json({ error: "Unauthorized" }, 401);
+  }
+
+  if (path === "/api/story-bible" && request.method === "GET") {
+    return privateJson(await getStoryBibleCache(env));
+  }
+
+  if (path === "/api/story-bible/sync" && request.method === "POST") {
+    try {
+      await syncStoryBible(env);
+      return privateJson(await getStoryBibleCache(env));
+    } catch (err) {
+      return privateJson({
+        ...(await getStoryBibleCache(env)),
+        error: err?.message || String(err)
+      }, 502);
+    }
   }
 
   if (path === "/api/admin/content" && request.method === "GET") {
@@ -590,6 +625,29 @@ function html(body) {
       "content-type": "text/html; charset=utf-8",
       "x-content-type-options": "nosniff",
       "referrer-policy": "strict-origin-when-cross-origin"
+    }
+  });
+}
+
+function privateHtml(body) {
+  return new Response(body, {
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store, private",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "no-referrer",
+      "x-frame-options": "DENY"
+    }
+  });
+}
+
+function privateJson(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store, private",
+      "x-content-type-options": "nosniff"
     }
   });
 }
@@ -960,7 +1018,7 @@ footer{border-top-color:rgba(208,165,110,.18)}
   .updates{margin:24px 0 22px}
 }
 </style></head>
-<body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a id="navHome" href="/" ${route==="/"?'class="active"':''}>Home</a><a id="navBooks" href="/books" ${route==="/books"?'class="active"':''}>Books</a><a id="navProjects" href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a id="navAbout" href="/about" ${route==="/about"?'class="active"':''}>About</a><span class="header-socials" id="headerSocials"><span class="follow-label">Follow</span><span class="header-social-links" id="headerSocialLinks"></span></span></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links" id="footerLinks"><a class="admin-link" id="contactLink" href="mailto:dcunn1993@gmail.com"><span id="footerContactLabel">Contact</span></a><a class="admin-link" href="/admin"><span id="footerAdminLabel">Admin</span></a></div></div></footer></div>
+<body><div class="wrap"><header><a class="brand" href="/"><span class="mark">DC</span><span id="brandName">Dylan Cunningham</span></a><button class="menu" id="menuBtn" aria-label="Open menu">☰</button><nav id="nav"><a id="navHome" href="/" ${route==="/"?'class="active"':''}>Home</a><a id="navBooks" href="/books" ${route==="/books"?'class="active"':''}>Books</a><a id="navProjects" href="/projects" ${route==="/projects"?'class="active"':''}>Projects</a><a id="navAbout" href="/about" ${route==="/about"?'class="active"':''}>About</a><span class="header-socials" id="headerSocials"><span class="follow-label">Follow</span><span class="header-social-links" id="headerSocialLinks"></span></span></nav></header><main>${body}</main><footer><strong id="footerName"></strong><div class="footer-right"><span>© <span id="year"></span> <span id="footerName2"></span>. <span id="footerText"></span></span><div class="footer-links" id="footerLinks"><a class="admin-link" id="contactLink" href="mailto:dcunn1993@gmail.com"><span id="footerContactLabel">Contact</span></a><a class="admin-link" href="/story-bible"><span>Story Bible</span></a><a class="admin-link" href="/admin"><span id="footerAdminLabel">Admin</span></a></div></div></footer></div>
 <script>
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const safeUrl=u=>{const raw=String(u??"").trim();if(!raw||raw==="#"||raw.toLowerCase()==="javascript:void(0)")return"";try{const x=new URL(raw,location.origin);if(!["http:","https:"].includes(x.protocol))return"";return x.href}catch{return""}};
@@ -981,17 +1039,460 @@ const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.leng
 </script></body></html>`;
 }
 
-function loginPage() {
+
+const ORBISMO_WORLD_ID = "ae5af97f-66fa-40cf-9cea-8b9c63c09437";
+const ORBISMO_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + ORBISMO_WORLD_ID + "/mcp";
+const ORBISMO_PROTOCOL_VERSION = "2025-03-26";
+
+async function getStoryBibleCache(env) {
+  await ensureSchema(env);
+  const row = await env.DB.prepare(
+    "SELECT snapshot_json, synced_at, sync_status, sync_error FROM story_bible_cache WHERE id=1"
+  ).first();
+
+  if (!row) {
+    return {
+      snapshot: null,
+      synced_at: "",
+      status: "never",
+      error: ""
+    };
+  }
+
+  let snapshot = null;
+  try {
+    snapshot = JSON.parse(row.snapshot_json || "null");
+  } catch {}
+
+  return {
+    snapshot,
+    synced_at: row.synced_at || "",
+    status: row.sync_status || "never",
+    error: row.sync_error || ""
+  };
+}
+
+async function syncStoryBible(env) {
+  await ensureSchema(env);
+
+  if (!env.ORBISMO_API_KEY) {
+    const msg = "ORBISMO_API_KEY secret is not configured.";
+    await markStoryBibleSyncError(env, msg);
+    throw new Error(msg);
+  }
+
+  try {
+    const session = await openOrbismoSession(env);
+
+    const context = await orbismoTool(session, env, "get_world_context", { include_stats: true });
+    const instructions = await orbismoTool(session, env, "get_world_instructions", {});
+
+    const compact = [];
+    let cursor = null;
+    do {
+      const page = await orbismoTool(session, env, "search_entities", {
+        view: "compact",
+        limit: 100,
+        ...(cursor ? { cursor } : {})
+      });
+      compact.push(...(page.results || []));
+      cursor = page.next_cursor || null;
+    } while (cursor);
+
+    const entities = [];
+    for (let i = 0; i < compact.length; i += 20) {
+      const ids = compact.slice(i, i + 20).map(x => x.entity_id);
+      const batch = await orbismoTool(session, env, "get_entities", {
+        entity_ids: ids,
+        view: "full",
+        active_only: false,
+        relationships: { limit: 100, embed_target: "name" },
+        lore: { limit: 50, include_content: true }
+      });
+
+      for (const entity of batch.entities || []) {
+        await completeEntityBlocks(session, env, entity);
+        entities.push(entity);
+      }
+    }
+
+    entities.sort((a, b) =>
+      String(a.entity_type || "").localeCompare(String(b.entity_type || "")) ||
+      String(a.name || "").localeCompare(String(b.name || ""))
+    );
+
+    const core = {
+      version: 1,
+      source: "Orbismo",
+      world_id: ORBISMO_WORLD_ID,
+      schema: context,
+      world_instructions: instructions?.instructions || "",
+      entities
+    };
+
+    const serializedCore = JSON.stringify(core);
+    const contentHash = await sha256Hex(serializedCore);
+    const now = new Date().toISOString();
+    const current = await env.DB.prepare(
+      "SELECT content_hash FROM story_bible_cache WHERE id=1"
+    ).first();
+
+    if (current?.content_hash === contentHash) {
+      await env.DB.prepare(\`
+        INSERT INTO story_bible_cache
+          (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+        VALUES
+          (1, '{}', ?, 'ok', '', ?)
+        ON CONFLICT(id) DO UPDATE SET
+          synced_at=excluded.synced_at,
+          sync_status='ok',
+          sync_error='',
+          content_hash=excluded.content_hash
+      \`).bind(now, contentHash).run();
+      return;
+    }
+
+    const snapshot = {
+      ...core,
+      generated_at: now,
+      entity_count: entities.length
+    };
+
+    await env.DB.prepare(\`
+      INSERT INTO story_bible_cache
+        (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+      VALUES
+        (1, ?, ?, 'ok', '', ?)
+      ON CONFLICT(id) DO UPDATE SET
+        snapshot_json=excluded.snapshot_json,
+        synced_at=excluded.synced_at,
+        sync_status='ok',
+        sync_error='',
+        content_hash=excluded.content_hash
+    \`).bind(JSON.stringify(snapshot), now, contentHash).run();
+  } catch (err) {
+    await markStoryBibleSyncError(env, err?.message || String(err));
+    throw err;
+  }
+}
+
+async function markStoryBibleSyncError(env, message) {
+  const now = new Date().toISOString();
+  const clean = String(message || "Unknown sync error").slice(0, 1500);
+  await env.DB.prepare(\`
+    INSERT INTO story_bible_cache
+      (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+    VALUES
+      (1, '{}', ?, 'error', ?, '')
+    ON CONFLICT(id) DO UPDATE SET
+      synced_at=excluded.synced_at,
+      sync_status='error',
+      sync_error=excluded.sync_error
+  \`).bind(now, clean).run();
+}
+
+async function completeEntityBlocks(session, env, entity) {
+  let relCursor = entity?.relationships?.next_cursor || null;
+  while (relCursor) {
+    const page = await orbismoTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id],
+      view: "full",
+      active_only: false,
+      relationships: {
+        limit: 100,
+        cursor: relCursor,
+        embed_target: "name"
+      },
+      lore: { limit: 1, include_content: false }
+    });
+    const item = page.entities?.[0];
+    if (!item) break;
+    entity.relationships.items.push(...(item.relationships?.items || []));
+    relCursor = item.relationships?.next_cursor || null;
+  }
+  if (entity.relationships) {
+    entity.relationships.returned = entity.relationships.items?.length || 0;
+    entity.relationships.next_cursor = null;
+  }
+
+  let loreCursor = entity?.lore?.next_cursor || null;
+  while (loreCursor) {
+    const page = await orbismoTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id],
+      view: "full",
+      active_only: false,
+      relationships: { limit: 1, embed_target: "name" },
+      lore: {
+        limit: 50,
+        cursor: loreCursor,
+        include_content: true
+      }
+    });
+    const item = page.entities?.[0];
+    if (!item) break;
+    entity.lore.items.push(...(item.lore?.items || []));
+    loreCursor = item.lore?.next_cursor || null;
+  }
+  if (entity.lore) {
+    entity.lore.returned = entity.lore.items?.length || 0;
+    entity.lore.next_cursor = null;
+  }
+}
+
+async function openOrbismoSession(env) {
+  const payload = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: {
+      protocolVersion: ORBISMO_PROTOCOL_VERSION,
+      capabilities: {},
+      clientInfo: {
+        name: "dc1993-story-bible",
+        version: "1.0.0"
+      }
+    }
+  };
+
+  const res = await fetch(ORBISMO_MCP_URL, {
+    method: "POST",
+    headers: orbismoHeaders(env),
+    body: JSON.stringify(payload)
+  });
+
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || "Orbismo MCP initialize failed.");
+
+  const sessionId = res.headers.get("mcp-session-id") || "";
+  if (sessionId) {
+    const notify = await fetch(ORBISMO_MCP_URL, {
+      method: "POST",
+      headers: orbismoHeaders(env, sessionId),
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "notifications/initialized",
+        params: {}
+      })
+    });
+    if (!notify.ok) {
+      const body = await notify.text().catch(() => "");
+      throw new Error("Orbismo MCP initialization acknowledgement failed: " + notify.status + " " + body.slice(0, 200));
+    }
+  }
+
+  return { sessionId, nextId: 2 };
+}
+
+async function orbismoTool(session, env, name, args) {
+  const id = session.nextId++;
+  const res = await fetch(ORBISMO_MCP_URL, {
+    method: "POST",
+    headers: orbismoHeaders(env, session.sessionId),
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: {
+        name,
+        arguments: args || {}
+      }
+    })
+  });
+
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || ("Orbismo tool failed: " + name));
+
+  const result = rpc.result || {};
+  if (result.isError) {
+    const msg = Array.isArray(result.content)
+      ? result.content.map(x => x?.text || "").filter(Boolean).join(" ")
+      : "Orbismo tool returned an error.";
+    throw new Error(msg || ("Orbismo tool returned an error: " + name));
+  }
+
+  if (result.structuredContent && typeof result.structuredContent === "object") {
+    return result.structuredContent;
+  }
+
+  if (Array.isArray(result.content)) {
+    const text = result.content
+      .filter(x => x && x.type === "text")
+      .map(x => x.text || "")
+      .join("\n")
+      .trim();
+    if (text) {
+      try { return JSON.parse(text); } catch { return { text }; }
+    }
+  }
+
+  return result;
+}
+
+function orbismoHeaders(env, sessionId = "") {
+  const headers = {
+    "authorization": "Bearer " + env.ORBISMO_API_KEY,
+    "content-type": "application/json",
+    "accept": "application/json, text/event-stream"
+  };
+  if (sessionId) headers["mcp-session-id"] = sessionId;
+  return headers;
+}
+
+async function parseMcpResponse(res) {
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error("Orbismo MCP HTTP " + res.status + ": " + text.slice(0, 400));
+  }
+  if (!text.trim()) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch {}
+
+  const events = text.split(/\r?\n\r?\n/);
+  for (const event of events) {
+    const data = event
+      .split(/\r?\n/)
+      .filter(line => line.startsWith("data:"))
+      .map(line => line.slice(5).trim())
+      .join("\n");
+    if (!data) continue;
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed && (parsed.result || parsed.error || parsed.id !== undefined)) return parsed;
+    } catch {}
+  }
+
+  throw new Error("Orbismo returned an unreadable MCP response.");
+}
+
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function storyBiblePage() {
+  return \`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Story Bible · Dylan Cunningham</title>
+<style>
+:root{--bg:#11100f;--panel:#1b1815;--panel2:#211d19;--line:rgba(255,255,255,.09);--text:#f2eee9;--muted:#a9a096;--accent:#c09b73;--soft:#d8c2aa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+a{color:inherit}.shell{width:min(1420px,calc(100% - 32px));margin:auto;padding:24px 0 56px}
+.top{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}
+h1,h2,h3{font-family:Georgia,serif}.top h1{font-size:clamp(36px,6vw,64px);margin:0}.sub{color:var(--muted);margin:8px 0 0;line-height:1.55}
+.actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 15px;font-weight:700;text-decoration:none;cursor:pointer}.btn.primary{background:var(--accent);color:#17120f;border-color:transparent}
+.statusbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:12px 15px;border-radius:14px;margin-bottom:18px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:#777}.dot.ok{background:#70b780}.dot.error{background:#d97878}.dot.syncing{background:#d4aa63}
+.controls{display:grid;grid-template-columns:minmax(220px,1fr) 180px 220px;gap:10px;margin-bottom:18px}.control{width:100%;border:1px solid var(--line);background:#161310;color:var(--text);padding:13px 14px;border-radius:12px;font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.stat b{display:block;font-family:Georgia,serif;font-size:30px}.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.sidebar,.content{min-width:0}.box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px}.box h2{font-size:20px;margin:0 0 12px}.filter{display:flex;width:100%;justify-content:space-between;gap:12px;border:0;background:transparent;color:var(--text);padding:10px 8px;border-radius:10px;text-align:left;cursor:pointer}.filter:hover,.filter.active{background:rgba(192,155,115,.13)}.count{color:var(--muted)}
+.entity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.entity{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;min-width:0}.entity:hover{border-color:rgba(192,155,115,.48)}.type{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:800}.entity h3{font-size:22px;margin:7px 0 8px}.desc{color:var(--muted);line-height:1.5;font-size:14px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.tag{font-size:11px;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:var(--soft)}
+.empty{padding:42px 18px;text-align:center;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:18px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.74);display:none;align-items:flex-start;justify-content:center;padding:28px 14px;overflow:auto;z-index:30}.modal.open{display:flex}.detail{width:min(900px,100%);background:#171411;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.4)}.detailhead{display:flex;justify-content:space-between;gap:16px}.close{border:0;background:transparent;color:var(--text);font-size:28px;cursor:pointer}.detail h2{font-size:36px;margin:3px 0 8px}.section{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}.section h3{font-size:20px;margin:0 0 10px}.props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.prop{background:var(--panel2);padding:10px 12px;border-radius:10px}.prop small{display:block;color:var(--muted);margin-bottom:4px}.lore{background:var(--panel2);border-radius:13px;padding:14px;margin-top:9px}.lore h4{margin:0 0 8px;font-family:Georgia,serif;font-size:18px}.lore p{white-space:pre-wrap;line-height:1.62;margin:0;color:#ded7d0}.rel{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.rel:last-child{border-bottom:0}.rel span:last-child{color:var(--muted);text-align:right}
+.error{color:#ffabab}
+@media(max-width:850px){.top{display:block}.actions{justify-content:flex-start;margin-top:16px}.controls{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.box{margin:0}.entity-grid{grid-template-columns:1fr}.props{grid-template-columns:1fr}}
+@media(max-width:520px){.shell{width:min(100% - 20px,1420px);padding-top:15px}.sidebar{display:block}.box{margin-bottom:10px}.detail{padding:17px}.detail h2{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top">
+    <div><p class="eyebrow">PRIVATE REFERENCE</p><h1>Story Bible</h1><p class="sub">A searchable mirror of the current Orbismo canon.</p></div>
+    <div class="actions"><button class="btn primary" id="syncBtn">Sync now</button><a class="btn" href="/admin">Admin</a><a class="btn" href="/">Site</a></div>
+  </div>
+  <div class="statusbar"><span class="dot" id="statusDot"></span><span id="syncStatus">Loading…</span></div>
+  <div class="controls">
+    <input class="control" id="search" type="search" placeholder="Search names, lore, descriptions, tags…">
+    <select class="control" id="typeFilter"><option value="">All entity types</option></select>
+    <select class="control" id="seriesFilter"><option value="">All series / catalog</option><option value="where-we-land">Where We Land</option><option value="lives-of-schola">Lives of Schola</option><option value="__catalog">Catalog / unscoped</option></select>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="layout">
+    <aside class="sidebar"><div class="box"><h2>Entity types</h2><div id="typeList"></div></div><div class="box"><h2>Series</h2><div id="seriesList"></div></div></aside>
+    <main class="content"><div class="entity-grid" id="entityGrid"></div></main>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="detail"><div class="detailhead"><div><div class="type" id="detailType"></div><h2 id="detailName"></h2><div class="tags" id="detailTags"></div></div><button class="close" id="closeBtn" aria-label="Close">×</button></div><div class="desc" id="detailDesc"></div><div id="detailBody"></div></div></div>
+<script>
+let SNAP=null,ENTITIES=[],TYPE="",SERIES="",QUERY="";
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const fmt=d=>{if(!d)return"Never";try{return new Date(d).toLocaleString()}catch{return d}};
+const seriesOf=e=>{const t=e.tags||[];if(t.includes("where-we-land"))return"where-we-land";if(t.includes("lives-of-schola"))return"lives-of-schola";return"__catalog"};
+const loreText=e=>(e.lore?.items||[]).map(x=>(x.title||"")+" "+(x.content||"")).join(" ");
+const hay=e=>[e.name,e.short_description,(e.tags||[]).join(" "),JSON.stringify(e.properties||{}),loreText(e)].join(" ").toLowerCase();
+async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/story-bible";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function stat(label,value){return '<div class="stat"><b>'+esc(value)+'</b><span>'+esc(label)+'</span></div>'}
+function labelType(t){return String(t||"").replace(/_/g," ").replace(/\\b\\w/g,c=>c.toUpperCase())}
+function render(){
+  if(!SNAP){document.getElementById("stats").innerHTML=stat("Entities",0)+stat("Series",0)+stat("Books",0)+stat("Lore chunks",0);document.getElementById("entityGrid").innerHTML='<div class="empty">No Orbismo snapshot yet. Tap <b>Sync now</b> after the Worker has the API key.</div>';return}
+  ENTITIES=SNAP.entities||[];
+  const types={};ENTITIES.forEach(e=>types[e.entity_type]=(types[e.entity_type]||0)+1);
+  const lore=ENTITIES.reduce((n,e)=>n+(e.lore?.items?.length||0),0);
+  const books=ENTITIES.filter(e=>e.entity_type==="project"&&(e.tags||[]).includes("book")).length;
+  document.getElementById("stats").innerHTML=stat("Entities",ENTITIES.length)+stat("Series",ENTITIES.filter(e=>e.entity_type==="world").length)+stat("Books",books)+stat("Lore chunks",lore);
+  const typeSelect=document.getElementById("typeFilter");const current=typeSelect.value;typeSelect.innerHTML='<option value="">All entity types</option>'+Object.keys(types).sort().map(t=>'<option value="'+esc(t)+'">'+esc(labelType(t))+' ('+types[t]+')</option>').join("");typeSelect.value=current;
+  document.getElementById("typeList").innerHTML='<button class="filter '+(!TYPE?"active":"")+'" data-type="">All <span class="count">'+ENTITIES.length+'</span></button>'+Object.entries(types).sort((a,b)=>a[0].localeCompare(b[0])).map(([t,n])=>'<button class="filter '+(TYPE===t?"active":"")+'" data-type="'+esc(t)+'">'+esc(labelType(t))+' <span class="count">'+n+'</span></button>').join("");
+  const sc={"where-we-land":0,"lives-of-schola":0,"__catalog":0};ENTITIES.forEach(e=>sc[seriesOf(e)]++);
+  document.getElementById("seriesList").innerHTML='<button class="filter '+(!SERIES?"active":"")+'" data-series="">All <span class="count">'+ENTITIES.length+'</span></button><button class="filter '+(SERIES==="where-we-land"?"active":"")+'" data-series="where-we-land">Where We Land <span class="count">'+sc["where-we-land"]+'</span></button><button class="filter '+(SERIES==="lives-of-schola"?"active":"")+'" data-series="lives-of-schola">Lives of Schola <span class="count">'+sc["lives-of-schola"]+'</span></button><button class="filter '+(SERIES==="__catalog"?"active":"")+'" data-series="__catalog">Catalog <span class="count">'+sc["__catalog"]+'</span></button>';
+  document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{TYPE=b.dataset.type;document.getElementById("typeFilter").value=TYPE;render()});
+  document.querySelectorAll("[data-series]").forEach(b=>b.onclick=()=>{SERIES=b.dataset.series;document.getElementById("seriesFilter").value=SERIES;render()});
+  const q=QUERY.trim().toLowerCase();const filtered=ENTITIES.filter(e=>(!TYPE||e.entity_type===TYPE)&&(!SERIES||seriesOf(e)===SERIES)&&(!q||hay(e).includes(q)));
+  document.getElementById("entityGrid").innerHTML=filtered.length?filtered.map(e=>'<article class="entity" data-id="'+esc(e.entity_id)+'"><div class="type">'+esc(labelType(e.entity_type))+'</div><h3>'+esc(e.name)+'</h3><div class="desc">'+esc(e.short_description||"No description yet.")+'</div><div class="tags">'+(e.tags||[]).slice(0,6).map(t=>'<span class="tag">'+esc(t)+'</span>').join("")+'</div></article>').join(""):'<div class="empty">No matching entries.</div>';
+  document.querySelectorAll(".entity").forEach(el=>el.onclick=()=>openEntity(el.dataset.id));
+}
+function openEntity(id){
+  const e=ENTITIES.find(x=>x.entity_id===id);if(!e)return;
+  document.getElementById("detailType").textContent=labelType(e.entity_type);
+  document.getElementById("detailName").textContent=e.name||"";
+  document.getElementById("detailDesc").textContent=e.short_description||"";
+  document.getElementById("detailTags").innerHTML=(e.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
+  const props=Object.entries(e.properties||{}).filter(([,v])=>v!==null&&v!==""&&v!==undefined);
+  const rels=e.relationships?.items||[];const lore=e.lore?.items||[];
+  let body="";
+  if(props.length)body+='<section class="section"><h3>Properties</h3><div class="props">'+props.map(([k,v])=>'<div class="prop"><small>'+esc(labelType(k))+'</small>'+esc(Array.isArray(v)?v.join(", "):typeof v==="object"?JSON.stringify(v):v)+'</div>').join("")+'</div></section>';
+  if(rels.length)body+='<section class="section"><h3>Relationships</h3>'+rels.map(r=>'<div class="rel"><span>'+esc(r.display_label||r.relationship_type||"Related")+'</span><span>'+esc(r.entity_name||r.entity_id||"")+'</span></div>').join("")+'</section>';
+  if(lore.length)body+='<section class="section"><h3>Lore</h3>'+lore.map(l=>'<article class="lore"><h4>'+esc(l.title||"Lore")+'</h4><p>'+esc(l.content||"")+'</p></article>').join("")+'</section>';
+  document.getElementById("detailBody").innerHTML=body||'<div class="empty" style="margin-top:18px">No additional details yet.</div>';
+  document.getElementById("modal").classList.add("open");
+}
+async function load(){
+  const data=await api("/api/story-bible");
+  SNAP=data.snapshot;
+  const dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");dot.className="dot "+(data.status==="ok"?"ok":data.status==="error"?"error":"");
+  status.innerHTML=data.status==="error"?'<span class="error">Last sync failed: '+esc(data.error||"Unknown error")+'</span>':"Last synced: "+esc(fmt(data.synced_at));
+  render();
+}
+document.getElementById("search").oninput=e=>{QUERY=e.target.value;render()};
+document.getElementById("typeFilter").onchange=e=>{TYPE=e.target.value;render()};
+document.getElementById("seriesFilter").onchange=e=>{SERIES=e.target.value;render()};
+document.getElementById("closeBtn").onclick=()=>document.getElementById("modal").classList.remove("open");
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};
+document.getElementById("syncBtn").onclick=async()=>{const b=document.getElementById("syncBtn"),dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");b.disabled=true;b.textContent="Syncing…";dot.className="dot syncing";status.textContent="Syncing from Orbismo…";try{const data=await api("/api/story-bible/sync",{method:"POST"});SNAP=data.snapshot;await load()}catch(e){status.innerHTML='<span class="error">'+esc(e.message)+'</span>'}finally{b.disabled=false;b.textContent="Sync now"}};
+load().catch(e=>{document.getElementById("syncStatus").innerHTML='<span class="error">'+esc(e.message)+'</span>'});
+</script>
+</body></html>\`;
+}
+
+function loginPage(next = "/admin") {
+  const target = next === "/story-bible" ? "/story-bible" : "/admin";
+  const heading = target === "/story-bible" ? "Story Bible" : "Site Admin";
+
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>DC1993 Admin</title><style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${heading} · DC1993</title><style>
 *{box-sizing:border-box}body{margin:0;background:#11100f;color:#f2eee9;font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}
 .card{width:min(430px,100%);background:#1c1916;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:30px}
 h1{font-family:Georgia,serif;font-size:40px;margin:0 0 8px}.sub{color:#aaa198;line-height:1.6;margin-bottom:24px}
 label{display:block;font-size:13px;margin-bottom:8px}.input{width:100%;padding:14px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#12100f;color:white;font-size:16px}
 button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;background:#c09b73;color:#17120f;font-weight:700;font-size:15px}
 #error{color:#ff9b9b;min-height:20px;margin-top:12px;font-size:13px}</style></head>
-<body><form class="card" id="f"><h1>Site Admin</h1><div class="sub">Edit dc1993.com without touching code.</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
-<script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});if(r.ok){location="/admin"}else{const j=await r.json().catch(()=>({}));document.getElementById("error").textContent=j.error||"Could not sign in."}}</script>
+<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
+<script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});if(r.ok){location=${JSON.stringify(target)}}else{const j=await r.json().catch(()=>({}));document.getElementById("error").textContent=j.error||"Could not sign in."}}</script>
 </body></html>`;
 }
 
