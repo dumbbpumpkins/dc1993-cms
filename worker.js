@@ -1138,7 +1138,7 @@ async function syncStoryBible(env) {
     ).first();
 
     if (current?.content_hash === contentHash) {
-      await env.DB.prepare(\`
+      await env.DB.prepare(`
         INSERT INTO story_bible_cache
           (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
         VALUES
@@ -1148,7 +1148,7 @@ async function syncStoryBible(env) {
           sync_status='ok',
           sync_error='',
           content_hash=excluded.content_hash
-      \`).bind(now, contentHash).run();
+      `).bind(now, contentHash).run();
       return;
     }
 
@@ -1158,7 +1158,7 @@ async function syncStoryBible(env) {
       entity_count: entities.length
     };
 
-    await env.DB.prepare(\`
+    await env.DB.prepare(`
       INSERT INTO story_bible_cache
         (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
       VALUES
@@ -1169,7 +1169,7 @@ async function syncStoryBible(env) {
         sync_status='ok',
         sync_error='',
         content_hash=excluded.content_hash
-    \`).bind(JSON.stringify(snapshot), now, contentHash).run();
+    `).bind(JSON.stringify(snapshot), now, contentHash).run();
   } catch (err) {
     await markStoryBibleSyncError(env, err?.message || String(err));
     throw err;
@@ -1179,7 +1179,7 @@ async function syncStoryBible(env) {
 async function markStoryBibleSyncError(env, message) {
   const now = new Date().toISOString();
   const clean = String(message || "Unknown sync error").slice(0, 1500);
-  await env.DB.prepare(\`
+  await env.DB.prepare(`
     INSERT INTO story_bible_cache
       (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
     VALUES
@@ -1188,7 +1188,7 @@ async function markStoryBibleSyncError(env, message) {
       synced_at=excluded.synced_at,
       sync_status='error',
       sync_error=excluded.sync_error
-  \`).bind(now, clean).run();
+  `).bind(now, clean).run();
 }
 
 async function completeEntityBlocks(session, env, entity) {
@@ -1372,7 +1372,7 @@ async function sha256Hex(text) {
 }
 
 function storyBiblePage() {
-  return \`<!doctype html>
+  return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -1476,7 +1476,7 @@ document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentT
 document.getElementById("syncBtn").onclick=async()=>{const b=document.getElementById("syncBtn"),dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");b.disabled=true;b.textContent="Syncing…";dot.className="dot syncing";status.textContent="Syncing from Orbismo…";try{const data=await api("/api/story-bible/sync",{method:"POST"});SNAP=data.snapshot;await load()}catch(e){status.innerHTML='<span class="error">'+esc(e.message)+'</span>'}finally{b.disabled=false;b.textContent="Sync now"}};
 load().catch(e=>{document.getElementById("syncStatus").innerHTML='<span class="error">'+esc(e.message)+'</span>'});
 </script>
-</body></html>\`;
+</body></html>`;
 }
 
 function loginPage(next = "/admin") {
