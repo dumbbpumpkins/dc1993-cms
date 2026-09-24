@@ -1332,7 +1332,8 @@ function orbismoHeaders(env, sessionId = "") {
   const headers = {
     "authorization": "Bearer " + env.ORBISMO_API_KEY,
     "content-type": "application/json",
-    "accept": "application/json, text/event-stream"
+    "accept": "application/json, text/event-stream",
+    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
   };
   if (sessionId) headers["mcp-session-id"] = sessionId;
   return headers;
