@@ -14,10 +14,5 @@
       "binding": "COVERS",
       "bucket_name": "dc1993-covers"
     }
-  ],
-  "triggers": {
-    "crons": [
-      "* * * * *"
-    ]
-  }
+  ]
 }
