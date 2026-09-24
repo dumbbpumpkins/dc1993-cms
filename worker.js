@@ -1,3 +1,4 @@
+// Cloudflare Git reconnect deployment probe.
 // Deployment refresh: Hot Guys dashboard + read/write Orbismo integration.
 const COOKIE_NAME = "dc1993_admin";
 
