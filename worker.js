@@ -325,7 +325,24 @@ async function handleApi(request, env, url) {
   }
 
   if (path === "/api/story-bible" && request.method === "GET") {
-    return privateJson(await getStoryBibleCache(env));
+    let cache = await getStoryBibleCache(env);
+    const last = Date.parse(cache.synced_at || "");
+    const stale = !cache.snapshot || !Number.isFinite(last) || (Date.now() - last) > 65000;
+
+    if (stale && env.ORBISMO_API_KEY) {
+      try {
+        await syncStoryBible(env);
+        cache = await getStoryBibleCache(env);
+      } catch (err) {
+        cache = {
+          ...(await getStoryBibleCache(env)),
+          status: "error",
+          error: err?.message || String(err)
+        };
+      }
+    }
+
+    return privateJson(cache);
   }
 
   if (path === "/api/story-bible/sync" && request.method === "POST") {
@@ -1476,6 +1493,7 @@ document.getElementById("closeBtn").onclick=()=>document.getElementById("modal")
 document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};
 document.getElementById("syncBtn").onclick=async()=>{const b=document.getElementById("syncBtn"),dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");b.disabled=true;b.textContent="Syncing…";dot.className="dot syncing";status.textContent="Syncing from Orbismo…";try{const data=await api("/api/story-bible/sync",{method:"POST"});SNAP=data.snapshot;await load()}catch(e){status.innerHTML='<span class="error">'+esc(e.message)+'</span>'}finally{b.disabled=false;b.textContent="Sync now"}};
 load().catch(e=>{document.getElementById("syncStatus").innerHTML='<span class="error">'+esc(e.message)+'</span>'});
+setInterval(()=>load().catch(()=>{}),60000);
 </script>
 </body></html>`;
 }
