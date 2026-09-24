@@ -1,4 +1,4 @@
-dc1993.com — Remnant + Witness website update
+dc1993.com — Remnant + Witness website update. 
    
 Included file: 
 - worker.js — complete replacement for the current main/worker.js
