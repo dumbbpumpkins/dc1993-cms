@@ -990,49 +990,306 @@ function publicPage(pathname = "/") {
 header{height:86px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px;text-decoration:none;min-width:0}.mark{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-family:Georgia,serif;color:var(--accent);flex:0 0 auto}.brand span:last-child{font:600 21px/1 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}nav{display:flex;gap:28px;align-items:center}nav a{text-decoration:none;color:var(--muted);font-size:14px}nav a.active{color:var(--text)}.header-socials{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-left:2px;padding-left:20px;border-left:1px solid var(--line)}.follow-label{color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}.header-social-links{display:flex;align-items:center;gap:14px}.header-socials a{color:var(--accent);font-size:12px;letter-spacing:.04em}.menu{display:none;background:none;border:1px solid var(--line);color:var(--text);border-radius:50%;width:44px;height:44px;font-size:22px}
 .eyebrow{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.22em;margin:0 0 20px}h1,h2,h3{font-family:Georgia,"Times New Roman",serif}h1{font-size:clamp(48px,6.4vw,86px);line-height:.98;letter-spacing:-.035em;margin:0;max-width:800px}.lead{color:var(--muted);font-size:17px;line-height:1.75;max-width:700px;margin:28px 0 0}#projectsText{max-width:none}
 .hero{min-height:650px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(330px,.9fr);gap:56px;align-items:center;padding:70px 0 90px}.copy,.art{min-width:0}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}.btn{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;border:0;border-radius:999px;padding:15px 22px;font-weight:700;font-size:14px}.primary{background:var(--accent);color:#18130f}.secondary{border:1px solid var(--line);background:rgba(255,255,255,.02)}.art{min-height:520px;position:relative;display:grid;place-items:center}.book-fan{position:relative;width:390px;height:460px;max-width:100%}.fakebook{position:absolute;width:245px;height:370px;border-radius:8px 18px 18px 8px;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.5);background:linear-gradient(145deg,#29202d,#140f17);overflow:hidden}.fakebook:nth-child(1){right:8px;top:8px;transform:rotate(7deg);background:linear-gradient(145deg,#302725,#171413)}.fakebook:nth-child(2){left:20px;top:75px;transform:rotate(-5deg)}.fakebook .small{font-size:10px;letter-spacing:.18em}.fakebook .big{position:absolute;left:28px;top:155px;font:700 42px/.9 Georgia,serif}.fakebook .author{position:absolute;left:28px;bottom:30px;font-size:9px;letter-spacing:.18em}.hero-cover{position:absolute;width:245px;height:370px;object-fit:cover;border-radius:8px 18px 18px 8px;box-shadow:0 30px 70px rgba(0,0,0,.5)}.hero-cover:nth-child(1){right:8px;top:8px;transform:rotate(7deg)}.hero-cover:nth-child(2){left:20px;top:75px;transform:rotate(-5deg)}
-.page-hero{padding:92px 0 48px}.page-hero.compact h1{font-size:clamp(46px,6vw,74px)}.main{padding:28px 0 100px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.card{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:25px;overflow:hidden}.cover{aspect-ratio:2/3;background:radial-gradient(circle at 50% 42%,rgba(126,90,147,.72),transparent 24%),linear-gradient(145deg,#281e2c,#120d15);position:relative;overflow:hidden}.cover.alt{background:linear-gradient(145deg,#30383d,#131719)}.cover.warm{background:radial-gradient(circle at 50% 20%,rgba(190,130,85,.3),transparent 28%),linear-gradient(#484247,#171618)}.cover img{width:100%;height:100%;object-fit:cover}.coverplaceholder{position:absolute;inset:0;padding:28px;display:flex;align-items:center;justify-content:center;text-align:center;font:700 42px/.9 Georgia,serif}.info{padding:28px}.genre{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.info h3{font-size:31px;margin:8px 0 12px}.info p{color:var(--muted);line-height:1.65;min-height:80px}.badge{display:inline-flex;border:1px solid rgba(192,155,115,.35);color:var(--accent);border-radius:999px;padding:10px 13px;font-size:12px;font-weight:700}.buy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}.buy a{border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-decoration:none;text-align:center;font-size:12px}.empty{padding:50px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);grid-column:1/-1}.review-note{margin-top:22px;padding:17px 18px;border:1px solid rgba(192,155,115,.26);border-radius:16px;background:linear-gradient(135deg,rgba(192,155,115,.09),rgba(118,99,126,.08));box-shadow:0 12px 28px rgba(0,0,0,.12)}.review-note strong{display:block;font:700 17px/1.25 Georgia,"Times New Roman",serif;color:var(--text);margin:0 0 6px}.review-note span{display:block;color:var(--muted);font-size:13px;line-height:1.55}.review-link{display:inline-flex;align-items:center;justify-content:center;margin-top:13px;border:1px solid rgba(192,155,115,.42);border-radius:999px;padding:10px 14px;color:var(--accent);text-decoration:none;font-size:12px;font-weight:700;transition:background .15s ease,border-color .15s ease,color .15s ease}.review-link:hover{background:var(--accent);border-color:var(--accent);color:#18130f}
+.page-hero{padding:92px 0 48px}.page-hero.compact h1{font-size:clamp(46px,6vw,74px)}.main{padding:28px 0 100px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch}.card{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:25px;overflow:hidden;display:flex;flex-direction:column;height:100%}.cover{aspect-ratio:2/3;background:radial-gradient(circle at 50% 42%,rgba(126,90,147,.72),transparent 24%),linear-gradient(145deg,#281e2c,#120d15);position:relative;overflow:hidden}.cover.alt{background:linear-gradient(145deg,#30383d,#131719)}.cover.warm{background:radial-gradient(circle at 50% 20%,rgba(190,130,85,.3),transparent 28%),linear-gradient(#484247,#171618)}.cover img{width:100%;height:100%;object-fit:cover}.coverplaceholder{position:absolute;inset:0;padding:28px;display:flex;align-items:center;justify-content:center;text-align:center;font:700 42px/.9 Georgia,serif}.info{padding:28px;display:flex;flex-direction:column;flex:1}.genre{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.info h3{font-size:31px;margin:8px 0 12px}.info p{color:var(--muted);line-height:1.65;min-height:80px}.badge{display:inline-flex;border:1px solid rgba(192,155,115,.35);color:var(--accent);border-radius:999px;padding:10px 13px;font-size:12px;font-weight:700}.buy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:auto;padding-top:20px}.buy a{border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-decoration:none;text-align:center;font-size:12px}.review-note{margin-top:22px;padding:18px 19px;border:1px solid rgba(192,155,115,.22);border-radius:16px;background:linear-gradient(135deg,rgba(192,155,115,.09),rgba(118,99,126,.08))}.review-note strong{display:block;font:700 17px/1.2 Georgia,serif;color:var(--text);margin-bottom:6px}.review-note span{display:block;color:var(--muted);font-size:13px;line-height:1.55}.review-link{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;padding:10px 14px;border-radius:999px;background:var(--accent);color:#18130f!important;text-decoration:none;font-size:12px;font-weight:800;letter-spacing:.01em}.empty{padding:50px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);grid-column:1/-1}
 .home-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;padding:10px 0 30px}.home-links a{display:block;text-decoration:none;border:1px solid var(--line);border-radius:24px;padding:30px;background:rgba(255,255,255,.025)}.home-links h2{font-size:30px;margin:4px 0 12px}.home-links p{color:var(--muted);line-height:1.6;margin:0}.updates{margin:70px 0 36px;padding:48px;border:1px solid var(--line);border-radius:26px;background:radial-gradient(circle at 85% 20%,rgba(118,99,126,.23),transparent 22rem),var(--panel)}.updates h2{font-size:clamp(36px,4.5vw,56px);margin:0 0 14px}.updates p{color:var(--muted);line-height:1.7;max-width:760px}@media(max-width:620px){.instagram-card{border-radius:12px}.instagram-card img{aspect-ratio:auto;max-height:none;object-fit:contain;background:#000}}
 .project-page-grid{display:grid;gap:28px;padding:10px 0 100px}.project-card.large{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,1.1fr);border:1px solid var(--line);border-radius:26px;overflow:hidden;background:rgba(255,255,255,.03)}.project-image{min-height:360px;background:linear-gradient(145deg,#25201d,#151312);display:grid;place-items:center}.project-image img{width:100%;height:100%;object-fit:cover;min-height:360px}.project-copy{padding:44px;min-width:0}.project-copy h2{font-size:clamp(36px,4vw,52px);margin:0 0 18px;overflow-wrap:anywhere}.project-copy>p:not(.eyebrow){color:var(--muted);line-height:1.75;white-space:pre-line;margin:0}.skill-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}.skill-tag{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.2;color:var(--text);background:rgba(255,255,255,.015)}.skill-tags:empty{display:none}.project-image:has(img[src=""]){display:none}.project-card.large:has(.project-image img[src=""]){grid-template-columns:1fr}
 .about-page{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:60px;padding:100px 0 120px;align-items:start}.about-profile,.about-copy,.about-identity{min-width:0}.about-identity{display:flex;align-items:center;gap:24px}.author-photo-wrap{display:none;flex:0 0 auto}.author-photo{width:150px;height:150px;object-fit:cover;border-radius:50%;border:1px solid var(--line);box-shadow:0 18px 45px rgba(0,0,0,.28)}.about-page h1{font-size:clamp(42px,5vw,64px);max-width:100%;overflow-wrap:anywhere}.about-copy p{color:var(--muted);line-height:1.82;white-space:pre-line;font-size:17px;margin:42px 0 0}
 footer{border-top:1px solid var(--line);padding:38px 0 48px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;align-items:flex-end}.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right}.footer-links{display:flex;gap:14px}.admin-link{font-size:10px;color:rgba(170,161,152,.52);text-decoration:none;letter-spacing:.10em;text-transform:uppercase}
 @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:56px;gap:20px}.art{min-height:440px}.grid{grid-template-columns:1fr 1fr}.home-links{grid-template-columns:1fr}.page-hero.compact h1{font-size:clamp(40px,7.5vw,60px)}.project-card.large{grid-template-columns:1fr}.project-copy h2{font-size:clamp(34px,6.5vw,46px)}.about-page{grid-template-columns:1fr;gap:20px}.about-page h1{font-size:clamp(38px,6.5vw,52px)}}
-@media(max-width:620px){.wrap{width:min(100% - 28px,var(--max))}header{height:78px}.brand span:last-child{font-size:20px;max-width:210px}nav{display:none;position:absolute;top:78px;left:14px;right:14px;background:#171411;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:50;flex-direction:column;align-items:stretch;gap:0}nav>a{padding:12px 2px}.header-socials{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:10px 0 0;padding:14px 0 0;border-left:0;border-top:1px solid var(--line)}.follow-label{padding:2px 2px 7px;font-size:10px}.header-social-links{display:flex;flex-direction:column;align-items:stretch;gap:0}.header-socials a{padding:12px 2px;font-size:14px}.menu{display:block}nav.open{display:flex}.hero{min-height:auto;padding:54px 0 66px;gap:22px}h1{font-size:clamp(36px,10.2vw,48px);line-height:1.02}.lead{font-size:16px}.actions{display:grid;grid-template-columns:1fr}.actions .btn{width:100%}.art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}.grid{grid-template-columns:1fr}.info h3{font-size:27px;line-height:1.06}.info p{min-height:0}.buy{grid-template-columns:repeat(2,minmax(0,1fr))}.buy a{padding:11px 8px}.page-hero{padding:66px 0 34px}.page-hero.compact h1{font-size:clamp(36px,10vw,46px)}.home-links h2{font-size:28px}.project-copy{padding:28px 22px}.project-copy h2{font-size:clamp(34px,9vw,43px);line-height:1.04}.project-image,.project-image img{min-height:230px}.about-page{padding:68px 0 90px}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px}.author-photo{width:104px;height:104px}.about-page h1{font-size:clamp(32px,8.8vw,41px);line-height:1.02}.about-copy p{margin-top:20px}.updates{margin:52px 0 28px;padding:30px 24px}.updates h2{font-size:clamp(32px,9vw,44px)}.instagram-feature{margin:0 0 76px;padding:24px 14px}.instagram-head{padding:0 10px}.instagram-head h2{font-size:clamp(30px,8vw,40px)}.instagram-grid{grid-template-columns:1fr;width:100%}.instagram-slot{display:none}.instagram-slot:first-child{display:block;width:100%;max-width:100%;overflow:hidden}.instagram-slot:first-child .instagram-media{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important}.instagram-slot:first-child iframe{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important}.instagram-slot:first-child blockquote{min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important}.instagram-slot:first-child blockquote>div{max-width:100%!important}.instagram-empty{min-height:170px}}
+@media(max-width:620px){.wrap{width:min(100% - 28px,var(--max))}header{height:78px}.brand span:last-child{font-size:20px;max-width:210px}nav{display:none;position:absolute;top:78px;left:14px;right:14px;background:#171411;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:50;flex-direction:column;align-items:stretch;gap:0}nav>a{padding:12px 2px}.header-socials{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:10px 0 0;padding:14px 0 0;border-left:0;border-top:1px solid var(--line)}.follow-label{padding:2px 2px 7px;font-size:10px}.header-social-links{display:flex;flex-direction:column;align-items:stretch;gap:0}.header-socials a{padding:12px 2px;font-size:14px}.menu{display:block}nav.open{display:flex}.hero{min-height:auto;padding:54px 0 66px;gap:22px}h1{font-size:clamp(36px,10.2vw,48px);line-height:1.02}.lead{font-size:16px}.actions{display:grid;grid-template-columns:1fr}.actions .btn{width:100%}.art{min-height:370px}.book-fan{width:310px;height:360px}.fakebook,.hero-cover{width:195px;height:300px}.fakebook:nth-child(2),.hero-cover:nth-child(2){left:16px;top:52px}.fakebook .big{left:22px;top:125px;font-size:34px}.fakebook .author{left:22px;bottom:24px}.grid{grid-template-columns:1fr}.info h3{font-size:27px;line-height:1.06}.info p{min-height:0}.buy{grid-template-columns:repeat(2,minmax(0,1fr))}.buy a{padding:11px 8px}.page-hero{padding:66px 0 34px}.page-hero.compact h1{font-size:clamp(36px,10vw,46px)}.home-links h2{font-size:28px}.project-copy{padding:28px 22px}.project-copy h2{font-size:clamp(34px,9vw,43px);line-height:1.04}.project-image,.project-image img{min-height:230px}.about-page{padding:68px 0 90px}.about-identity{display:grid;grid-template-columns:104px minmax(0,1fr);gap:16px}.author-photo{width:104px;height:104px}.about-page h1{font-size:clamp(32px,8.8vw,41px);line-height:1.02}.about-copy p{margin-top:20px}.updates{margin:52px 0 28px;padding:30px 24px}.updates h2{font-size:clamp(32px,9vw,44px)}.instagram-feature{margin:0 0 76px;padding:24px 14px}.instagram-head{padding:0 10px}.instagram-head h2{font-size:clamp(30px,8vw,40px)}.instagram-grid{grid-template-columns:1fr;width:100%}.instagram-slot{display:none}.instagram-slot:first-child{display:block;width:100%;max-width:100%;overflow:hidden}.instagram-slot:first-child .instagram-media{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important}.instagram-slot:first-child iframe{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}footer{flex-direction:column;align-items:flex-start}.footer-right{align-items:flex-start;text-align:left}}
 
-/* Home page redesign */
-.home-hero{position:relative;min-height:610px;border-bottom:1px solid var(--line)}
-.home-hero:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(192,155,115,.35),transparent)}
-.home-feature{display:grid;grid-template-columns:minmax(0,.82fr) minmax(360px,1.18fr);gap:70px;align-items:center;padding:72px 0 54px}
-.home-feature-copy h2{font-size:clamp(38px,4.8vw,62px);line-height:1;margin:0 0 18px;max-width:570px}
-.home-feature-copy p{color:var(--muted);font-size:16px;line-height:1.7;max-width:520px;margin:0 0 26px}
-.text-link{display:inline-flex;align-items:center;gap:9px;color:var(--accent);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.04em}
-.text-link span{transition:transform .2s ease}.text-link:hover span{transform:translateX(4px)}
-.home-shelf{position:relative;display:flex;align-items:flex-end;justify-content:center;height:330px;min-width:0;padding:0 20px;isolation:isolate}
-.home-shelf:after{content:"";position:absolute;left:8%;right:8%;bottom:15px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);box-shadow:0 18px 28px rgba(0,0,0,.4);z-index:-1}
-.home-shelf-book{display:block;position:relative;width:min(180px,31%);aspect-ratio:2/3;border-radius:5px 12px 12px 5px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 25px 44px rgba(0,0,0,.48);background:#211b1e;transform-origin:bottom center;transition:transform .2s ease,filter .2s ease;flex:0 0 auto}
-.home-shelf-book+ .home-shelf-book{margin-left:-16px}
-.home-shelf-book:nth-child(1){transform:translateY(16px) rotate(-4deg);z-index:1}
-.home-shelf-book:nth-child(2){transform:translateY(-3px);z-index:3}
-.home-shelf-book:nth-child(3){transform:translateY(16px) rotate(4deg);z-index:2}
-.home-shelf-book:hover{z-index:6;filter:brightness(1.08)}
-.home-shelf-book:nth-child(1):hover{transform:translateY(7px) rotate(-2deg)}
-.home-shelf-book:nth-child(2):hover{transform:translateY(-12px)}
-.home-shelf-book:nth-child(3):hover{transform:translateY(7px) rotate(2deg)}
+/* Theme playground: Literary Night */
+body{
+  background:
+    radial-gradient(circle at 82% 4%,rgba(119,92,136,.20),transparent 31rem),
+    radial-gradient(circle at 10% 12%,rgba(193,151,101,.13),transparent 27rem),
+    linear-gradient(180deg,#0f0e10 0%,#131113 48%,#0d0c0e 100%);
+  color:#f5f0e9;
+}
+:root{
+  --bg:#0f0e10;
+  --panel:#191619;
+  --text:#f5f0e9;
+  --muted:#b9aea5;
+  --accent:#d0a56e;
+  --accent2:#876f93;
+  --line:rgba(236,220,203,.13);
+}
+header{
+  height:92px;
+  border-bottom:1px solid rgba(208,165,110,.20);
+}
+.mark{
+  border-color:rgba(208,165,110,.32);
+  background:rgba(208,165,110,.055);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.brand span:last-child{letter-spacing:.015em}
+nav a{transition:color .18s ease}
+nav a:hover{color:var(--text)}
+.eyebrow{
+  color:#d7ad78;
+  letter-spacing:.24em;
+}
+h1,h2,h3{
+  font-weight:500;
+  text-wrap:balance;
+}
+h1{
+  line-height:.96;
+  letter-spacing:-.041em;
+  text-shadow:0 2px 26px rgba(0,0,0,.20);
+}
+.lead{color:#c2b7ae}
+.hero{
+  min-height:680px;
+  padding-top:78px;
+  padding-bottom:104px;
+}
+.primary{
+  background:linear-gradient(180deg,#d7ad78,#c49761);
+  color:#17110c;
+  box-shadow:0 10px 30px rgba(178,128,72,.16);
+}
+.secondary{
+  border-color:rgba(236,220,203,.18);
+  background:rgba(255,255,255,.025);
+}
+.btn{
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.secondary:hover{
+  border-color:rgba(208,165,110,.38);
+  background:rgba(208,165,110,.055);
+}
+.home-links{gap:22px}
+.home-links a{
+  display:block;
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:30px;
+  background:rgba(255,255,255,.025);
+  box-shadow:none;
+  transition:none;
+}
+.home-links a:before{content:none}
+.home-links a:hover{
+  transform:none;
+  border-color:var(--line);
+  background:rgba(255,255,255,.025);
+}
+.home-links h2{font-weight:500}
+.card,.project-card.large,.instagram-feature{
+  border-color:rgba(236,220,203,.12);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.008)),
+    rgba(19,16,19,.70);
+  box-shadow:0 22px 55px rgba(0,0,0,.14);
+}
+.card{border-radius:20px}
+.info{padding:30px}
+.info h3{font-weight:500;letter-spacing:-.015em}
+.buy a,.skill-tag{
+  border-color:rgba(236,220,203,.14);
+  background:rgba(255,255,255,.018);
+}
+.buy a:hover{
+  border-color:rgba(208,165,110,.32);
+  background:rgba(208,165,110,.05);
+}
+.badge{
+  border-color:rgba(208,165,110,.42);
+  background:rgba(208,165,110,.055);
+}
+.page-hero{padding-top:104px}
+.page-hero:after{
+  content:"";
+  display:block;
+  width:68px;
+  height:1px;
+  margin-top:34px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+}
+.updates{
+  border-color:rgba(208,165,110,.18);
+  background:
+    radial-gradient(circle at 86% 15%,rgba(119,92,136,.25),transparent 23rem),
+    linear-gradient(145deg,rgba(208,165,110,.045),rgba(255,255,255,.012)),
+    #171419;
+  box-shadow:0 24px 70px rgba(0,0,0,.16);
+}
+.project-image{
+  background:
+    radial-gradient(circle at 50% 20%,rgba(119,92,136,.15),transparent 55%),
+    #141216;
+}
+.author-photo{
+  border-color:rgba(208,165,110,.28);
+  box-shadow:0 20px 55px rgba(0,0,0,.34),0 0 0 6px rgba(208,165,110,.035);
+}
+footer{border-top-color:rgba(208,165,110,.18)}
+@media(max-width:620px){
+  header{height:78px}
+  .hero{padding-top:58px;padding-bottom:72px}
+  .page-hero{padding-top:72px}
+}
+
+/* Homepage revamp */
+.home-hero{
+  position:relative;
+  padding-top:96px;
+  padding-bottom:118px;
+}
+.home-hero:after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(208,165,110,.34),transparent);
+}
+.home-feature{
+  display:grid;
+  grid-template-columns:minmax(0,.82fr) minmax(420px,1.18fr);
+  gap:70px;
+  align-items:center;
+  padding:112px 0 108px;
+  border-bottom:1px solid rgba(236,220,203,.11);
+}
+.home-feature-copy h2{
+  font:500 clamp(42px,5vw,68px)/.98 Georgia,"Times New Roman",serif;
+  letter-spacing:-.03em;
+  margin:0 0 22px;
+  max-width:560px;
+}
+.home-feature-copy p{
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.75;
+  max-width:510px;
+  margin:0;
+}
+.text-link{
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+  margin-top:28px;
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:700;
+  font-size:14px;
+}
+.text-link span{font-size:18px;transition:transform .18s ease}
+.text-link:hover span{transform:translateX(4px)}
+.home-shelf{
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-end;
+  gap:18px;
+  min-height:430px;
+  padding:22px 0 6px;
+}
+.home-shelf-book{
+  position:relative;
+  width:min(29%,190px);
+  aspect-ratio:2/3;
+  border-radius:5px 13px 13px 5px;
+  overflow:hidden;
+  background:#171319;
+  box-shadow:0 26px 58px rgba(0,0,0,.38);
+  transform-origin:bottom center;
+}
+.home-shelf-book:nth-child(1){transform:translateY(22px) rotate(-3deg)}
+.home-shelf-book:nth-child(2){transform:translateY(-8px);z-index:2}
+.home-shelf-book:nth-child(3){transform:translateY(24px) rotate(3deg)}
 .home-shelf-book img{width:100%;height:100%;object-fit:cover}
-.home-shelf-placeholder{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font:700 20px/1.05 Georgia,serif;color:var(--text);background:radial-gradient(circle at 50% 35%,rgba(118,99,126,.45),transparent 35%),linear-gradient(145deg,#29202d,#140f17)}
-.home-paths{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:10px 0 0}
-.home-path{position:relative;display:grid;grid-template-columns:110px 1fr auto;gap:28px;align-items:start;text-decoration:none;padding:34px 28px 34px 0;min-width:0}
-.home-path+.home-path{border-left:1px solid var(--line);padding-left:34px}
-.home-path .eyebrow{margin:6px 0 0;font-size:10px}
-.home-path h2{font-size:30px;margin:0 0 8px}
-.home-path p{color:var(--muted);line-height:1.55;margin:0;font-size:14px}
-.home-path-arrow{font-size:20px;color:var(--accent);transition:transform .2s ease}
-.home-path:hover .home-path-arrow{transform:translate(3px,-3px)}
+.home-shelf-placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  text-align:center;
+  color:var(--text);
+  font:500 24px/1.05 Georgia,serif;
+  border:1px solid var(--line);
+}
+.home-paths{
+  padding:18px 0 42px;
+}
+.home-path{
+  display:grid;
+  grid-template-columns:170px minmax(0,1fr) 48px;
+  gap:28px;
+  align-items:center;
+  padding:42px 4px;
+  text-decoration:none;
+  border-bottom:1px solid rgba(236,220,203,.11);
+}
+.home-path:first-child{border-top:1px solid rgba(236,220,203,.11)}
+.home-path .eyebrow{margin:0}
+.home-path h2{
+  margin:0 0 8px;
+  font-size:clamp(32px,4vw,50px);
+  font-weight:500;
+  letter-spacing:-.02em;
+}
+.home-path p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.65;
+}
+.home-path-arrow{
+  justify-self:end;
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  color:var(--accent);
+  font-size:19px;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.home-path:hover .home-path-arrow{
+  transform:translate(2px,-2px);
+  border-color:rgba(208,165,110,.40);
+  background:rgba(208,165,110,.055);
+}
 @media(max-width:900px){
-  .home-feature{grid-template-columns:1fr;gap:20px;padding-top:52px}
-  .home-feature-copy{max-width:650px}
-  .home-shelf{height:315px}
-  .home-paths{grid-template-columns:1fr}
-  .home-path+.home-path{border-left:0;border-top:1px solid var(--line);padding-left:0}
+  .home-feature{grid-template-columns:1fr;gap:34px;padding:82px 0}
+  .home-shelf{justify-content:center;min-height:390px}
+  .home-shelf-book{width:min(29%,180px)}
+  .home-path{grid-template-columns:135px minmax(0,1fr) 44px}
+}
+@media(max-width:620px){
+  .home-hero{padding-top:60px;padding-bottom:76px}
+  .home-feature{padding:68px 0 62px;gap:30px}
+  .home-feature-copy h2{font-size:clamp(38px,11vw,50px)}
+  .home-shelf{min-height:285px;gap:10px;padding-top:10px}
+  .home-shelf-book{width:31%;max-width:126px}
+  .home-path{grid-template-columns:1fr 42px;gap:14px 12px;padding:34px 0}
+  .home-path .eyebrow{grid-column:1/-1;margin-bottom:4px}
+  .home-path div{grid-column:1}
+  .home-path-arrow{grid-column:2;grid-row:2;align-self:center}
+  .home-path h2{font-size:34px;line-height:1.02}
+  .home-path p{font-size:15px}
+}
+
+/* Homepage spacing refinements */
+.home-feature{padding:72px 0 58px;gap:44px}
+.home-shelf{min-height:310px;padding:0}
+.home-paths{padding:0 0 12px}
+.home-path{padding:26px 4px}
+.updates{margin:34px 0 28px}
+@media(max-width:900px){
+  .home-feature{padding:64px 0 56px;gap:24px}
+  .home-shelf{min-height:320px}
+  .home-path{padding:26px 0}
+  .updates{margin:38px 0 26px}
 }
 @media(max-width:620px){
   .home-feature{padding:44px 0 30px;gap:10px}
@@ -1084,130 +1341,358 @@ function chatArchiveHeaders(env, sessionId = "") {
   const headers = {
     "authorization": "Bearer " + chatArchiveKey(env),
     "content-type": "application/json",
-    "accept": "application/json, text/event-stream"
+    "accept": "application/json, text/event-stream",
+    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
   };
   if (sessionId) headers["mcp-session-id"] = sessionId;
   return headers;
 }
 
 async function openChatArchiveSession(env) {
-  if (!chatArchiveKey(env)) throw new Error("ORBIT/Orbismo archive API key is not configured.");
+  if (!chatArchiveKey(env)) throw new Error("Chat Archive Orbismo API key is not configured.");
   const res = await fetch(CHAT_ARCHIVE_MCP_URL, {
-    method: "POST", headers: chatArchiveHeaders(env),
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "dc1993-chat-archive", version: "1.0" } } })
+    method: "POST",
+    headers: chatArchiveHeaders(env),
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: 1, method: "initialize",
+      params: {
+        protocolVersion: ORBISMO_PROTOCOL_VERSION,
+        capabilities: {},
+        clientInfo: { name: "dc1993-chat-archive", version: "1.0.0" }
+      }
+    })
   });
-  const text = await res.text();
-  if (!res.ok) throw new Error("Orbismo archive initialization failed (" + res.status + "): " + text.slice(0, 300));
-  const sessionId = res.headers.get("mcp-session-id") || res.headers.get("Mcp-Session-Id") || "";
-  if (!sessionId) throw new Error("Orbismo archive did not return an MCP session ID.");
-  return sessionId;
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || "Chat Archive Orbismo initialize failed.");
+  const sessionId = res.headers.get("mcp-session-id") || "";
+  if (sessionId) {
+    const notify = await fetch(CHAT_ARCHIVE_MCP_URL, {
+      method: "POST",
+      headers: chatArchiveHeaders(env, sessionId),
+      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized", params: {} })
+    });
+    if (!notify.ok) throw new Error("Chat Archive Orbismo initialization acknowledgement failed.");
+  }
+  return { sessionId, nextId: 2 };
 }
 
-async function chatArchiveTool(sessionId, env, name, args) {
+async function chatArchiveTool(session, env, name, args, attempt = 0) {
   const res = await fetch(CHAT_ARCHIVE_MCP_URL, {
-    method: "POST", headers: chatArchiveHeaders(env, sessionId),
-    body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name, arguments: args || {} } })
+    method: "POST",
+    headers: chatArchiveHeaders(env, session.sessionId),
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: session.nextId++,
+      method: "tools/call",
+      params: { name, arguments: args || {} }
+    })
   });
-  const text = await res.text();
-  if (!res.ok) throw new Error("Orbismo archive tool " + name + " failed (" + res.status + "): " + text.slice(0, 350));
-  const decoded = parseMcpResponse(text);
-  if (decoded?.isError) throw new Error("Orbismo archive tool " + name + " returned an error.");
-  const parsed = decodeMcpContent(decoded);
-  if (parsed && typeof parsed === "object") return parsed;
-  throw new Error("Orbismo archive tool " + name + " returned an unreadable response.");
+
+  if (res.status === 429 && attempt < 2) {
+    const delay = Math.min(30000, Math.max(2000, Number(res.headers.get("retry-after") || 5) * 1000));
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return chatArchiveTool(session, env, name, args, attempt + 1);
+  }
+
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || ("Chat Archive Orbismo tool failed: " + name));
+  const result = rpc.result || {};
+  if (result.isError) {
+    const msg = Array.isArray(result.content)
+      ? result.content.map(x => x?.text || "").filter(Boolean).join(" ")
+      : "Chat Archive Orbismo tool returned an error.";
+    throw new Error(msg || ("Chat Archive Orbismo tool returned an error: " + name));
+  }
+  if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent;
+  if (Array.isArray(result.content)) {
+    const txt = result.content.filter(x => x && x.type === "text").map(x => x.text || "").join("\n").trim();
+    if (txt) { try { return JSON.parse(txt); } catch { return { text: txt }; } }
+  }
+  return result;
 }
 
 function archiveSourceTime(value) {
+  if (value === null || value === undefined || value === "") return "";
   const n = Number(value);
-  if (!Number.isFinite(n) || n <= 0) return "";
-  const ms = n < 100000000000 ? n * 1000 : n;
-  try { return new Date(ms).toISOString(); } catch { return ""; }
+  const d = Number.isFinite(n)
+    ? new Date(n > 100000000000 ? n : n * 1000)
+    : new Date(String(value));
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString();
 }
 
-function buildArchiveChunks(messages) {
+function archiveMessageBlock(m) {
+  const header = "[[message index=" + m.index + " role=" + m.role + " time=" + (m.time || "unavailable") + " id=" + (m.id || "unavailable") + "]]";
+  let body = m.text || "";
+  if (m.attachments?.length) {
+    body += (body ? "\n\n" : "") + "[[attachments]]\n" + m.attachments.map(a => JSON.stringify(a)).join("\n");
+  }
+  return header + "\n" + body;
+}
+
+function buildArchiveChunks(messages, maxChars = 9000) {
   const chunks = [];
   let current = [];
-  let chars = 0;
-  const limit = 32000;
-  for (const m of messages) {
-    const piece = JSON.stringify({ id: m.id, role: m.role, time: m.time, text: m.text, attachments: m.attachments, index: m.index });
-    if (current.length && chars + piece.length + 1 > limit) {
-      chunks.push(makeArchiveChunk(current)); current = []; chars = 0;
+  let size = 0;
+  const flush = () => {
+    if (!current.length) return;
+    chunks.push({
+      first: current[0].message,
+      last: current[current.length - 1].message,
+      content: current.map(x => x.block).join("\n\n-----\n\n")
+    });
+    current = [];
+    size = 0;
+  };
+
+  for (const message of messages) {
+    const block = archiveMessageBlock(message);
+    if (block.length <= maxChars) {
+      if (current.length && size + block.length + 9 > maxChars) flush();
+      current.push({ message, block });
+      size += block.length + 9;
+      continue;
     }
-    current.push(m); chars += piece.length + 1;
+
+    flush();
+    const header = "[[message index=" + message.index + " role=" + message.role + " time=" + (message.time || "unavailable") + " id=" + (message.id || "unavailable") + "]]";
+    const partSize = Math.max(1000, maxChars - header.length - 100);
+    const total = Math.max(1, Math.ceil((message.text || "").length / partSize));
+    for (let p = 0; p < total; p++) {
+      let content = header + " part=" + (p + 1) + "/" + total + "\n" + (message.text || "").slice(p * partSize, (p + 1) * partSize);
+      if (p === total - 1 && message.attachments?.length) {
+        content += "\n\n[[attachments]]\n" + message.attachments.map(a => JSON.stringify(a)).join("\n");
+      }
+      chunks.push({ first: message, last: message, content });
+    }
   }
-  if (current.length) chunks.push(makeArchiveChunk(current));
+  flush();
   return chunks;
 }
 
-function makeArchiveChunk(messages) {
-  const first = messages[0], last = messages[messages.length - 1];
-  const lines = messages.map(m => "CHAT_ARCHIVE_MESSAGE " + JSON.stringify({ source_message_id: m.id || "", role: m.role, time: m.time || "", source_index: m.index, text: m.text, attachments: m.attachments || [] }));
-  return { first, last, content: lines.join("\n") };
-}
-
 function archiveChunkTitle(chunk, index, total) {
-  const a = Number(chunk.first?.index || 0) + 1, b = Number(chunk.last?.index || 0) + 1;
-  return "Messages " + a + "-" + b + " · part " + (index + 1) + " of " + total;
+  const first = chunk.first?.index ?? index;
+  const last = chunk.last?.index ?? first;
+  return "Transcript " + String(index + 1).padStart(3, "0") + "/" + String(total).padStart(3, "0") + " · messages " + (first === last ? first : first + "-" + last);
 }
 
-async function listArchiveLoreIds(sessionId, env, entityId) {
+async function listArchiveLoreIds(session, env, entityId) {
   const ids = [];
-  let offset = 0;
-  for (let page = 0; page < 100; page++) {
-    const out = await chatArchiveTool(sessionId, env, "list_entity_lore", { entity_id: entityId, limit: 100, offset });
-    const rows = out.results || out.lore || out.items || [];
-    for (const row of rows) {
-      const id = row?.lore_id || row?.id;
-      if (id) ids.push(id);
-    }
-    if (!out.has_more || !rows.length) break;
-    offset += rows.length;
-  }
+  let cursor = null;
+  do {
+    const got = await chatArchiveTool(session, env, "get_entities", {
+      entity_ids: [entityId],
+      view: "full",
+      active_only: false,
+      relationships: { limit: 1, embed_target: "name" },
+      lore: { limit: 50, include_content: false, ...(cursor ? { cursor } : {}) }
+    });
+    const entity = got.entities?.[0];
+    if (!entity) break;
+    for (const item of entity.lore?.items || []) if (item.lore_id) ids.push(item.lore_id);
+    cursor = entity.lore?.next_cursor || null;
+  } while (cursor);
   return ids;
 }
 
-function parseMcpResponse(text) {
-  const trimmed = String(text || "").trim();
-  if (!trimmed) return null;
-  if (trimmed[0] === "{") return JSON.parse(trimmed);
-  const data = trimmed.split(/\r?\n/).filter(line => line.startsWith("data:")).map(line => line.slice(5).trim()).filter(Boolean).filter(x => x !== "[DONE]");
-  for (let i = data.length - 1; i >= 0; i--) {
-    try { return JSON.parse(data[i]); } catch {}
+const HOT_GUYS_WORLD_ID = "0b8b5a5d-42bb-4e12-a143-046eff715257";
+const HOT_GUYS_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + HOT_GUYS_WORLD_ID + "/mcp";
+
+function cleanHotGuysProperties(input) {
+  const out = {};
+  for (const key of ["first_noticed","last_noted","known_from","attraction_status"]) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) out[key] = String(input[key] || "").trim();
   }
-  return null;
+  for (const key of ["favorite_features","vibe_tags","aliases"]) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+    const raw = input[key];
+    out[key] = Array.isArray(raw)
+      ? raw.map(x => String(x).trim()).filter(Boolean).slice(0, 50)
+      : String(raw || "").split(/[\n,]+/).map(x => x.trim()).filter(Boolean).slice(0, 50);
+  }
+  return out;
 }
 
-function decodeMcpContent(decoded) {
-  const content = decoded?.result?.content || decoded?.content;
-  if (!Array.isArray(content)) return decoded?.result || decoded;
-  for (const item of content) {
-    if (item?.type === "text" && typeof item.text === "string") {
-      try { return JSON.parse(item.text); } catch { return { text: item.text }; }
+async function getHotGuysCache(env) {
+  await ensureSchema(env);
+  const row = await env.DB.prepare("SELECT snapshot_json, synced_at, sync_status, sync_error FROM hot_guys_cache WHERE id=1").first();
+  if (!row) return { snapshot: null, synced_at: "", status: "never", error: "" };
+  let snapshot = null;
+  try { snapshot = JSON.parse(row.snapshot_json || "null"); } catch {}
+  return { snapshot, synced_at: row.synced_at || "", status: row.sync_status || "never", error: row.sync_error || "" };
+}
+
+async function markHotGuysSyncError(env, message) {
+  const now = new Date().toISOString();
+  const clean = String(message || "Unknown sync error").slice(0, 1500);
+  await env.DB.prepare(`
+    INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+    VALUES (1, '{}', ?, 'error', ?, '')
+    ON CONFLICT(id) DO UPDATE SET synced_at=excluded.synced_at, sync_status='error', sync_error=excluded.sync_error
+  `).bind(now, clean).run();
+}
+
+function hotGuysHeaders(env, sessionId = "") {
+  const headers = {
+    "authorization": "Bearer " + env.ORBISMO_HOT_GUYS_API_KEY,
+    "content-type": "application/json",
+    "accept": "application/json, text/event-stream",
+    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
+  };
+  if (sessionId) headers["mcp-session-id"] = sessionId;
+  return headers;
+}
+
+async function openHotGuysSession(env) {
+  if (!env.ORBISMO_HOT_GUYS_API_KEY) throw new Error("ORBISMO_HOT_GUYS_API_KEY secret is not configured.");
+  const res = await fetch(HOT_GUYS_MCP_URL, {
+    method: "POST",
+    headers: hotGuysHeaders(env),
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: 1, method: "initialize",
+      params: { protocolVersion: ORBISMO_PROTOCOL_VERSION, capabilities: {}, clientInfo: { name: "dc1993-hot-guys", version: "1.0.0" } }
+    })
+  });
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || "Hot Guys Orbismo MCP initialize failed.");
+  const sessionId = res.headers.get("mcp-session-id") || "";
+  if (sessionId) {
+    const notify = await fetch(HOT_GUYS_MCP_URL, {
+      method: "POST",
+      headers: hotGuysHeaders(env, sessionId),
+      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized", params: {} })
+    });
+    if (!notify.ok) throw new Error("Hot Guys Orbismo initialization acknowledgement failed.");
+  }
+  return { sessionId, nextId: 2 };
+}
+
+async function hotGuysTool(session, env, name, args) {
+  const id = session.nextId++;
+  const res = await fetch(HOT_GUYS_MCP_URL, {
+    method: "POST",
+    headers: hotGuysHeaders(env, session.sessionId),
+    body: JSON.stringify({ jsonrpc: "2.0", id, method: "tools/call", params: { name, arguments: args || {} } })
+  });
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || ("Hot Guys Orbismo tool failed: " + name));
+  const result = rpc.result || {};
+  if (result.isError) {
+    const msg = Array.isArray(result.content) ? result.content.map(x => x?.text || "").filter(Boolean).join(" ") : "Hot Guys Orbismo tool returned an error.";
+    throw new Error(msg || ("Hot Guys Orbismo tool returned an error: " + name));
+  }
+  if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent;
+  if (Array.isArray(result.content)) {
+    const text = result.content.filter(x => x && x.type === "text").map(x => x.text || "").join("\n").trim();
+    if (text) { try { return JSON.parse(text); } catch { return { text }; } }
+  }
+  return result;
+}
+
+async function completeHotGuysEntityBlocks(session, env, entity) {
+  let relCursor = entity?.relationships?.next_cursor || null;
+  while (relCursor) {
+    const page = await hotGuysTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id], view: "full", active_only: false,
+      relationships: { limit: 100, cursor: relCursor, embed_target: "name" },
+      lore: { limit: 1, include_content: false }
+    });
+    const item = page.entities?.[0]; if (!item) break;
+    entity.relationships.items.push(...(item.relationships?.items || []));
+    relCursor = item.relationships?.next_cursor || null;
+  }
+  if (entity.relationships) { entity.relationships.returned = entity.relationships.items?.length || 0; entity.relationships.next_cursor = null; }
+
+  let loreCursor = entity?.lore?.next_cursor || null;
+  while (loreCursor) {
+    const page = await hotGuysTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id], view: "full", active_only: false,
+      relationships: { limit: 1, embed_target: "name" },
+      lore: { limit: 50, cursor: loreCursor, include_content: true }
+    });
+    const item = page.entities?.[0]; if (!item) break;
+    entity.lore.items.push(...(item.lore?.items || []));
+    loreCursor = item.lore?.next_cursor || null;
+  }
+  if (entity.lore) { entity.lore.returned = entity.lore.items?.length || 0; entity.lore.next_cursor = null; }
+}
+
+async function syncHotGuys(env) {
+  await ensureSchema(env);
+  if (!env.ORBISMO_HOT_GUYS_API_KEY) {
+    const msg = "ORBISMO_HOT_GUYS_API_KEY secret is not configured.";
+    await markHotGuysSyncError(env, msg); throw new Error(msg);
+  }
+  try {
+    const session = await openHotGuysSession(env);
+    const context = await hotGuysTool(session, env, "get_world_context", { include_stats: true });
+    const instructions = await hotGuysTool(session, env, "get_world_instructions", {});
+    const compact = []; let cursor = null;
+    do {
+      const page = await hotGuysTool(session, env, "search_entities", { view: "compact", limit: 100, ...(cursor ? { cursor } : {}) });
+      compact.push(...(page.results || [])); cursor = page.next_cursor || null;
+    } while (cursor);
+
+    const entities = [];
+    for (let i = 0; i < compact.length; i += 20) {
+      const batch = await hotGuysTool(session, env, "get_entities", {
+        entity_ids: compact.slice(i, i + 20).map(x => x.entity_id),
+        view: "full", active_only: false,
+        relationships: { limit: 100, embed_target: "name" },
+        lore: { limit: 50, include_content: true }
+      });
+      for (const entity of batch.entities || []) { await completeHotGuysEntityBlocks(session, env, entity); entities.push(entity); }
     }
+
+    entities.sort((a,b) => String(a.name || "").localeCompare(String(b.name || "")));
+    const core = { version: 1, source: "Orbismo", world_id: HOT_GUYS_WORLD_ID, schema: context, world_instructions: instructions?.instructions || "", entities };
+    const contentHash = await sha256Hex(JSON.stringify(core));
+    const now = new Date().toISOString();
+    const current = await env.DB.prepare("SELECT content_hash FROM hot_guys_cache WHERE id=1").first();
+
+    if (current?.content_hash === contentHash) {
+      await env.DB.prepare(`
+        INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+        VALUES (1, '{}', ?, 'ok', '', ?)
+        ON CONFLICT(id) DO UPDATE SET synced_at=excluded.synced_at, sync_status='ok', sync_error='', content_hash=excluded.content_hash
+      `).bind(now, contentHash).run();
+      return;
+    }
+
+    const snapshot = { ...core, generated_at: now, entity_count: entities.length };
+    await env.DB.prepare(`
+      INSERT INTO hot_guys_cache (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+      VALUES (1, ?, ?, 'ok', '', ?)
+      ON CONFLICT(id) DO UPDATE SET snapshot_json=excluded.snapshot_json, synced_at=excluded.synced_at, sync_status='ok', sync_error='', content_hash=excluded.content_hash
+    `).bind(JSON.stringify(snapshot), now, contentHash).run();
+  } catch (err) {
+    await markHotGuysSyncError(env, err?.message || String(err)); throw err;
   }
-  return decoded?.result || decoded;
 }
 
-async function sha256Hex(value) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(value || "")));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function loginPage(next = "/admin") {
-  const safeNext = String(next || "/admin").startsWith("/") ? String(next || "/admin") : "/admin";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Private Access</title><style>
-  :root{--bg:#11100f;--panel:#1c1916;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--line:rgba(255,255,255,.1)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 10%,rgba(118,99,126,.2),transparent 30rem),var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}.box{width:min(470px,100%);border:1px solid var(--line);border-radius:24px;padding:34px;background:var(--panel)}h1{font:700 42px/1 Georgia,serif;margin:0 0 10px}p{color:var(--muted);line-height:1.6}input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:#12100f;color:var(--text);font-size:16px}button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:999px;background:var(--accent);font-weight:800;color:#18130f;cursor:pointer}.err{color:#ef9d9d;min-height:22px;margin-top:12px;font-size:13px}</style></head><body><form class="box" id="f"><div style="color:#c09b73;font-size:11px;letter-spacing:.2em;margin-bottom:12px">PRIVATE ACCESS</div><h1>Sign in</h1><p>This area is private.</p><input id="p" type="password" autocomplete="current-password" placeholder="Password" autofocus><button>Continue</button><div id="e" class="err"></div></form><script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});const j=await r.json();if(r.ok)location=${JSON.stringify(safeNext)};else document.getElementById("e").textContent=j.error||"Login failed"}</script></body></html>`;
-}
-
+const ORBISMO_WORLD_ID = "ae5af97f-66fa-40cf-9cea-8b9c63c09437";
+const ORBISMO_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + ORBISMO_WORLD_ID + "/mcp";
+const ORBISMO_PROTOCOL_VERSION = "2025-03-26";
 
 async function getStoryBibleCache(env) {
   await ensureSchema(env);
-  const row = await env.DB.prepare("SELECT * FROM story_bible_cache WHERE id=1").first();
-  if (!row) return { snapshot: null, synced_at: "", status: "never", error: "" };
+  const row = await env.DB.prepare(
+    "SELECT snapshot_json, synced_at, sync_status, sync_error FROM story_bible_cache WHERE id=1"
+  ).first();
+
+  if (!row) {
+    return {
+      snapshot: null,
+      synced_at: "",
+      status: "never",
+      error: ""
+    };
+  }
 
   let snapshot = null;
-  try { snapshot = JSON.parse(row.snapshot_json || "{}"); } catch {}
+  try {
+    snapshot = JSON.parse(row.snapshot_json || "null");
+  } catch {}
+
   return {
     snapshot,
     synced_at: row.synced_at || "",
@@ -1216,240 +1701,565 @@ async function getStoryBibleCache(env) {
   };
 }
 
+async function syncStoryBible(env) {
+  await ensureSchema(env);
+
+  if (!env.ORBISMO_API_KEY) {
+    const msg = "ORBISMO_API_KEY secret is not configured.";
+    await markStoryBibleSyncError(env, msg);
+    throw new Error(msg);
+  }
+
+  try {
+    const session = await openOrbismoSession(env);
+
+    const context = await orbismoTool(session, env, "get_world_context", { include_stats: true });
+    const instructions = await orbismoTool(session, env, "get_world_instructions", {});
+
+    const compact = [];
+    let cursor = null;
+    do {
+      const page = await orbismoTool(session, env, "search_entities", {
+        view: "compact",
+        limit: 100,
+        ...(cursor ? { cursor } : {})
+      });
+      compact.push(...(page.results || []));
+      cursor = page.next_cursor || null;
+    } while (cursor);
+
+    const entities = [];
+    for (let i = 0; i < compact.length; i += 20) {
+      const ids = compact.slice(i, i + 20).map(x => x.entity_id);
+      const batch = await orbismoTool(session, env, "get_entities", {
+        entity_ids: ids,
+        view: "full",
+        active_only: false,
+        relationships: { limit: 100, embed_target: "name" },
+        lore: { limit: 50, include_content: true }
+      });
+
+      for (const entity of batch.entities || []) {
+        await completeEntityBlocks(session, env, entity);
+        entities.push(entity);
+      }
+    }
+
+    entities.sort((a, b) =>
+      String(a.entity_type || "").localeCompare(String(b.entity_type || "")) ||
+      String(a.name || "").localeCompare(String(b.name || ""))
+    );
+
+    const core = {
+      version: 1,
+      source: "Orbismo",
+      world_id: ORBISMO_WORLD_ID,
+      schema: context,
+      world_instructions: instructions?.instructions || "",
+      entities
+    };
+
+    const serializedCore = JSON.stringify(core);
+    const contentHash = await sha256Hex(serializedCore);
+    const now = new Date().toISOString();
+    const current = await env.DB.prepare(
+      "SELECT content_hash FROM story_bible_cache WHERE id=1"
+    ).first();
+
+    if (current?.content_hash === contentHash) {
+      await env.DB.prepare(`
+        INSERT INTO story_bible_cache
+          (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+        VALUES
+          (1, '{}', ?, 'ok', '', ?)
+        ON CONFLICT(id) DO UPDATE SET
+          synced_at=excluded.synced_at,
+          sync_status='ok',
+          sync_error='',
+          content_hash=excluded.content_hash
+      `).bind(now, contentHash).run();
+      return;
+    }
+
+    const snapshot = {
+      ...core,
+      generated_at: now,
+      entity_count: entities.length
+    };
+
+    await env.DB.prepare(`
+      INSERT INTO story_bible_cache
+        (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+      VALUES
+        (1, ?, ?, 'ok', '', ?)
+      ON CONFLICT(id) DO UPDATE SET
+        snapshot_json=excluded.snapshot_json,
+        synced_at=excluded.synced_at,
+        sync_status='ok',
+        sync_error='',
+        content_hash=excluded.content_hash
+    `).bind(JSON.stringify(snapshot), now, contentHash).run();
+  } catch (err) {
+    await markStoryBibleSyncError(env, err?.message || String(err));
+    throw err;
+  }
+}
+
+async function markStoryBibleSyncError(env, message) {
+  const now = new Date().toISOString();
+  const clean = String(message || "Unknown sync error").slice(0, 1500);
+  await env.DB.prepare(`
+    INSERT INTO story_bible_cache
+      (id, snapshot_json, synced_at, sync_status, sync_error, content_hash)
+    VALUES
+      (1, '{}', ?, 'error', ?, '')
+    ON CONFLICT(id) DO UPDATE SET
+      synced_at=excluded.synced_at,
+      sync_status='error',
+      sync_error=excluded.sync_error
+  `).bind(now, clean).run();
+}
+
+async function completeEntityBlocks(session, env, entity) {
+  let relCursor = entity?.relationships?.next_cursor || null;
+  while (relCursor) {
+    const page = await orbismoTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id],
+      view: "full",
+      active_only: false,
+      relationships: {
+        limit: 100,
+        cursor: relCursor,
+        embed_target: "name"
+      },
+      lore: { limit: 1, include_content: false }
+    });
+    const item = page.entities?.[0];
+    if (!item) break;
+    entity.relationships.items.push(...(item.relationships?.items || []));
+    relCursor = item.relationships?.next_cursor || null;
+  }
+  if (entity.relationships) {
+    entity.relationships.returned = entity.relationships.items?.length || 0;
+    entity.relationships.next_cursor = null;
+  }
+
+  let loreCursor = entity?.lore?.next_cursor || null;
+  while (loreCursor) {
+    const page = await orbismoTool(session, env, "get_entities", {
+      entity_ids: [entity.entity_id],
+      view: "full",
+      active_only: false,
+      relationships: { limit: 1, embed_target: "name" },
+      lore: {
+        limit: 50,
+        cursor: loreCursor,
+        include_content: true
+      }
+    });
+    const item = page.entities?.[0];
+    if (!item) break;
+    entity.lore.items.push(...(item.lore?.items || []));
+    loreCursor = item.lore?.next_cursor || null;
+  }
+  if (entity.lore) {
+    entity.lore.returned = entity.lore.items?.length || 0;
+    entity.lore.next_cursor = null;
+  }
+}
+
+async function openOrbismoSession(env) {
+  const payload = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: {
+      protocolVersion: ORBISMO_PROTOCOL_VERSION,
+      capabilities: {},
+      clientInfo: {
+        name: "dc1993-story-bible",
+        version: "1.0.0"
+      }
+    }
+  };
+
+  const res = await fetch(ORBISMO_MCP_URL, {
+    method: "POST",
+    headers: orbismoHeaders(env),
+    body: JSON.stringify(payload)
+  });
+
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || "Orbismo MCP initialize failed.");
+
+  const sessionId = res.headers.get("mcp-session-id") || "";
+  if (sessionId) {
+    const notify = await fetch(ORBISMO_MCP_URL, {
+      method: "POST",
+      headers: orbismoHeaders(env, sessionId),
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "notifications/initialized",
+        params: {}
+      })
+    });
+    if (!notify.ok) {
+      const body = await notify.text().catch(() => "");
+      throw new Error("Orbismo MCP initialization acknowledgement failed: " + notify.status + " " + body.slice(0, 200));
+    }
+  }
+
+  return { sessionId, nextId: 2 };
+}
+
+async function orbismoTool(session, env, name, args) {
+  const id = session.nextId++;
+  const res = await fetch(ORBISMO_MCP_URL, {
+    method: "POST",
+    headers: orbismoHeaders(env, session.sessionId),
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: {
+        name,
+        arguments: args || {}
+      }
+    })
+  });
+
+  const rpc = await parseMcpResponse(res);
+  if (rpc.error) throw new Error(rpc.error.message || ("Orbismo tool failed: " + name));
+
+  const result = rpc.result || {};
+  if (result.isError) {
+    const msg = Array.isArray(result.content)
+      ? result.content.map(x => x?.text || "").filter(Boolean).join(" ")
+      : "Orbismo tool returned an error.";
+    throw new Error(msg || ("Orbismo tool returned an error: " + name));
+  }
+
+  if (result.structuredContent && typeof result.structuredContent === "object") {
+    return result.structuredContent;
+  }
+
+  if (Array.isArray(result.content)) {
+    const text = result.content
+      .filter(x => x && x.type === "text")
+      .map(x => x.text || "")
+      .join("\n")
+      .trim();
+    if (text) {
+      try { return JSON.parse(text); } catch { return { text }; }
+    }
+  }
+
+  return result;
+}
+
 function orbismoHeaders(env, sessionId = "") {
   const headers = {
-    "authorization": `Bearer ${env.ORBISMO_API_KEY}`,
+    "authorization": "Bearer " + env.ORBISMO_API_KEY,
     "content-type": "application/json",
-    "accept": "application/json, text/event-stream"
+    "accept": "application/json, text/event-stream",
+    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
   };
   if (sessionId) headers["mcp-session-id"] = sessionId;
   return headers;
 }
 
-async function openOrbismoSession(env) {
-  const res = await fetch(env.ORBISMO_MCP_URL, {
-    method: "POST",
-    headers: orbismoHeaders(env),
-    body: JSON.stringify({
-      jsonrpc: "2.0", id: 1, method: "initialize",
-      params: { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "dc1993-story-bible", version: "1.0" } }
-    })
-  });
+async function parseMcpResponse(res) {
   const text = await res.text();
-  if (!res.ok) throw new Error(`Orbismo initialization failed (${res.status}): ${text.slice(0,300)}`);
-  const sessionId = res.headers.get("mcp-session-id") || res.headers.get("Mcp-Session-Id") || "";
-  if (!sessionId) throw new Error("Orbismo did not return an MCP session ID.");
-  return sessionId;
-}
-
-async function orbismoTool(sessionId, env, name, args = {}) {
-  const res = await fetch(env.ORBISMO_MCP_URL, {
-    method: "POST",
-    headers: orbismoHeaders(env, sessionId),
-    body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name, arguments: args } })
-  });
-
-  const text = await res.text();
-  if (!res.ok) throw new Error(`Orbismo tool ${name} failed (${res.status}): ${text.slice(0,350)}`);
-  const decoded = parseMcpResponse(text);
-  if (decoded?.isError) throw new Error(`Orbismo tool ${name} returned an error.`);
-  const parsed = decodeMcpContent(decoded);
-  if (parsed && typeof parsed === "object") return parsed;
-  throw new Error(`Orbismo tool ${name} returned an unreadable response.`);
-}
-
-async function pagedOrbismo(sessionId, env, toolName, args = {}, pageSize = 100) {
-  const out = [];
-  let offset = 0;
-  for (let page = 0; page < 100; page++) {
-    const data = await orbismoTool(sessionId, env, toolName, { ...args, limit: pageSize, offset });
-    const rows = data.results || data.entities || data.relationships || data.lore || [];
-    if (Array.isArray(rows)) out.push(...rows);
-    if (!data.has_more || !rows.length) break;
-    offset += rows.length;
+  if (!res.ok) {
+    throw new Error("Orbismo MCP HTTP " + res.status + ": " + text.slice(0, 400));
   }
-  return out;
-}
+  if (!text.trim()) return {};
 
-function relationshipProjectId(r) {
-  const target = r?.target_id || r?.to_entity_id || r?.to_id || r?.target?.entity_id || r?.target?.id;
-  const source = r?.source_id || r?.from_entity_id || r?.from_id || r?.source?.entity_id || r?.source?.id;
-  const proj = [source, target].find(x => String(x || "").startsWith("project/"));
-  return proj || "";
-}
+  try {
+    return JSON.parse(text);
+  } catch {}
 
-function relatedEntityId(r) {
-  const target = r?.target_id || r?.to_entity_id || r?.to_id || r?.target?.entity_id || r?.target?.id;
-  const source = r?.source_id || r?.from_entity_id || r?.from_id || r?.source?.entity_id || r?.source?.id;
-  return [source, target].find(x => x && !String(x).startsWith("project/")) || "";
-}
-
-async function syncStoryBible(env) {
-  if (!env.DB) throw new Error("D1 binding DB is missing.");
-  if (!env.ORBISMO_MCP_URL || !env.ORBISMO_API_KEY) throw new Error("Orbismo bindings are missing.");
-  await ensureSchema(env);
-
-  const session = await openOrbismoSession(env);
-  const projects = await pagedOrbismo(session, env, "search_entities", { entity_type: "project", view: "full" });
-  const relationships = await pagedOrbismo(session, env, "search_relationships", {});
-
-  const seriesProjects = projects.filter(p => p?.properties?.project_type === "series");
-  const bookProjects = projects.filter(p => p?.properties?.project_type === "book");
-  const projectMap = new Map(projects.map(p => [p.entity_id, p]));
-
-  const series = [];
-  for (const s of seriesProjects) {
-    const sid = s.entity_id;
-    const rels = relationships.filter(r => relationshipProjectId(r) === sid);
-    const bookIds = rels.filter(r => String(r.relationship_type || r.type || "").toUpperCase() === "CONTAINS_BOOK").map(relatedEntityId).filter(Boolean);
-    const books = bookIds.map(id => projectMap.get(id)).filter(Boolean);
-
-    const memberRels = rels.filter(r => String(r.relationship_type || r.type || "").toUpperCase() === "BELONGS_TO_WORLD");
-    const memberIds = [...new Set(memberRels.map(relatedEntityId).filter(Boolean))];
-    const detailIds = new Set([...memberIds, sid, ...bookIds]);
-
-    for (const b of books) {
-      const brels = relationships.filter(r => relationshipProjectId(r) === b.entity_id);
-      brels.filter(r => String(r.relationship_type || r.type || "").toUpperCase() === "CONTAINS_BOOK").forEach(r => detailIds.add(relatedEntityId(r)));
-    }
-
-    const entities = [];
-    for (const id of detailIds) {
-      const entityType = String(id).split("/")[0] || "";
-      const found = await orbismoTool(session, env, "get_entity", { entity_id: id });
-      const e = found.entity || found;
-      if (!e?.entity_id) continue;
-      const lore = await pagedOrbismo(session, env, "list_entity_lore", { entity_id: e.entity_id });
-      entities.push({ ...e, lore, entity_type: e.entity_type || entityType });
-    }
-
-    series.push({
-      entity_id: sid,
-      name: s.name,
-      description: s.description || "",
-      properties: s.properties || {},
-      tags: s.tags || [],
-      books: books.map(b => ({ entity_id: b.entity_id, name: b.name, description: b.description || "", properties: b.properties || {}, tags: b.tags || [] })),
-      entities
-    });
+  const events = text.split(/\r?\n\r?\n/);
+  for (const event of events) {
+    const data = event
+      .split(/\r?\n/)
+      .filter(line => line.startsWith("data:"))
+      .map(line => line.slice(5).trim())
+      .join("\n");
+    if (!data) continue;
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed && (parsed.result || parsed.error || parsed.id !== undefined)) return parsed;
+    } catch {}
   }
 
-  const snapshot = { generated_at: new Date().toISOString(), series };
-  const text = JSON.stringify(snapshot);
-  const hash = await sha256Hex(text);
-  const now = new Date().toISOString();
-
-  await env.DB.prepare(`
-    INSERT INTO story_bible_cache (id,snapshot_json,synced_at,sync_status,sync_error,content_hash)
-    VALUES (1,?,?,?,?,?)
-    ON CONFLICT(id) DO UPDATE SET snapshot_json=excluded.snapshot_json,synced_at=excluded.synced_at,sync_status=excluded.sync_status,sync_error=excluded.sync_error,content_hash=excluded.content_hash
-  `).bind(text, now, "ok", "", hash).run();
+  throw new Error("Orbismo returned an unreadable MCP response.");
 }
 
-
-
-const HOT_GUYS_MCP_URL = "https://app.orbismo.com/api/v1/worlds/b4f340c6-c29c-4b75-bc90-fdd140a893a2/mcp";
-const HOT_GUYS_ROSTER_ID = "group/the_roster";
-
-function hotGuysHeaders(env, sessionId = "") {
-  const key = String(env.ORBISMO_HOT_GUYS_API_KEY || "").trim();
-  const headers = { "authorization": "Bearer " + key, "content-type": "application/json", "accept": "application/json, text/event-stream" };
-  if (sessionId) headers["mcp-session-id"] = sessionId;
-  return headers;
-}
-
-async function openHotGuysSession(env) {
-  if (!String(env.ORBISMO_HOT_GUYS_API_KEY || "").trim()) throw new Error("ORIBISMO_HOT_GUYS_API_KEY is not configured.");
-  const res = await fetch(HOT_GUYS_MCP_URL, { method: "POST", headers: hotGuysHeaders(env), body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "dc1993-hot-guys", version: "1.0" } } }) });
-  const text = await res.text();
-  if (!res.ok) throw new Error("Hot Guys Orbismo initialization failed (" + res.status + "): " + text.slice(0, 300));
-  const sessionId = res.headers.get("mcp-session-id") || res.headers.get("Mcp-Session-Id") || "";
-  if (!sessionId) throw new Error("Hot Guys Orbismo did not return an MCP session ID.");
-  return sessionId;
-}
-
-async function hotGuysTool(sessionId, env, name, args) {
-  const res = await fetch(HOT_GUYS_MCP_URL, { method: "POST", headers: hotGuysHeaders(env, sessionId), body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name, arguments: args || {} } }) });
-  const text = await res.text();
-  if (!res.ok) throw new Error("Hot Guys Orbismo tool " + name + " failed (" + res.status + "): " + text.slice(0, 350));
-  const decoded = parseMcpResponse(text);
-  if (decoded?.isError) throw new Error("Hot Guys Orbismo tool " + name + " returned an error.");
-  const parsed = decodeMcpContent(decoded);
-  if (parsed && typeof parsed === "object") return parsed;
-  throw new Error("Hot Guys Orbismo tool " + name + " returned an unreadable response.");
-}
-
-function cleanHotGuysProperties(input) {
-  const allowed = ["alias","pronouns","age","birth_year","status","occupation","location","attractiveness_score","vibe","body_type","hair","eyes","height","facial_hair","hands","feet","voice","smile","style","signature_outfit","accessories","distinctive_features","appeal_notes","canonical","reference_count","notes"];
-  const out = {};
-  for (const key of allowed) if (Object.prototype.hasOwnProperty.call(input, key)) out[key] = input[key];
-  return out;
-}
-
-async function getHotGuysCache(env) {
-  await ensureSchema(env);
-  const row = await env.DB.prepare("SELECT * FROM hot_guys_cache WHERE id=1").first();
-  if (!row) return { snapshot: null, synced_at: "", status: "never", error: "" };
-  let snapshot = null;
-  try { snapshot = JSON.parse(row.snapshot_json || "{}"); } catch {}
-  return { snapshot, synced_at: row.synced_at || "", status: row.sync_status || "never", error: row.sync_error || "" };
-}
-
-async function syncHotGuys(env) {
-  if (!env.DB) throw new Error("D1 binding DB is missing.");
-  if (!String(env.ORBISMO_HOT_GUYS_API_KEY || "").trim()) throw new Error("ORBISMO_HOT_GUYS_API_KEY is missing.");
-  await ensureSchema(env);
-  const session = await openHotGuysSession(env);
-  const roster = await hotGuysTool(session, env, "get_group_members", { group_id: HOT_GUYS_ROSTER_ID });
-  const people = [];
-  for (const m of roster.members || []) {
-    const id = m.entity_id || m.source_id;
-    if (!id || !id.startsWith("person/")) continue;
-    const found = await hotGuysTool(session, env, "get_entity", { entity_id: id });
-    const e = found.entity || found;
-    const loreOut = await hotGuysTool(session, env, "list_entity_lore", { entity_id: id, limit: 100, offset: 0 });
-    people.push({ entity_id: id, name: e.name || m.name || id, description: e.description || "", properties: e.properties || {}, tags: e.tags || [], lore: loreOut.results || loreOut.lore || [] });
-  }
-  people.sort((a,b) => String(a.name).localeCompare(String(b.name)));
-  const snapshot = { generated_at: new Date().toISOString(), people };
-  const text = JSON.stringify(snapshot), hash = await sha256Hex(text), now = new Date().toISOString();
-  await env.DB.prepare(`INSERT INTO hot_guys_cache (id,snapshot_json,synced_at,sync_status,sync_error,content_hash) VALUES (1,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET snapshot_json=excluded.snapshot_json,synced_at=excluded.synced_at,sync_status=excluded.sync_status,sync_error=excluded.sync_error,content_hash=excluded.content_hash`).bind(text, now, "ok", "", hash).run();
-}
-
-function hotGuysPage() {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Private Archive</title></head><body><p>This private archive has been retired.</p></body></html>`;
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
 function storyBiblePage() {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><title>Story Bible | Dylan Cunningham</title><style>
-:root{--bg:#11100f;--panel:#191613;--panel2:#211d19;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--purple:#76637e;--line:rgba(255,255,255,.1)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 88% 3%,rgba(118,99,126,.2),transparent 30rem),var(--bg);color:var(--text);font-family:Arial,sans-serif}.shell{width:min(1500px,calc(100% - 30px));margin:auto}.top{min-height:74px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.top h1{font:700 28px/1 Georgia,serif;margin:0}.top a,.top button{color:var(--muted);background:none;border:0;text-decoration:none;cursor:pointer;font-size:12px}.status{color:var(--muted);font-size:12px}.toolbar{display:flex;gap:10px;align-items:center;padding:18px 0}.toolbar input{flex:1;min-width:0;background:#100f0e;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:12px 14px}.toolbar button{border:0;border-radius:999px;background:var(--accent);color:#17120e;font-weight:800;padding:12px 16px;cursor:pointer}.series{display:grid;grid-template-columns:270px 1fr;gap:18px;padding-bottom:50px}.sidebar,.content{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.025);min-width:0}.sidebar{padding:14px;height:max-content;position:sticky;top:12px}.sidebtn{width:100%;display:block;text-align:left;border:0;border-radius:12px;background:none;color:var(--muted);padding:11px;cursor:pointer}.sidebtn.active{background:var(--panel2);color:var(--text)}.content{padding:24px}.empty{color:var(--muted);padding:25px}.sectionTitle{font:700 34px/1.05 Georgia,serif;margin:0 0 5px}.sub{color:var(--muted);font-size:13px;margin-bottom:22px}.bookTabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}.bookTabs button{background:#12100f;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer}.bookTabs button.active{color:var(--text);border-color:rgba(192,155,115,.5)}.entities{display:grid;gap:10px}.entity{border:1px solid var(--line);border-radius:15px;background:#141210;overflow:hidden}.entity button{width:100%;background:none;border:0;color:var(--text);padding:14px 15px;display:flex;justify-content:space-between;text-align:left;cursor:pointer}.entityType{font-size:10px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}.detail{display:none;padding:0 15px 16px;color:var(--muted);line-height:1.55}.entity.open .detail{display:block}.props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.prop{background:#100f0e;border-radius:10px;padding:9px;overflow-wrap:anywhere}.prop b{display:block;color:var(--text);font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}.lore{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.lore h4{color:var(--text);margin:9px 0 5px}.lore div{white-space:pre-wrap}.searchhit{margin:8px 0;border-left:2px solid var(--accent);padding-left:10px}.back{display:none}@media(max-width:760px){.shell{width:min(100% - 20px,1500px)}.top{min-height:66px}.top h1{font-size:23px}.series{display:block}.sidebar{position:static}.content{display:none;margin-top:12px;padding:18px}.content.mobileOpen{display:block}.sidebar.mobileHide{display:none}.back{display:inline-block!important;margin-bottom:12px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 11px}.sectionTitle{font-size:29px}.props{grid-template-columns:1fr}.toolbar{align-items:stretch}.toolbar input{width:100%}}</style></head><body><div class="shell"><div class="top"><h1>Story Bible</h1><div><span class="status" id="status">Loading…</span> <a href="/">Public site</a> <a href="/admin">Admin</a> <button id="logout">Log out</button></div></div><div class="toolbar"><input id="q" placeholder="Search everything in the story bible"><button id="search">Search</button></div><div class="series"><aside class="sidebar" id="side"></aside><section class="content" id="content"><div class="empty">Choose a series.</div></section></div></div><script>
-let CACHE=null, activeSeries=null, activeBook="all";const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-$("logout").onclick=async()=>{await fetch("/api/logout",{method:"POST"});location="/story-bible"};
-async function load(force=false){$("status").textContent=force?"Syncing…":"Loading…";const r=await fetch(force?"/api/story-bible/sync":"/api/story-bible",{method:force?"POST":"GET"});if(r.status===401){location="/story-bible";return}const j=await r.json();if(j.error&&!j.snapshot){$("status").textContent=j.error;return}CACHE=j.snapshot;$("status").textContent=j.status==="error"?"Last sync had an error":"Synced "+new Date(j.synced_at).toLocaleString();renderSide();if(!activeSeries&&CACHE?.series?.[0])openSeries(CACHE.series[0].entity_id)}
-function renderSide(){const s=CACHE?.series||[];$("side").innerHTML=s.map(x=>'<button class="sidebtn '+(x.entity_id===activeSeries?'active':'')+'" data-id="'+esc(x.entity_id)+'">'+esc(x.name)+'</button>').join('')+'<button class="sidebtn" id="refresh">↻ Refresh from Orbismo</button>';document.querySelectorAll('.sidebtn[data-id]').forEach(b=>b.onclick=()=>openSeries(b.dataset.id));$("refresh").onclick=()=>load(true)}
-function openSeries(id){activeSeries=id;activeBook="all";renderSide();renderContent();$("side").classList.add("mobileHide");$("content").classList.add("mobileOpen")}
-function renderContent(){const s=(CACHE?.series||[]).find(x=>x.entity_id===activeSeries);if(!s)return;const books=s.books||[];let entities=s.entities||[];if(activeBook!=="all"){const wanted=new Set([activeBook]);entities=entities.filter(e=>wanted.has(e.entity_id)||String(e.properties?.project_id||"")===activeBook||String(e.properties?.book_project||"")===activeBook)}$("content").innerHTML='<button class="back" id="back">← Series</button><h2 class="sectionTitle">'+esc(s.name)+'</h2><div class="sub">'+esc(s.description||"")+'</div><div class="bookTabs"><button data-b="all" class="'+(activeBook==='all'?'active':'')+'">Whole series</button>'+books.map(b=>'<button data-b="'+esc(b.entity_id)+'" class="'+(activeBook===b.entity_id?'active':'')+'">'+esc(b.name)+'</button>').join('')+'</div><div class="entities">'+entities.map(entityHtml).join('')+'</div>';$("back").onclick=()=>{$("side").classList.remove("mobileHide");$("content").classList.remove("mobileOpen")};document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{activeBook=b.dataset.b;renderContent()});document.querySelectorAll('.entity>button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'))}
-function entityHtml(e){const props=Object.entries(e.properties||{}).filter(([,v])=>v!==""&&v!=null),lore=e.lore||[];return '<article class="entity"><button><span><span class="entityType">'+esc(e.entity_type)+'</span><br><strong>'+esc(e.name)+'</strong></span><span>＋</span></button><div class="detail">'+(e.description?'<p>'+esc(e.description)+'</p>':'')+(props.length?'<div class="props">'+props.map(([k,v])=>'<div class="prop"><b>'+esc(k.replaceAll('_',' '))+'</b>'+esc(typeof v==='object'?JSON.stringify(v):v)+'</div>').join('')+'</div>':'')+(lore.length?'<div class="lore">'+lore.map(l=>'<h4>'+esc(l.title||'Note')+'</h4><div>'+esc(l.content||'')+'</div>').join('')+'</div>':'')+'</div></article>'}
-$("search").onclick=()=>{const q=$("q").value.trim().toLowerCase();if(!q)return;const hits=[];(CACHE?.series||[]).forEach(s=>(s.entities||[]).forEach(e=>{const blob=(e.name+' '+e.description+' '+JSON.stringify(e.properties||{})+' '+JSON.stringify(e.lore||[])).toLowerCase();if(blob.includes(q))hits.push({s,e})}));$("side").classList.add("mobileHide");$("content").classList.add("mobileOpen");$("content").innerHTML='<button class="back" id="back">← Series</button><h2 class="sectionTitle">Search</h2><div class="sub">'+hits.length+' result(s)</div>'+hits.map(h=>'<div class="searchhit"><b>'+esc(h.e.name)+'</b><div>'+esc(h.s.name)+' · '+esc(h.e.entity_type)+'</div></div>').join('');$("back").onclick=()=>{$("side").classList.remove("mobileHide");$("content").classList.remove("mobileOpen")}};$("q").addEventListener("keydown",e=>{if(e.key==="Enter")$("search").click()});load();</script></body></html>`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>Story Bible · Dylan Cunningham</title>
+<style>
+:root{--bg:#11100f;--panel:#1b1815;--panel2:#211d19;--line:rgba(255,255,255,.09);--text:#f2eee9;--muted:#a9a096;--accent:#c09b73;--soft:#d8c2aa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+a{color:inherit}.shell{width:min(1420px,calc(100% - 32px));margin:auto;padding:24px 0 56px}
+.top{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}
+h1,h2,h3{font-family:Georgia,serif}.top h1{font-size:clamp(36px,6vw,64px);margin:0}.sub{color:var(--muted);margin:8px 0 0;line-height:1.55}
+.actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 15px;font-weight:700;text-decoration:none;cursor:pointer}.btn.primary{background:var(--accent);color:#17120f;border-color:transparent}
+.statusbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:12px 15px;border-radius:14px;margin-bottom:18px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:#777}.dot.ok{background:#70b780}.dot.error{background:#d97878}.dot.syncing{background:#d4aa63}
+.controls{display:grid;grid-template-columns:minmax(220px,1fr) 180px 220px;gap:10px;margin-bottom:18px}.control{width:100%;border:1px solid var(--line);background:#161310;color:var(--text);padding:13px 14px;border-radius:12px;font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.stat b{display:block;font-family:Georgia,serif;font-size:30px}.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.sidebar,.content{min-width:0}.box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px}.box h2{font-size:20px;margin:0 0 12px}.filter{display:flex;width:100%;justify-content:space-between;gap:12px;border:0;background:transparent;color:var(--text);padding:10px 8px;border-radius:10px;text-align:left;cursor:pointer}.filter:hover,.filter.active{background:rgba(192,155,115,.13)}.count{color:var(--muted)}
+.entity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.entity{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;min-width:0}.entity:hover{border-color:rgba(192,155,115,.48)}.type{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--accent);font-weight:800}.entity h3{font-size:22px;margin:7px 0 8px}.desc{color:var(--muted);line-height:1.5;font-size:14px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.tag{font-size:11px;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:var(--soft)}
+.empty{padding:42px 18px;text-align:center;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:18px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.74);display:none;align-items:flex-start;justify-content:center;padding:28px 14px;overflow:auto;z-index:30}.modal.open{display:flex}.detail{width:min(900px,100%);background:#171411;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.4)}.detailhead{display:flex;justify-content:space-between;gap:16px}.close{border:0;background:transparent;color:var(--text);font-size:28px;cursor:pointer}.detail h2{font-size:36px;margin:3px 0 8px}.section{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}.section h3{font-size:20px;margin:0 0 10px}.props{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.prop{background:var(--panel2);padding:10px 12px;border-radius:10px}.prop small{display:block;color:var(--muted);margin-bottom:4px}.lore{background:var(--panel2);border-radius:13px;padding:14px;margin-top:9px}.lore h4{margin:0 0 8px;font-family:Georgia,serif;font-size:18px}.lore p{white-space:pre-wrap;line-height:1.62;margin:0;color:#ded7d0}.rel{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.rel:last-child{border-bottom:0}.rel span:last-child{color:var(--muted);text-align:right}
+.error{color:#ffabab}
+@media(max-width:850px){.top{display:block}.actions{justify-content:flex-start;margin-top:16px}.controls{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.box{margin:0}.entity-grid{grid-template-columns:1fr}.props{grid-template-columns:1fr}}
+@media(max-width:520px){.shell{width:min(100% - 20px,1420px);padding-top:15px}.sidebar{display:block}.box{margin-bottom:10px}.detail{padding:17px}.detail h2{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top">
+    <div><p class="eyebrow">PRIVATE REFERENCE</p><h1>Story Bible</h1><p class="sub">A searchable mirror of the current Orbismo canon.</p></div>
+    <div class="actions"><button class="btn primary" id="syncBtn">Sync now</button><a class="btn" href="/admin">Admin</a><a class="btn" href="/">Site</a></div>
+  </div>
+  <div class="statusbar"><span class="dot" id="statusDot"></span><span id="syncStatus">Loading…</span></div>
+  <div class="controls">
+    <input class="control" id="search" type="search" placeholder="Search names, lore, descriptions, tags…">
+    <select class="control" id="typeFilter"><option value="">All entity types</option></select>
+    <select class="control" id="seriesFilter"><option value="">All series / catalog</option><option value="where-we-land">Where We Land</option><option value="lives-of-schola">Lives of Schola</option><option value="__catalog">Catalog / unscoped</option></select>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="layout">
+    <aside class="sidebar"><div class="box"><h2>Entity types</h2><div id="typeList"></div></div><div class="box"><h2>Series</h2><div id="seriesList"></div></div></aside>
+    <main class="content"><div class="entity-grid" id="entityGrid"></div></main>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="detail"><div class="detailhead"><div><div class="type" id="detailType"></div><h2 id="detailName"></h2><div class="tags" id="detailTags"></div></div><button class="close" id="closeBtn" aria-label="Close">×</button></div><div class="desc" id="detailDesc"></div><div id="detailBody"></div></div></div>
+<script>
+let SNAP=null,ENTITIES=[],TYPE="",SERIES="",QUERY="";
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const fmt=d=>{if(!d)return"Never";try{return new Date(d).toLocaleString()}catch{return d}};
+const seriesOf=e=>{const t=e.tags||[];if(t.includes("where-we-land"))return"where-we-land";if(t.includes("lives-of-schola"))return"lives-of-schola";return"__catalog"};
+const loreText=e=>(e.lore?.items||[]).map(x=>(x.title||"")+" "+(x.content||"")).join(" ");
+const hay=e=>[e.name,e.short_description,(e.tags||[]).join(" "),JSON.stringify(e.properties||{}),loreText(e)].join(" ").toLowerCase();
+async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/story-bible";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function stat(label,value){return '<div class="stat"><b>'+esc(value)+'</b><span>'+esc(label)+'</span></div>'}
+function labelType(t){return String(t||"").replace(/_/g," ").replace(/\\b\\w/g,c=>c.toUpperCase())}
+function render(){
+  if(!SNAP){document.getElementById("stats").innerHTML=stat("Entities",0)+stat("Series",0)+stat("Books",0)+stat("Lore chunks",0);document.getElementById("entityGrid").innerHTML='<div class="empty">No Orbismo snapshot yet. Tap <b>Sync now</b> after the Worker has the API key.</div>';return}
+  ENTITIES=SNAP.entities||[];
+  const types={};ENTITIES.forEach(e=>types[e.entity_type]=(types[e.entity_type]||0)+1);
+  const lore=ENTITIES.reduce((n,e)=>n+(e.lore?.items?.length||0),0);
+  const books=ENTITIES.filter(e=>e.entity_type==="project"&&(e.tags||[]).includes("book")).length;
+  document.getElementById("stats").innerHTML=stat("Entities",ENTITIES.length)+stat("Series",ENTITIES.filter(e=>e.entity_type==="world").length)+stat("Books",books)+stat("Lore chunks",lore);
+  const typeSelect=document.getElementById("typeFilter");const current=typeSelect.value;typeSelect.innerHTML='<option value="">All entity types</option>'+Object.keys(types).sort().map(t=>'<option value="'+esc(t)+'">'+esc(labelType(t))+' ('+types[t]+')</option>').join("");typeSelect.value=current;
+  document.getElementById("typeList").innerHTML='<button class="filter '+(!TYPE?"active":"")+'" data-type="">All <span class="count">'+ENTITIES.length+'</span></button>'+Object.entries(types).sort((a,b)=>a[0].localeCompare(b[0])).map(([t,n])=>'<button class="filter '+(TYPE===t?"active":"")+'" data-type="'+esc(t)+'">'+esc(labelType(t))+' <span class="count">'+n+'</span></button>').join("");
+  const sc={"where-we-land":0,"lives-of-schola":0,"__catalog":0};ENTITIES.forEach(e=>sc[seriesOf(e)]++);
+  document.getElementById("seriesList").innerHTML='<button class="filter '+(!SERIES?"active":"")+'" data-series="">All <span class="count">'+ENTITIES.length+'</span></button><button class="filter '+(SERIES==="where-we-land"?"active":"")+'" data-series="where-we-land">Where We Land <span class="count">'+sc["where-we-land"]+'</span></button><button class="filter '+(SERIES==="lives-of-schola"?"active":"")+'" data-series="lives-of-schola">Lives of Schola <span class="count">'+sc["lives-of-schola"]+'</span></button><button class="filter '+(SERIES==="__catalog"?"active":"")+'" data-series="__catalog">Catalog <span class="count">'+sc["__catalog"]+'</span></button>';
+  document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{TYPE=b.dataset.type;document.getElementById("typeFilter").value=TYPE;render()});
+  document.querySelectorAll("[data-series]").forEach(b=>b.onclick=()=>{SERIES=b.dataset.series;document.getElementById("seriesFilter").value=SERIES;render()});
+  const q=QUERY.trim().toLowerCase();const filtered=ENTITIES.filter(e=>(!TYPE||e.entity_type===TYPE)&&(!SERIES||seriesOf(e)===SERIES)&&(!q||hay(e).includes(q)));
+  document.getElementById("entityGrid").innerHTML=filtered.length?filtered.map(e=>'<article class="entity" data-id="'+esc(e.entity_id)+'"><div class="type">'+esc(labelType(e.entity_type))+'</div><h3>'+esc(e.name)+'</h3><div class="desc">'+esc(e.short_description||"No description yet.")+'</div><div class="tags">'+(e.tags||[]).slice(0,6).map(t=>'<span class="tag">'+esc(t)+'</span>').join("")+'</div></article>').join(""):'<div class="empty">No matching entries.</div>';
+  document.querySelectorAll(".entity").forEach(el=>el.onclick=()=>openEntity(el.dataset.id));
+}
+function openEntity(id){
+  const e=ENTITIES.find(x=>x.entity_id===id);if(!e)return;
+  document.getElementById("detailType").textContent=labelType(e.entity_type);
+  document.getElementById("detailName").textContent=e.name||"";
+  document.getElementById("detailDesc").textContent=e.short_description||"";
+  document.getElementById("detailTags").innerHTML=(e.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
+  const props=Object.entries(e.properties||{}).filter(([,v])=>v!==null&&v!==""&&v!==undefined);
+  const rels=e.relationships?.items||[];const lore=e.lore?.items||[];
+  let body="";
+  if(props.length)body+='<section class="section"><h3>Properties</h3><div class="props">'+props.map(([k,v])=>'<div class="prop"><small>'+esc(labelType(k))+'</small>'+esc(Array.isArray(v)?v.join(", "):typeof v==="object"?JSON.stringify(v):v)+'</div>').join("")+'</div></section>';
+  if(rels.length)body+='<section class="section"><h3>Relationships</h3>'+rels.map(r=>'<div class="rel"><span>'+esc(r.display_label||r.relationship_type||"Related")+'</span><span>'+esc(r.entity_name||r.entity_id||"")+'</span></div>').join("")+'</section>';
+  if(lore.length)body+='<section class="section"><h3>Lore</h3>'+lore.map(l=>'<article class="lore"><h4>'+esc(l.title||"Lore")+'</h4><p>'+esc(l.content||"")+'</p></article>').join("")+'</section>';
+  document.getElementById("detailBody").innerHTML=body||'<div class="empty" style="margin-top:18px">No additional details yet.</div>';
+  document.getElementById("modal").classList.add("open");
+}
+async function load(){
+  const data=await api("/api/story-bible");
+  SNAP=data.snapshot;
+  const dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");dot.className="dot "+(data.status==="ok"?"ok":data.status==="error"?"error":"");
+  status.innerHTML=data.status==="error"?'<span class="error">Last sync failed: '+esc(data.error||"Unknown error")+'</span>':"Last synced: "+esc(fmt(data.synced_at));
+  render();
+}
+document.getElementById("search").oninput=e=>{QUERY=e.target.value;render()};
+document.getElementById("typeFilter").onchange=e=>{TYPE=e.target.value;render()};
+document.getElementById("seriesFilter").onchange=e=>{SERIES=e.target.value;render()};
+document.getElementById("closeBtn").onclick=()=>document.getElementById("modal").classList.remove("open");
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")};
+document.getElementById("syncBtn").onclick=async()=>{const b=document.getElementById("syncBtn"),dot=document.getElementById("statusDot"),status=document.getElementById("syncStatus");b.disabled=true;b.textContent="Syncing…";dot.className="dot syncing";status.textContent="Syncing from Orbismo…";try{const data=await api("/api/story-bible/sync",{method:"POST"});SNAP=data.snapshot;await load()}catch(e){status.innerHTML='<span class="error">'+esc(e.message)+'</span>'}finally{b.disabled=false;b.textContent="Sync now"}};
+load().catch(e=>{document.getElementById("syncStatus").innerHTML='<span class="error">'+esc(e.message)+'</span>'});
+setInterval(()=>load().catch(()=>{}),60000);
+</script>
+</body></html>`;
+}
+
+function hotGuysPage() {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>HG · DC1993</title>
+<style>
+:root{--bg:#100e0f;--panel:#1b1719;--panel2:#241e21;--line:rgba(255,255,255,.09);--text:#f5eff2;--muted:#aa9fa4;--accent:#c49a83}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}a{color:inherit}.shell{width:min(1180px,calc(100% - 28px));margin:auto;padding:24px 0 70px}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:18px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 8px}.top h1{font:700 clamp(40px,7vw,68px)/1 Georgia,serif;margin:0}.sub{color:var(--muted);line-height:1.55;margin:9px 0 0}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 15px;font-weight:700;text-decoration:none;cursor:pointer}.btn.primary{background:var(--accent);color:#1a1314;border-color:transparent}
+.statusbar{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--muted);font-size:13px;margin-bottom:16px}.dot{width:8px;height:8px;border-radius:50%;background:#777}.dot.ok{background:#77b88a}.dot.error{background:#df7e86}.dot.syncing{background:#d3a565}
+.controls{display:grid;grid-template-columns:1fr 190px auto;gap:10px;margin-bottom:16px}.control{width:100%;border:1px solid var(--line);background:#151114;color:var(--text);padding:13px 14px;border-radius:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px}.stat b{display:block;font:700 29px Georgia,serif}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;cursor:pointer}.card:hover{border-color:rgba(196,154,131,.45)}.card h2{font:700 25px Georgia,serif;margin:5px 0 7px}.meta{font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}.desc{color:var(--muted);line-height:1.5}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.chip{font-size:11px;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:#d8cdd2}.empty{background:var(--panel);border:1px solid var(--line);border-radius:18px;color:var(--muted);padding:44px 20px;text-align:center;grid-column:1/-1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:50}.modal.open{display:flex}.dialog{width:min(840px,100%);background:#171316;border:1px solid var(--line);border-radius:22px;padding:20px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.modalhead h2{font:700 34px Georgia,serif;margin:0}.close{border:0;background:transparent;color:var(--text);font-size:29px;cursor:pointer}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.full{grid-column:1/-1}label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#c8bbc1;margin-bottom:6px;font-weight:700}input,textarea,select{width:100%;border:1px solid var(--line);background:#100d0f;color:var(--text);border-radius:11px;padding:12px 13px;outline:none}textarea{min-height:100px;resize:vertical;line-height:1.5}
+.section{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.section h3{font:700 22px Georgia,serif;margin:0}.note{background:var(--panel2);border-radius:13px;padding:14px;margin-top:10px}.note h4{font:700 18px Georgia,serif;margin:0 0 7px}.note p{white-space:pre-wrap;color:#e2d8dd;line-height:1.58;margin:0}.noteactions{display:flex;gap:7px;margin-top:10px}.mini{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:7px 9px;cursor:pointer;font-size:12px}.mini.danger{color:#ffadb4}.savebar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.error{color:#ffadb4}
+@media(max-width:760px){.top{display:block}.actions{justify-content:flex-start;margin-top:14px}.controls{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body><div class="shell">
+<div class="top"><div><p class="eyebrow">PRIVATE ARCHIVE</p><h1>Hot Guys</h1><p class="sub">Who, why, and exactly when the problem began.</p></div><div class="actions"><button class="btn primary" id="syncBtn">Sync now</button><a class="btn" href="/admin">Admin</a></div></div>
+<div class="statusbar"><span class="dot" id="dot"></span><span id="status">Loading…</span></div>
+<div class="controls"><input class="control" id="search" type="search" placeholder="Search names, features, vibes, lore…"><select class="control" id="filter"><option value="">All statuses</option><option>current</option><option>recurring</option><option>former</option><option>one-off</option><option>unknown</option></select><button class="btn primary" id="addBtn">+ Add guy</button></div>
+<div class="stats" id="stats"></div><div class="grid" id="grid"></div></div>
+<div class="modal" id="modal"><div class="dialog"><div class="modalhead"><h2 id="modalTitle">Entry</h2><button class="close" id="close">×</button></div><input type="hidden" id="entityId">
+<div class="formgrid"><div><label>Name / label</label><input id="name"></div><div><label>Attraction status</label><select id="attraction_status"><option value=""></option><option>current</option><option>recurring</option><option>former</option><option>one-off</option><option>unknown</option></select></div><div class="full"><label>Description</label><textarea id="description"></textarea></div><div><label>First noticed</label><input id="first_noticed" placeholder="2026-09-24 or Summer 2020"></div><div><label>Last noted</label><input id="last_noted" placeholder="2026-09-24"></div><div class="full"><label>Known from</label><input id="known_from" placeholder="Instagram, actor, real life, photo…"></div><div><label>Favorite features</label><textarea id="favorite_features" placeholder="One per line"></textarea></div><div><label>Vibe tags</label><textarea id="vibe_tags" placeholder="One per line"></textarea></div><div class="full"><label>Aliases / labels</label><textarea id="aliases" placeholder="One per line"></textarea></div></div>
+<div class="savebar"><button class="btn primary" id="savePerson">Save entry</button></div>
+<div class="section" id="loreSection"><div class="sectionhead"><h3>Dated notes</h3><button class="mini" id="newNote">+ Add note</button></div><div id="notes"></div><div id="noteEditor" style="display:none;margin-top:12px"><input type="hidden" id="loreId"><label>Note title</label><input id="loreTitle" placeholder="2026-09-24 — Blue plaid photo"><label style="margin-top:10px">Note</label><textarea id="loreContent" style="min-height:150px"></textarea><div class="savebar"><button class="btn primary" id="saveNote">Save note</button><button class="btn" id="cancelNote">Cancel</button></div></div></div>
+</div></div>
+<script>
+let CACHE=null,SNAP=null,PEOPLE=[],CURRENT=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const arr=v=>Array.isArray(v)?v:[];
+const fmt=d=>{if(!d)return"Never";try{return new Date(d).toLocaleString()}catch{return d}};
+async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/hot-guys";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function hay(p){return [p.name,p.short_description,JSON.stringify(p.properties||{}),...(p.lore?.items||[]).map(x=>(x.title||"")+" "+(x.content||""))].join(" ").toLowerCase()}
+function stat(label,n){return '<div class="stat"><b>'+esc(n)+'</b><span>'+esc(label)+'</span></div>'}
+function card(p){const pr=p.properties||{};const features=arr(pr.favorite_features).slice(0,5).map(x=>'<span class="chip">'+esc(x)+'</span>').join("");return '<div class="card" data-id="'+esc(p.entity_id)+'"><div class="meta">'+esc(pr.attraction_status||"unclassified")+'</div><h2>'+esc(p.name)+'</h2><div class="desc">'+esc(p.short_description||pr.known_from||"")+'</div>'+(features?'<div class="chips">'+features+'</div>':'')+'</div>'}
+function render(){PEOPLE=(SNAP?.entities||[]).filter(x=>x.entity_type==="person"&&((x.tags||[]).includes("hot-guy")||(x.relationships?.items||[]).some(r=>r.entity_id==="group/the_roster")));const q=$("search").value.trim().toLowerCase(),status=$("filter").value;const shown=PEOPLE.filter(p=>(!q||hay(p).includes(q))&&(!status||String(p.properties?.attraction_status||"unknown")===status));const current=PEOPLE.filter(p=>p.properties?.attraction_status==="current").length,recurring=PEOPLE.filter(p=>p.properties?.attraction_status==="recurring").length,notes=PEOPLE.reduce((n,p)=>n+(p.lore?.items||[]).length,0);$("stats").innerHTML=stat("Roster",PEOPLE.length)+stat("Current",current)+stat("Recurring",recurring)+stat("Notes",notes);$("grid").innerHTML=shown.map(card).join("")||'<div class="empty">'+(PEOPLE.length?"Nothing matches that filter.":"The roster is empty. This is either peaceful or temporary.")+'</div>'}
+async function load(force=false){$("dot").className="dot syncing";$("status").textContent=force?"Syncing…":"Loading…";CACHE=await api(force?"/api/hot-guys/sync":"/api/hot-guys",force?{method:"POST"}:{});SNAP=CACHE.snapshot;$("dot").className="dot "+(CACHE.status==="ok"?"ok":CACHE.status==="error"?"error":"");$("status").innerHTML='Last synced: '+esc(fmt(CACHE.synced_at))+(CACHE.error?' · <span class="error">'+esc(CACHE.error)+'</span>':'');render()}
+function blank(){CURRENT=null;$("entityId").value="";$("name").value="";$("description").value="";["first_noticed","last_noted","known_from"].forEach(k=>$(k).value="");$("attraction_status").value="";["favorite_features","vibe_tags","aliases"].forEach(k=>$(k).value="");$("notes").innerHTML="";$("loreSection").style.display="none";$("noteEditor").style.display="none";$("modalTitle").textContent="Add to the roster";$("modal").classList.add("open")}
+function openPerson(id){CURRENT=PEOPLE.find(x=>x.entity_id===id);if(!CURRENT)return;const pr=CURRENT.properties||{};$("entityId").value=CURRENT.entity_id;$("name").value=CURRENT.name||"";$("description").value=CURRENT.short_description||"";["first_noticed","last_noted","known_from","attraction_status"].forEach(k=>$(k).value=pr[k]||"");["favorite_features","vibe_tags","aliases"].forEach(k=>$(k).value=arr(pr[k]).join("\\n"));$("modalTitle").textContent=CURRENT.name;$("loreSection").style.display="block";renderNotes();$("noteEditor").style.display="none";$("modal").classList.add("open")}
+function renderNotes(){const items=[...(CURRENT?.lore?.items||[])].sort((a,b)=>String(a.title||"").localeCompare(String(b.title||"")));$("notes").innerHTML=items.map(n=>'<div class="note"><h4>'+esc(n.title||"Untitled")+'</h4><p>'+esc(n.content||"")+'</p><div class="noteactions"><button class="mini editNote" data-id="'+esc(n.lore_id)+'">Edit</button><button class="mini danger deleteNote" data-id="'+esc(n.lore_id)+'">Delete</button></div></div>').join("")||'<div class="desc" style="margin-top:10px">No dated notes yet.</div>'}
+function personBody(){return {entity_id:$("entityId").value,name:$("name").value,description:$("description").value,properties:{first_noticed:$("first_noticed").value,last_noted:$("last_noted").value,known_from:$("known_from").value,attraction_status:$("attraction_status").value,favorite_features:$("favorite_features").value,vibe_tags:$("vibe_tags").value,aliases:$("aliases").value}}}
+$("syncBtn").onclick=()=>load(true).catch(showError);$("search").oninput=render;$("filter").onchange=render;$("addBtn").onclick=blank;$("close").onclick=()=>$("modal").classList.remove("open");$("grid").onclick=e=>{const c=e.target.closest(".card");if(c)openPerson(c.dataset.id)};
+$("savePerson").onclick=async()=>{try{const body=personBody();const j=await api(body.entity_id?"/api/hot-guys/person/update":"/api/hot-guys/person/create",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});CACHE=j.cache||CACHE;SNAP=CACHE?.snapshot||SNAP;render();openPerson(j.entity_id||body.entity_id)}catch(e){alert(e.message)}};
+$("newNote").onclick=()=>{$("loreId").value="";$("loreTitle").value="";$("loreContent").value="";$("noteEditor").style.display="block";$("loreTitle").focus()};$("cancelNote").onclick=()=>$("noteEditor").style.display="none";
+$("notes").onclick=async e=>{const edit=e.target.closest(".editNote"),del=e.target.closest(".deleteNote");if(edit){const n=(CURRENT?.lore?.items||[]).find(x=>x.lore_id===edit.dataset.id);if(!n)return;$("loreId").value=n.lore_id;$("loreTitle").value=n.title||"";$("loreContent").value=n.content||"";$("noteEditor").style.display="block";$("loreTitle").focus()}if(del){if(!confirm("Delete this note? This cannot be undone."))return;try{const j=await api("/api/hot-guys/lore/delete",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({entity_id:CURRENT.entity_id,lore_id:del.dataset.id})});CACHE=j.cache;SNAP=CACHE.snapshot;render();openPerson(CURRENT.entity_id)}catch(err){alert(err.message)}}};
+$("saveNote").onclick=async()=>{if(!CURRENT)return;try{const j=await api("/api/hot-guys/lore/save",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({entity_id:CURRENT.entity_id,lore_id:$("loreId").value,title:$("loreTitle").value,content:$("loreContent").value})});CACHE=j.cache;SNAP=CACHE.snapshot;render();openPerson(CURRENT.entity_id)}catch(err){alert(err.message)}};
+function showError(e){$("dot").className="dot error";$("status").innerHTML='<span class="error">'+esc(e.message)+'</span>'}
+load().catch(showError);setInterval(()=>load().catch(()=>{}),60000);
+</script></body></html>`;
 }
 
 function chatArchivePage() {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><title>Chat Archive | Dylan Cunningham</title><style>
-:root{--bg:#11100f;--panel:#191613;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--line:rgba(255,255,255,.1)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 88% 3%,rgba(118,99,126,.2),transparent 30rem),var(--bg);color:var(--text);font-family:Arial,sans-serif}.shell{width:min(1000px,calc(100% - 28px));margin:auto}.top{min-height:74px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.top h1{font:700 28px/1 Georgia,serif;margin:0}.top a{color:var(--muted);text-decoration:none;font-size:12px}.card{margin:24px 0;border:1px solid var(--line);border-radius:20px;padding:22px;background:rgba(255,255,255,.025)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.stat{padding:16px;border:1px solid var(--line);border-radius:14px;background:#141210}.stat b{display:block;font:700 25px Georgia,serif;color:var(--accent)}.stat span{font-size:11px;color:var(--muted)}input{width:100%;background:#100f0e;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:13px}button{border:0;border-radius:999px;background:var(--accent);color:#17120e;font-weight:800;padding:12px 16px;cursor:pointer}.row{display:flex;gap:10px}.results{margin-top:16px}.hit{border-top:1px solid var(--line);padding:14px 0}.hit:first-child{border-top:0}.hit b{display:block}.hit small{color:var(--muted)}@media(max-width:620px){.stats{grid-template-columns:1fr}.row{display:grid}.top{align-items:flex-start;padding:18px 0}}</style></head><body><div class="shell"><div class="top"><h1>Chat Archive</h1><div><a href="/">Public site</a> <a href="/admin">Admin</a></div></div><div class="card"><div class="stats"><div class="stat"><b id="conv">…</b><span>Conversations imported</span></div><div class="stat"><b id="msg">…</b><span>Messages archived</span></div><div class="stat"><b id="chunks">…</b><span>Archive chunks</span></div></div></div><div class="card"><h2>Search archive</h2><div class="row"><input id="q" placeholder="Search your ChatGPT archive"><button id="go">Search</button></div><div class="results" id="results"></div></div></div><script>const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));async function load(){const r=await fetch('/api/chat-archive/status');if(r.status===401){location='/chat-archive';return}const j=await r.json();$('conv').textContent=j.conversations||0;$('msg').textContent=j.messages||0;$('chunks').textContent=j.chunks||0}async function search(){const q=$('q').value.trim();if(!q)return;const r=await fetch('/api/chat-archive/search?q='+encodeURIComponent(q));const j=await r.json();const rows=j.results||j.matches||[];$('results').innerHTML=rows.length?rows.map(x=>'<div class="hit"><b>'+esc(x.title||x.entity_name||'Result')+'</b><small>'+esc(x.content||x.text||x.description||JSON.stringify(x))+'</small></div>').join(''):'<p style="color:#aaa198">No results.</p>'}$('go').onclick=search;$('q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});load();</script></body></html>`;
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>ChatGPT Archive · DC1993</title>
+<style>
+:root{--bg:#101112;--panel:#191b1d;--panel2:#222528;--line:rgba(255,255,255,.1);--text:#f4f5f5;--muted:#a8adaf;--accent:#8fcfc5;--danger:#f08f8f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.shell{width:min(980px,calc(100% - 28px));margin:auto;padding:28px 0 70px}button,input{font:inherit}a{color:inherit}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:22px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 9px}.top h1{font:700 clamp(40px,7vw,66px)/1 Georgia,serif;margin:0}.sub{color:var(--muted);line-height:1.55;max-width:650px}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none}.btn.primary{background:var(--accent);border-color:transparent;color:#0e1715}.btn:disabled{opacity:.5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat,.box{background:var(--panel);border:1px solid var(--line);border-radius:18px}.stat{padding:16px}.stat b{font:700 30px Georgia,serif;display:block}.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.box{padding:20px;margin-top:12px}.box h2{font:700 25px Georgia,serif;margin:0 0 8px}.hint{color:var(--muted);line-height:1.55}.file{display:block;width:100%;border:1px dashed rgba(143,207,197,.5);border-radius:14px;background:#121516;color:var(--muted);padding:18px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.progress{height:10px;border:1px solid var(--line);background:#0e1011;border-radius:999px;overflow:hidden;margin-top:16px}.bar{height:100%;width:0;background:var(--accent);transition:width .2s}.log{margin-top:12px;padding:12px;border-radius:12px;background:#111315;color:var(--muted);white-space:pre-wrap;font:12px/1.5 monospace;max-height:260px;overflow:auto}.search{display:grid;grid-template-columns:1fr auto;gap:8px}.search input{width:100%;border:1px solid var(--line);background:#111315;color:var(--text);border-radius:12px;padding:13px 14px}.result{background:var(--panel2);padding:14px;border-radius:13px;margin-top:10px}.result strong{font:700 18px Georgia,serif}.result small{display:block;color:var(--muted);margin-top:4px}.result p{white-space:pre-wrap;line-height:1.5}.bad{color:var(--danger)}
+@media(max-width:700px){.top{display:block}.top .btn{display:inline-block;margin-top:14px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.search{grid-template-columns:1fr}.box{padding:18px 15px}}
+</style></head><body><div class="shell">
+<div class="top"><div><p class="eyebrow">PRIVATE · VERBATIM</p><h1>ChatGPT Archive</h1><p class="sub">A searchable copy of your conversations, preserved as they were written.</p></div><a class="btn" href="/admin">Admin</a></div>
+<div class="stats"><div class="stat"><b id="convs">0</b><span>Conversations</span></div><div class="stat"><b id="msgs">0</b><span>Messages</span></div><div class="stat"><b id="chunks">0</b><span>Transcript chunks</span></div></div>
+
+<div class="box"><h2>Import</h2><p class="hint">Extract your ChatGPT export ZIP and select <b>conversations.json</b>. If the export contains numbered conversation JSON files, select all of them. Re-imports are incremental: unchanged conversations are skipped.</p>
+<input class="file" id="files" type="file" accept=".json,application/json" multiple>
+<div class="actions"><button class="btn primary" id="scan">Scan files</button><button class="btn" id="import" disabled>Import / update</button></div>
+<div class="progress"><div class="bar" id="bar"></div></div><div class="log" id="log">Waiting for an export file.</div></div>
+
+<div class="box"><h2>Search</h2><p class="hint">Search the transcript semantically through Orbismo.</p><div class="search"><input id="q" type="search" placeholder="What did I say about…"><button class="btn primary" id="search">Search</button></div><div id="results"></div></div>
+</div><script>
+let DATA=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/chat-archive";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
+function addLog(t){const e=$("log");e.textContent+=(e.textContent?"\\n":"")+t;e.scrollTop=e.scrollHeight}
+function iso(v){if(v===null||v===undefined||v==="")return"";const n=Number(v);const d=Number.isFinite(n)?new Date(n>100000000000?n:n*1000):new Date(String(v));return Number.isNaN(d.getTime())?"":d.toISOString()}
+function att(p){if(!p||typeof p!=="object")return null;const o={};for(const k of ["name","mime_type","asset_pointer","size_bytes","width","height"])if(p[k]!==undefined&&p[k]!==null)o[k]=p[k];return Object.keys(o).length?o:null}
+function content(m){const c=m?.content||{};const text=[],attachments=[];for(const p of (Array.isArray(c.parts)?c.parts:[])){if(typeof p==="string")text.push(p);else if(p&&typeof p==="object"){if(typeof p.text==="string")text.push(p.text);const a=att(p);if(a)attachments.push(a)}}if(!text.length&&typeof c.text==="string")text.push(c.text);return{text:text.join("\\n"),attachments}}
+function nodes(c){const map=c?.mapping||{},out=[],seen=new Set();let id=c?.current_node;if(id&&map[id]){while(id&&map[id]&&!seen.has(id)){seen.add(id);out.push(map[id]);id=map[id].parent}return out.reverse()}return Object.values(map).filter(n=>n?.message).sort((a,b)=>Number(a.message?.create_time||0)-Number(b.message?.create_time||0))}
+function norm(c,fi,ci){const messages=[];for(const n of nodes(c)){const m=n?.message;if(!m)continue;const role=m.author?.role;if(role!=="user"&&role!=="assistant")continue;if(m.metadata?.is_visually_hidden_from_conversation)continue;if(role==="assistant"&&m.recipient&&m.recipient!=="all")continue;const x=content(m);if(!x.text&&!x.attachments.length)continue;messages.push({id:String(m.id||n.id||""),role,time:iso(m.create_time),text:x.text,attachments:x.attachments,index:messages.length})}const id=String(c.id||c.conversation_id||"");return{archive_key:id||("derived:"+String(c.create_time||"")+":"+String(c.title||"Untitled")+":"+fi+":"+ci),conversation_id:id,title:String(c.title||"Untitled conversation"),created_at:c.create_time??"",updated_at:c.update_time??"",messages}}
+async function scanFiles(){const fs=[...$("files").files];if(!fs.length)throw new Error("Choose conversations.json first.");const all=[];for(let fi=0;fi<fs.length;fi++){const parsed=JSON.parse(await fs[fi].text());const arr=Array.isArray(parsed)?parsed:(Array.isArray(parsed?.conversations)?parsed.conversations:[]);for(let ci=0;ci<arr.length;ci++){const c=norm(arr[ci],fi,ci);if(c.messages.length)all.push(c)}}const map=new Map();for(const c of all)map.set(c.archive_key,c);return[...map.values()]}
+async function stats(){const s=await api("/api/chat-archive/status");$("convs").textContent=s.conversations;$("msgs").textContent=s.messages;$("chunks").textContent=s.chunks}
+$("scan").onclick=async()=>{try{$("log").textContent="Scanning…";DATA=await scanFiles();const count=DATA.reduce((n,c)=>n+c.messages.length,0);$("log").textContent="Found "+DATA.length+" conversations and "+count+" visible user/assistant messages.\\nReady to import.";$("import").disabled=!DATA.length;$("bar").style.width="0%"}catch(e){$("log").innerHTML='<span class="bad">'+esc(e.message)+'</span>'}};
+$("import").onclick=async()=>{if(!DATA.length)return;const b=$("import");b.disabled=true;$("scan").disabled=true;$("log").textContent="Import started…";let changed=0,skip=0,fail=0;for(let i=0;i<DATA.length;i++){const c=DATA[i];try{const r=await api("/api/chat-archive/import-conversation",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(c)});if(r.skipped)skip++;else changed++;addLog((i+1)+"/"+DATA.length+" · "+(r.skipped?"unchanged":"archived")+" · "+c.title)}catch(e){fail++;addLog((i+1)+"/"+DATA.length+" · FAILED · "+c.title+" · "+e.message)}$("bar").style.width=Math.round(((i+1)/DATA.length)*100)+"%";await new Promise(r=>setTimeout(r,500))}addLog("Finished. Archived/updated: "+changed+" · unchanged: "+skip+" · failed: "+fail);await stats();b.disabled=false;$("scan").disabled=false};
+async function doSearch(){const q=$("q").value.trim();if(!q)return;const root=$("results");root.innerHTML='<p class="hint">Searching…</p>';try{const d=await api("/api/chat-archive/search?q="+encodeURIComponent(q));const rows=d.results||[];root.innerHTML=rows.map(r=>{const name=r.entity_name||r.name||r.entity_id||"Conversation",title=r.title||r.lore_title||"",txt=r.content||r.text||r.snippet||r.preview||"";return'<div class="result"><strong>'+esc(name)+'</strong>'+(title?'<small>'+esc(title)+'</small>':'')+(txt?'<p>'+esc(txt)+'</p>':'')+'</div>'}).join("")||'<p class="hint">No matching transcript found.</p>'}catch(e){root.innerHTML='<p class="bad">'+esc(e.message)+'</p>'}}
+$("search").onclick=doSearch;$("q").onkeydown=e=>{if(e.key==="Enter")doSearch()};stats().catch(e=>{$("log").textContent=e.message});
+</script></body></html>`;
+}
+
+function loginPage(next = "/admin") {
+  const target = next === "/story-bible" ? "/story-bible" : next === "/chat-archive" ? "/chat-archive" : "/admin";
+  const heading = target === "/story-bible" ? "Story Bible" : target === "/chat-archive" ? "ChatGPT Archive" : "Site Admin";
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${heading} · DC1993</title><style>
+*{box-sizing:border-box}body{margin:0;background:#11100f;color:#f2eee9;font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{width:min(430px,100%);background:#1c1916;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:30px}
+h1{font-family:Georgia,serif;font-size:40px;margin:0 0 8px}.sub{color:#aaa198;line-height:1.6;margin-bottom:24px}
+label{display:block;font-size:13px;margin-bottom:8px}.input{width:100%;padding:14px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#12100f;color:white;font-size:16px}
+button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;background:#c09b73;color:#17120f;font-weight:700;font-size:15px}
+#error{color:#ff9b9b;min-height:20px;margin-top:12px;font-size:13px}</style></head>
+<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : target === "/chat-archive" ? "Private conversation archive. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
+<script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});if(r.ok){location=${JSON.stringify(target)}}else{const j=await r.json().catch(()=>({}));document.getElementById("error").textContent=j.error||"Could not sign in."}}</script>
+</body></html>`;
 }
 
 function adminPage() {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><title>Admin | Dylan Cunningham</title><style>
-  :root{--bg:#11100f;--panel:#1c1916;--panel2:#24201c;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--line:rgba(255,255,255,.1);--danger:#d16f6f}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.shell{width:min(1120px,calc(100% - 28px));margin:auto;padding-bottom:70px}.top{min-height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.top h1{font:700 32px/1 Georgia,serif;margin:0}.top a{color:var(--muted);text-decoration:none;font-size:13px}.tabs{display:flex;gap:8px;overflow:auto;padding:18px 0 12px}.tabs button{white-space:nowrap;background:#151311;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:10px 13px;cursor:pointer}.tabs button.active{color:var(--text);border-color:rgba(192,155,115,.5)}.panel{display:none}.panel.active{display:block}.box{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:22px;margin-top:12px}.box h2{font:700 30px/1.05 Georgia,serif;margin:0 0 5px}.hint{color:var(--muted);font-size:12px;line-height:1.55;margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:11px;margin:0 0 6px}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;background:#100f0e;color:var(--text);padding:12px;font:inherit}textarea{min-height:110px;resize:vertical}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.btn{border:0;border-radius:999px;padding:11px 15px;font-weight:800;cursor:pointer}.btn.primary{background:var(--accent);color:#18130f}.btn.secondary{background:#302a25;color:var(--text)}.btn.danger{background:#492526;color:#ffd7d7}.bookrow{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;border-top:1px solid var(--line);padding:12px 0}.bookrow:first-child{border-top:0}.thumb{width:52px;height:72px;border-radius:5px;background:#161311;overflow:hidden;display:grid;place-items:center;font-size:8px;text-align:center}.thumb img{width:100%;height:100%;object-fit:cover}.bookrow strong{display:block}.bookrow small{color:var(--muted)}.rowBtns{display:flex;gap:5px}.mini{border:1px solid var(--line);background:#161311;color:var(--muted);border-radius:8px;padding:7px;cursor:pointer}.preview{width:150px;margin-top:8px;border-radius:7px}.authorPreview{width:150px;height:150px;object-fit:cover;border-radius:50%;margin-top:8px}.projectPreview{width:min(360px,100%);max-height:220px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--line)}.toast{position:fixed;right:18px;bottom:18px;background:#2a241f;border:1px solid var(--line);padding:12px 16px;border-radius:12px;display:none}.toast.show{display:block}.check{display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px}.check input{width:auto}.check label{margin:0;color:var(--text)}hr{border:0;border-top:1px solid var(--line);margin:8px 0}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.bookrow{grid-template-columns:48px 1fr}.rowBtns{grid-column:1/-1}.box{padding:18px}.top h1{font-size:26px}}
-  </style></head><body><div class="shell"><div class="top"><h1>Site Admin</h1><div><a href="/">View site</a> · <a href="/story-bible">Story Bible</a> · <a href="/chat-archive">Chat Archive</a> · <a href="#" id="logout">Log out</a></div></div>
-<div class="tabs"><button class="active" data-tab="home">Homepage</button><button data-tab="books">Books</button><button data-tab="about">About</button><button data-tab="projects">Projects</button><button data-tab="updates">Updates</button></div>
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>DC1993 Admin</title>
+<style>
+:root{--bg:#11100f;--panel:#1c1916;--panel2:#24201c;--text:#f2eee9;--muted:#aaa198;--accent:#c09b73;--line:rgba(255,255,255,.11);--danger:#d86c6c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input,textarea,select{font:inherit}.shell{width:min(1100px,calc(100% - 28px));margin:auto;padding-bottom:80px}
+.top{position:sticky;top:0;z-index:20;background:rgba(17,16,15,.94);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
+.top h1{font:700 25px/1 Georgia,serif;margin:0}.top a{color:var(--accent);text-decoration:none;font-size:13px}.tabs{display:flex;gap:8px;overflow:auto;padding:18px 0 4px}
+.tabs button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:11px 15px;white-space:nowrap}.tabs button.active{background:var(--accent);color:#17120f;border-color:transparent;font-weight:700}
+.panel{display:none;padding-top:24px}.panel.active{display:block}.box{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;margin-bottom:18px}
+h2{font:700 34px/1 Georgia,serif;margin:0 0 8px}.hint{color:var(--muted);line-height:1.55;font-size:14px;margin:0 0 22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;margin:0 0 7px;color:#d7d1cb}
+input[type=text],input[type=url],input[type=number],input[type=password],textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;background:#12100f;color:white;padding:13px 14px;outline:none}
+textarea{min-height:120px;resize:vertical;line-height:1.5}input:focus,textarea:focus,select:focus{border-color:rgba(192,155,115,.65)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:999px;padding:12px 17px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:#17120f}.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}.danger{background:transparent;color:#ff9a9a;border:1px solid rgba(216,108,108,.35)}
+.bookrow{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.bookrow:last-child{border-bottom:0}.thumb{width:72px;height:105px;border-radius:8px;background:#28202d;overflow:hidden;display:grid;place-items:center;font:700 11px Georgia,serif;text-align:center;padding:8px}.thumb img{width:100%;height:100%;object-fit:cover}.bookrow strong{display:block}.bookrow small{display:block;color:var(--muted);margin-top:5px}.rowBtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.mini{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 10px;cursor:pointer}
+.check{display:flex;align-items:center;gap:8px;margin-top:26px}.check input{width:20px;height:20px}.preview{max-width:170px;border-radius:9px;margin-top:10px}.authorPreview{width:130px;height:130px;object-fit:cover;border-radius:50%;border:1px solid var(--line);margin-top:12px}.projectPreview{width:min(420px,100%);aspect-ratio:16/9;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin-top:12px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#ece5dd;color:#18130f;padding:12px 16px;border-radius:999px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
+hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.box{padding:20px 16px}.bookrow{grid-template-columns:58px minmax(0,1fr)}.thumb{width:58px;height:86px}.rowBtns{grid-column:1/-1;justify-content:flex-start}.check{margin-top:0}.top h1{font-size:22px}}
+</style></head>
+<body><div class="shell">
+<div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/chat-archive">Archive</a><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
+<div class="tabs">
+<button class="active" data-tab="home">Homepage</button>
+<button data-tab="books">Books</button>
+<button data-tab="about">About</button>
+<button data-tab="projects">Projects</button>
+<button data-tab="updates">Updates</button>
+</div>
+
 <section class="panel active" id="home">
-<div class="box"><h2>Homepage</h2><p class="hint">Edit the hero, homepage navigation, and site-wide labels.</p><div class="grid">
+<div class="box"><h2>Homepage</h2><p class="hint">Change the main wording visitors see first.</p>
+<div class="grid">
 <div class="full"><label>Author name</label><input id="author_name" type="text"></div>
-<div class="full"><label>Hero small heading</label><input id="eyebrow" type="text"></div>
-<div class="full"><label>Hero headline</label><textarea id="hero_title"></textarea></div>
-<div class="full"><label>Hero intro text</label><textarea id="hero_text"></textarea></div>
-<div class="full"><hr><h2 style="font-size:24px">Homepage cards</h2><p class="hint">Edit the book, projects, and about previews on the homepage.</p></div>
+<div class="full"><label>Small heading</label><input id="eyebrow" type="text"></div>
+<div class="full"><label>Main headline</label><textarea id="hero_title"></textarea></div>
+<div class="full"><label>Intro text</label><textarea id="hero_text"></textarea></div>
+<div class="full"><hr><h2 style="font-size:24px">Homepage cards</h2><p class="hint">Edit the three navigation cards shown below the homepage hero.</p></div>
 <div><label>Books card small heading</label><input id="home_books_eyebrow" type="text"></div>
 <div><label>Books card heading</label><input id="home_books_heading" type="text"></div>
 <div class="full"><label>Books card text</label><textarea id="home_books_text"></textarea></div>
