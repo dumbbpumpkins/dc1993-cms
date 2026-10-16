@@ -3,7 +3,7 @@
 const COOKIE_NAME = "dc1993_admin";
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
 
@@ -39,7 +39,15 @@ export default {
         return privateHtml(authed ? adminPage() : loginPage("/admin"));
       }
 
-      return html(publicPage(url.pathname));
+      const response = html(publicPage(url.pathname));
+      if (request.method === "GET" && ["/", "/books", "/projects", "/about"].includes(url.pathname)) {
+        const v = trafficVisitor(request);
+        if (v) {
+          ctx.waitUntil(recordTraffic(env, url.pathname, v.id).catch(e => console.error("Traffic:", e)));
+          if (v.isNew) response.headers.append("set-cookie", "dc1993_visitor=" + v.id + "; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax");
+        }
+      }
+      return response;
     } catch (err) {
       return new Response("Server error: " + (err?.message || String(err)), { status: 500 });
     }
@@ -50,6 +58,35 @@ export default {
   }
 };
 
+
+const TRAFFIC_SQL = "CREATE TABLE IF NOT EXISTS traffic_daily (day TEXT NOT NULL, page TEXT NOT NULL, visitor TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(day,page,visitor))";
+function trafficVisitor(request) {
+  const ua=request.headers.get("user-agent")||"";
+  if (!ua || /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|headless|lighthouse|monitor|uptime|curl|wget/i.test(ua)) return null;
+  if ((request.headers.get("cookie")||"").includes("dc1993_admin=")) return null;
+  const cookie=(request.headers.get("cookie")||"").split(";").map(x=>x.trim()).find(x=>x.startsWith("dc1993_visitor="));
+  const id=cookie?.slice(15);
+  if (id && /^[0-9a-f-]{36}$/i.test(id)) return {id,isNew:false};
+  return {id:crypto.randomUUID(),isNew:true};
+}
+async function recordTraffic(env,page,id) {
+  if(!env.DB)return;
+  await env.DB.prepare(TRAFFIC_SQL).run();
+  const day=new Date().toISOString().slice(0,10);
+  await env.DB.prepare("INSERT INTO traffic_daily(day,page,visitor,views) VALUES(?,?,?,1) ON CONFLICT(day,page,visitor) DO UPDATE SET views=views+1").bind(day,page,id).run();
+}
+async function trafficSummary(env) {
+  await env.DB.prepare(TRAFFIC_SQL).run();
+  const day=new Date().toISOString().slice(0,10);
+  const week=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
+  const month=new Date(Date.now()-29*86400000).toISOString().slice(0,10);
+  const results=await env.DB.batch([
+    env.DB.prepare("SELECT COALESCE(SUM(views),0) AS all_views, COALESCE(SUM(CASE WHEN day=? THEN views ELSE 0 END),0) AS today, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS week, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS month, COUNT(DISTINCT CASE WHEN day>=? THEN visitor END) AS monthly_visitors FROM traffic_daily").bind(day,week,month,month),
+    env.DB.prepare("SELECT day,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_daily WHERE day>=? GROUP BY day ORDER BY day").bind(month),
+    env.DB.prepare("SELECT page,SUM(views) AS views FROM traffic_daily GROUP BY page ORDER BY views DESC")
+  ]);
+  return {totals:results[0].results?.[0]||{},daily:results[1].results||[],pages:results[2].results||[]};
+}
 async function ensureSchema(env) {
   if (!env.DB) throw new Error("D1 binding DB is missing.");
 
@@ -626,6 +663,8 @@ async function handleApi(request, env, url) {
     await syncHotGuys(env);
     return privateJson({ ok: true, cache: await getHotGuysCache(env) });
   }
+
+  if (path === "/api/admin/traffic" && request.method === "GET") return privateJson(await trafficSummary(env));
 
   if (path === "/api/admin/content" && request.method === "GET") {
     return json(await getSiteData(env, true));
@@ -2250,6 +2289,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <button data-tab="about">About</button>
 <button data-tab="projects">Projects</button>
 <button data-tab="updates">Updates</button>
+<button data-tab="traffic">Traffic</button>
 </div>
 
 <section class="panel active" id="home">
@@ -2352,12 +2392,25 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <section class="panel" id="updates"><div class="box"><h2>Updates</h2><p class="hint">Control the update/newsletter area on the homepage.</p>
 <div class="grid"><div class="full"><label>Small heading</label><input id="updates_eyebrow" type="text"></div><div class="full"><label>Heading</label><input id="updates_heading" type="text"></div><div class="full"><label>Text</label><textarea id="updates_text"></textarea></div><div class="full"><hr><h2 style="font-size:24px">Featured Instagram</h2><p class="hint">Post 1 stays pinned first. Posts 2–4 are filled automatically from your latest Instagram uploads. The manual fields for 2–4 remain as fallbacks if the Instagram API is unavailable.</p></div><div class="full"><label>Instagram section heading</label><input id="instagram_heading" type="text"></div><div class="full"><label>Pinned Instagram post 1</label><input id="instagram_post_url_1" type="url" placeholder="Paid/ad post stays first"></div><div class="full"><label>Fallback post 2</label><input id="instagram_post_url_2" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 3</label><input id="instagram_post_url_3" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 4</label><input id="instagram_post_url_4" type="url" placeholder="Used only if automatic Instagram loading fails"></div></div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save updates section</button></div></div></section>
+<section class="panel" id="traffic"><div class="box"><h2>Website Traffic</h2><p class="hint">Private statistics. Tracking starts after deployment, excludes common bots and your logged-in visits, and uses UTC dates. No IP addresses are stored.</p><div class="grid" id="trafficCards">Loading…</div><hr><h2 style="font-size:24px">Last 30 days</h2><div id="trafficDays" class="hint">No visits yet.</div><hr><h2 style="font-size:24px">Pages</h2><div id="trafficPages" class="hint">No visits yet.</div><div class="actions"><button class="btn secondary" id="refreshTraffic">Refresh</button></div></div></section>
 </div><div class="toast" id="toast"></div>
 
 <script>
 let DATA={settings:{},books:[]}; let editing=null;
 const $=id=>document.getElementById(id); const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.tab).classList.add("active")});
+async function loadTraffic(){
+  $("trafficCards").textContent="Loading…";
+  try {
+    const t=await api("/api/admin/traffic"),n=t.totals||{};
+    const cards=[["Today",n.today],["Past 7 days",n.week],["Past 30 days",n.month],["All-time page views",n.all_views],["Unique visitors (30 days)",n.monthly_visitors]];
+    $("trafficCards").innerHTML=cards.map(([k,v])=>'<div class="box" style="margin:0;padding:18px"><label>'+esc(k)+'</label><strong style="font-size:30px">'+Number(v||0).toLocaleString()+'</strong></div>').join("");
+    $("trafficDays").innerHTML=(t.daily||[]).length?t.daily.map(x=>'<p>'+esc(x.day)+': '+Number(x.views||0)+' views, '+Number(x.visitors||0)+' visitors</p>').join(""):"No visits yet.";
+    $("trafficPages").innerHTML=(t.pages||[]).length?t.pages.map(x=>'<p>'+esc(x.page)+': '+Number(x.views||0)+' views</p>').join(""):"No visits yet.";
+  }catch(e){$("trafficCards").textContent="Traffic unavailable: "+e.message}
+}
+$("refreshTraffic").onclick=loadTraffic;
+document.querySelector('[data-tab="traffic"]').addEventListener("click",loadTraffic);
 $("logout").onclick=async e=>{e.preventDefault();await fetch("/api/logout",{method:"POST"});location="/admin"};
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
 async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/admin";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
