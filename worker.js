@@ -1306,7 +1306,7 @@ const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.leng
   document.addEventListener("keydown", send, {once: true});
   document.addEventListener("scroll", send, {once: true, passive: true});
 })();
-</body></html>`;
+</script></body></html>`;
 }
 
 
