@@ -29,25 +29,15 @@ export default {
         return privateHtml(authed ? storyBiblePage() : loginPage("/story-bible"));
       }
 
-      if (url.pathname === "/chat-archive" || url.pathname === "/chat-archive/") {
-        const authed = await isAuthenticated(request, env);
-        return privateHtml(authed ? chatArchivePage() : loginPage("/chat-archive"));
-      }
-
       if (url.pathname === "/admin" || url.pathname === "/admin/") {
         const authed = await isAuthenticated(request, env);
         return privateHtml(authed ? adminPage() : loginPage("/admin"));
       }
 
-      const response = html(publicPage(url.pathname));
-      if (request.method === "GET" && ["/", "/books", "/projects", "/about"].includes(url.pathname)) {
-        const v = trafficVisitor(request);
-        if (v) {
-          ctx.waitUntil(recordTraffic(env, url.pathname, v.id).catch(e => console.error("Traffic:", e)));
-          if (v.isNew) response.headers.append("set-cookie", "dc1993_visitor=" + v.id + "; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax");
-        }
+      if (url.pathname === "/chat-archive" || url.pathname === "/chat-archive/") {
+        return new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
       }
-      return response;
+      return html(publicPage(url.pathname));
     } catch (err) {
       return new Response("Server error: " + (err?.message || String(err)), { status: 500 });
     }
@@ -59,34 +49,62 @@ export default {
 };
 
 
-const TRAFFIC_SQL = "CREATE TABLE IF NOT EXISTS traffic_daily (day TEXT NOT NULL, page TEXT NOT NULL, visitor TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(day,page,visitor))";
-function trafficVisitor(request) {
-  const ua=request.headers.get("user-agent")||"";
-  if (!ua || /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|headless|lighthouse|monitor|uptime|curl|wget/i.test(ua)) return null;
-  if ((request.headers.get("cookie")||"").includes("dc1993_admin=")) return null;
-  const cookie=(request.headers.get("cookie")||"").split(";").map(x=>x.trim()).find(x=>x.startsWith("dc1993_visitor="));
-  const id=cookie?.slice(15);
-  if (id && /^[0-9a-f-]{36}$/i.test(id)) return {id,isNew:false};
-  return {id:crypto.randomUUID(),isNew:true};
+// The old request-only traffic_daily data remains historical; do not mix it
+// with browser engagement totals.
+const ENGAGED_TRAFFIC_SQL = "CREATE TABLE IF NOT EXISTS traffic_engaged_daily (day TEXT NOT NULL, page TEXT NOT NULL, visitor TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 1, last_seen INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day,page,visitor))";
+const PUBLIC_TRAFFIC_PAGES = new Set(["/", "/books", "/projects", "/about"]);
+const TRACKER_COOKIE = "dc1993_engaged";
+
+function allowedTrafficBrowser(request) {
+  const ua = request.headers.get("user-agent") || "";
+  if (!ua || /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|headless|lighthouse|monitor|uptime|curl|wget|python|httpclient|node-fetch|axios|go-http-client|okhttp|aiohttp|bytespider|facebookcatalog/i.test(ua)) return false;
+  if (/(?:^|;\s*)dc1993_admin=/.test(request.headers.get("cookie") || "")) return false;
+  // Bot Management is optional; the tracker works without a paid plan.
+  const bm = request.cf?.botManagement;
+  if (bm?.verifiedBot || (typeof bm?.score === "number" && bm.score < 30)) return false;
+  return true;
 }
-async function recordTraffic(env,page,id) {
-  if(!env.DB)return;
-  await env.DB.prepare(TRAFFIC_SQL).run();
-  const day=new Date().toISOString().slice(0,10);
-  await env.DB.prepare("INSERT INTO traffic_daily(day,page,visitor,views) VALUES(?,?,?,1) ON CONFLICT(day,page,visitor) DO UPDATE SET views=views+1").bind(day,page,id).run();
+
+async function engagedTrafficEvent(request, env) {
+  const headers = { "cache-control": "no-store" };
+  if (!allowedTrafficBrowser(request)) return new Response(null, { status: 204, headers });
+  const origin = request.headers.get("origin");
+  const self = new URL(request.url).origin;
+  if (origin && origin !== self) return new Response(null, { status: 403, headers });
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (fetchSite && fetchSite !== "same-origin") return new Response(null, { status: 403, headers });
+  if (!(request.headers.get("content-type") || "").startsWith("application/json")) return new Response(null, { status: 415, headers });
+  if (Number(request.headers.get("content-length") || 0) > 256) return new Response(null, { status: 413, headers });
+  const body = await request.json().catch(() => null);
+  const page = body && typeof body.page === "string" ? body.page : "";
+  if (!PUBLIC_TRAFFIC_PAGES.has(page)) return new Response(null, { status: 400, headers });
+  if (!env.DB) return new Response(null, { status: 503, headers });
+  const existing = (request.headers.get("cookie") || "").split(";").map(x => x.trim()).find(x => x.startsWith(TRACKER_COOKIE + "="));
+  const candidate = existing?.slice(TRACKER_COOKIE.length + 1);
+  const known = candidate && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate);
+  const visitor = known ? candidate : crypto.randomUUID();
+  const day = new Date().toISOString().slice(0, 10);
+  const now = Math.floor(Date.now() / 1000);
+  await env.DB.prepare(ENGAGED_TRAFFIC_SQL).run();
+  // Ignore repeated events for the same browser/page within 30 seconds.
+  await env.DB.prepare("INSERT INTO traffic_engaged_daily(day,page,visitor,views,last_seen) VALUES(?,?,?,1,?) ON CONFLICT(day,page,visitor) DO UPDATE SET views=CASE WHEN excluded.last_seen-traffic_engaged_daily.last_seen>=30 THEN traffic_engaged_daily.views+1 ELSE traffic_engaged_daily.views END,last_seen=excluded.last_seen").bind(day,page,visitor,now).run();
+  if (!known) headers["set-cookie"] = TRACKER_COOKIE + "=" + visitor + "; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax";
+  return new Response(null, { status: 204, headers });
 }
+
 async function trafficSummary(env) {
-  await env.DB.prepare(TRAFFIC_SQL).run();
-  const day=new Date().toISOString().slice(0,10);
-  const week=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
-  const month=new Date(Date.now()-29*86400000).toISOString().slice(0,10);
-  const results=await env.DB.batch([
-    env.DB.prepare("SELECT COALESCE(SUM(views),0) AS all_views, COALESCE(SUM(CASE WHEN day=? THEN views ELSE 0 END),0) AS today, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS week, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS month, COUNT(DISTINCT CASE WHEN day>=? THEN visitor END) AS monthly_visitors FROM traffic_daily").bind(day,week,month,month),
-    env.DB.prepare("SELECT day,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_daily WHERE day>=? GROUP BY day ORDER BY day").bind(month),
-    env.DB.prepare("SELECT page,SUM(views) AS views FROM traffic_daily GROUP BY page ORDER BY views DESC")
+  await env.DB.prepare(ENGAGED_TRAFFIC_SQL).run();
+  const day = new Date().toISOString().slice(0,10);
+  const week = new Date(Date.now()-6*86400000).toISOString().slice(0,10);
+  const month = new Date(Date.now()-29*86400000).toISOString().slice(0,10);
+  const results = await env.DB.batch([
+    env.DB.prepare("SELECT COALESCE(SUM(views),0) AS all_views, COALESCE(SUM(CASE WHEN day=? THEN views ELSE 0 END),0) AS today, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS week, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS month, COUNT(DISTINCT CASE WHEN day>=? THEN visitor END) AS monthly_visitors FROM traffic_engaged_daily").bind(day,week,month,month),
+    env.DB.prepare("SELECT day,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_engaged_daily WHERE day>=? GROUP BY day ORDER BY day").bind(month),
+    env.DB.prepare("SELECT page,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_engaged_daily GROUP BY page ORDER BY views DESC")
   ]);
-  return {totals:results[0].results?.[0]||{},daily:results[1].results||[],pages:results[2].results||[]};
+  return { totals: results[0].results?.[0] || {}, daily: results[1].results || [], pages: results[2].results || [] };
 }
+
 async function ensureSchema(env) {
   if (!env.DB) throw new Error("D1 binding DB is missing.");
 
@@ -136,20 +154,10 @@ async function ensureSchema(env) {
         content_hash TEXT NOT NULL DEFAULT ''
       )
     `),
-    env.DB.prepare(`
-      CREATE TABLE IF NOT EXISTS chat_archive_conversations (
-        archive_key TEXT PRIMARY KEY,
-        conversation_id TEXT NOT NULL DEFAULT '',
-        entity_id TEXT NOT NULL,
-        title TEXT NOT NULL DEFAULT '',
-        source_updated_at TEXT NOT NULL DEFAULT '',
-        message_count INTEGER NOT NULL DEFAULT 0,
-        chunk_count INTEGER NOT NULL DEFAULT 0,
-        content_hash TEXT NOT NULL DEFAULT '',
-        imported_at TEXT NOT NULL DEFAULT ''
-      )
-    `)
   ]);
+
+  // Clear retired Chat Archive import metadata. The shared Orbismo world is preserved.
+  await env.DB.prepare("DROP TABLE IF EXISTS chat_archive_conversations").run();
 
   const bookColumns = await env.DB.prepare("PRAGMA table_info(books)").all();
   if (!(bookColumns.results || []).some(row => row.name === "review_url")) {
@@ -403,6 +411,10 @@ async function getSiteData(env, includeHidden = false) {
 async function handleApi(request, env, url) {
   const path = url.pathname;
 
+  if (path === "/api/traffic/event" && request.method === "POST") {
+    return engagedTrafficEvent(request, env);
+  }
+
   if (path === "/api/site" && request.method === "GET") {
     return json(await getSiteData(env, false));
   }
@@ -469,127 +481,6 @@ async function handleApi(request, env, url) {
 
   if (path.startsWith("/api/hot-guys")) {
     return privateJson({ error: "This private archive has been retired." }, 410);
-  }
-
-  if (path === "/api/chat-archive/status" && request.method === "GET") {
-    await ensureSchema(env);
-    const row = await env.DB.prepare("SELECT COUNT(*) AS conversations, COALESCE(SUM(message_count),0) AS messages, COALESCE(SUM(chunk_count),0) AS chunks, COALESCE(MAX(imported_at),'') AS last_imported_at FROM chat_archive_conversations").first();
-    return privateJson({
-      conversations: Number(row?.conversations || 0),
-      messages: Number(row?.messages || 0),
-      chunks: Number(row?.chunks || 0),
-      last_imported_at: row?.last_imported_at || ""
-    });
-  }
-
-  if (path === "/api/chat-archive/search" && request.method === "GET") {
-    const q = String(url.searchParams.get("q") || "").trim();
-    if (!q) return privateJson({ results: [] });
-    const session = await openChatArchiveSession(env);
-    const found = await chatArchiveTool(session, env, "search_lore", {
-      query: q.slice(0, 1000),
-      entity_type: "reference",
-      limit: 20
-    });
-    return privateJson(found);
-  }
-
-  if (path === "/api/chat-archive/import-conversation" && request.method === "POST") {
-    const body = await request.json().catch(() => null);
-    if (!body || typeof body !== "object") return privateJson({ error: "Invalid conversation payload." }, 400);
-
-    const archiveKey = String(body.archive_key || body.conversation_id || "").trim();
-    const conversationId = String(body.conversation_id || "").trim();
-    const title = (String(body.title || "Untitled conversation").trim() || "Untitled conversation").slice(0, 500);
-    const incoming = Array.isArray(body.messages) ? body.messages : [];
-    if (!archiveKey) return privateJson({ error: "Conversation key is missing." }, 400);
-    if (!incoming.length) return privateJson({ ok: true, skipped: true, reason: "No visible user/assistant messages." });
-
-    const messages = incoming.map((m, i) => ({
-      id: String(m?.id || "").trim(),
-      role: m?.role === "assistant" ? "assistant" : "user",
-      time: String(m?.time || "").trim(),
-      text: String(m?.text ?? ""),
-      attachments: Array.isArray(m?.attachments) ? m.attachments.slice(0, 50) : [],
-      index: Number.isFinite(Number(m?.index)) ? Number(m.index) : i
-    }));
-
-    const contentHash = await sha256Hex(JSON.stringify(messages));
-    await ensureSchema(env);
-    const existing = await env.DB.prepare("SELECT * FROM chat_archive_conversations WHERE archive_key=?").bind(archiveKey).first();
-    if (existing?.content_hash === contentHash) {
-      return privateJson({
-        ok: true, skipped: true, entity_id: existing.entity_id,
-        message_count: Number(existing.message_count || 0),
-        chunk_count: Number(existing.chunk_count || 0)
-      });
-    }
-
-    const session = await openChatArchiveSession(env);
-    const now = new Date().toISOString();
-    const createdAt = archiveSourceTime(body.created_at);
-    const updatedAt = archiveSourceTime(body.updated_at);
-    const attachmentCount = messages.reduce((n, m) => n + m.attachments.length, 0);
-    const props = {
-      conversation_title: title,
-      source_platform: "ChatGPT",
-      import_source: "chatgpt-export",
-      imported_at: now,
-      message_count: messages.length,
-      attachment_count: attachmentCount,
-      archive_version: "1"
-    };
-    if (conversationId) props.conversation_id = conversationId;
-    if (createdAt) props.created_at = createdAt;
-    if (updatedAt) props.updated_at_source = updatedAt;
-    const lastMessageId = [...messages].reverse().find(m => m.id)?.id || "";
-    if (lastMessageId) props.last_source_message_id = lastMessageId;
-
-    let entityId = String(existing?.entity_id || "");
-    if (!entityId) {
-      const shortId = (conversationId || archiveKey).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "archive";
-      const created = await chatArchiveTool(session, env, "create_entities", {
-        entities: [{
-          entity_type: "reference",
-          name: (title + " [" + shortId + "]").slice(0, 255),
-          description: ("Verbatim ChatGPT conversation archive. Original title: " + title).slice(0, 2000),
-          properties: { source_type: "document", ...props },
-          tags: ["chatgpt-conversation", "chatgpt-archive"]
-        }],
-        skip_existing: false
-      });
-      entityId = created.created?.[0]?.entity_id || "";
-      if (!entityId) throw new Error("Orbismo did not return a conversation entity ID.");
-    } else {
-      await chatArchiveTool(session, env, "update_entity", {
-        entity_id: entityId,
-        updates: {
-          description: ("Verbatim ChatGPT conversation archive. Original title: " + title).slice(0, 2000),
-          properties: props,
-          tags: ["chatgpt-conversation", "chatgpt-archive"]
-        },
-        merge_mode: "merge"
-      });
-      const oldLore = await listArchiveLoreIds(session, env, entityId);
-      for (const loreId of oldLore) {
-        await chatArchiveTool(session, env, "delete_entity_lore", { entity_id: entityId, lore_id: loreId });
-      }
-    }
-
-    const chunks = buildArchiveChunks(messages);
-    for (let i = 0; i < chunks.length; i++) {
-      await chatArchiveTool(session, env, "create_entity_lore", {
-        entity_id: entityId,
-        title: archiveChunkTitle(chunks[i], i, chunks.length),
-        content: chunks[i].content,
-        display_index: i
-      });
-    }
-
-    await env.DB.prepare("INSERT INTO chat_archive_conversations (archive_key,conversation_id,entity_id,title,source_updated_at,message_count,chunk_count,content_hash,imported_at) VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(archive_key) DO UPDATE SET conversation_id=excluded.conversation_id,entity_id=excluded.entity_id,title=excluded.title,source_updated_at=excluded.source_updated_at,message_count=excluded.message_count,chunk_count=excluded.chunk_count,content_hash=excluded.content_hash,imported_at=excluded.imported_at")
-      .bind(archiveKey, conversationId, entityId, title, updatedAt || "", messages.length, chunks.length, contentHash, now).run();
-
-    return privateJson({ ok: true, skipped: false, entity_id: entityId, message_count: messages.length, chunk_count: chunks.length });
   }
 
   if (path === "/api/hot-guys" && request.method === "GET") {
@@ -1390,173 +1281,34 @@ const photoKey=String(s.author_photo_key||"").trim(),photo=document.getElementBy
 const books=data.books||[],hero=document.getElementById("heroBooks");if(hero){const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);if(heroCovers.length)hero.innerHTML=heroCovers.map(b=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">'}).join("")}
 const homeShelf=document.getElementById("homeShelf");if(homeShelf){const featured=books.slice(0,3);homeShelf.innerHTML=featured.map((b,i)=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<a class="home-shelf-book" href="/books" aria-label="'+esc(b.title)+'">'+(src?'<img src="'+esc(src)+'" alt="'+esc(b.title)+' cover">':'<span class="home-shelf-placeholder">'+esc(b.title)+'</span>')+'</a>'}).join("")}
 const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.length?books.map((b,i)=>'<article class="card"><div class="cover '+(i%3===1?"alt":i%3===2?"warm":"")+'">'+coverMarkup(b,i)+'</div><div class="info"><div class="genre">'+esc(b.genre)+'</div><h3>'+esc(b.title)+'</h3>'+(b.subtitle?'<div style="color:var(--muted);margin-top:-7px;margin-bottom:12px">'+esc(b.subtitle)+'</div>':"")+'<p>'+esc(b.description)+'</p>'+storeLinks(b)+reviewNote(b,s)+'</div></article>').join(""):'<div class="empty">Books will appear here soon.</div>'}).catch(()=>{const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML='<div class="empty">The book list could not load.</div>'});
+</script>
+<script>
+(() => {
+  if (!["/", "/books", "/projects", "/about"].includes(location.pathname)) return;
+  let sent = false;
+  const send = () => {
+    if (sent || document.visibilityState !== "visible") return;
+    sent = true;
+    const data = new Blob([JSON.stringify({page: location.pathname})], {type: "application/json"});
+    if (!navigator.sendBeacon || !navigator.sendBeacon("/api/traffic/event", data)) {
+      fetch("/api/traffic/event", {method: "POST", body: data, credentials: "same-origin", keepalive: true}).catch(() => {});
+    }
+  };
+  // A visit must show engagement: interaction or at least seven visible seconds.
+  let visibleTimer = null;
+  const onVisibility = () => {
+    clearTimeout(visibleTimer);
+    if (!sent && document.visibilityState === "visible") visibleTimer = setTimeout(send, 7000);
+  };
+  onVisibility();
+  document.addEventListener("visibilitychange", onVisibility);
+  document.addEventListener("pointerdown", send, {once: true, passive: true});
+  document.addEventListener("keydown", send, {once: true});
+  document.addEventListener("scroll", send, {once: true, passive: true});
+})();
 </script></body></html>`;
 }
 
-
-const CHAT_ARCHIVE_WORLD_ID = "0b8b5a5d-42bb-4e12-a143-046eff715257";
-const CHAT_ARCHIVE_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + CHAT_ARCHIVE_WORLD_ID + "/mcp";
-
-function chatArchiveKey(env) {
-  return String(env.ORBISMO_CHAT_ARCHIVE_API_KEY || env.ORBISMO_HOT_GUYS_API_KEY || "").trim();
-}
-
-function chatArchiveHeaders(env, sessionId = "") {
-  const headers = {
-    "authorization": "Bearer " + chatArchiveKey(env),
-    "content-type": "application/json",
-    "accept": "application/json, text/event-stream",
-    "mcp-protocol-version": ORBISMO_PROTOCOL_VERSION
-  };
-  if (sessionId) headers["mcp-session-id"] = sessionId;
-  return headers;
-}
-
-async function openChatArchiveSession(env) {
-  if (!chatArchiveKey(env)) throw new Error("Chat Archive Orbismo API key is not configured.");
-  const res = await fetch(CHAT_ARCHIVE_MCP_URL, {
-    method: "POST",
-    headers: chatArchiveHeaders(env),
-    body: JSON.stringify({
-      jsonrpc: "2.0", id: 1, method: "initialize",
-      params: {
-        protocolVersion: ORBISMO_PROTOCOL_VERSION,
-        capabilities: {},
-        clientInfo: { name: "dc1993-chat-archive", version: "1.0.0" }
-      }
-    })
-  });
-  const rpc = await parseMcpResponse(res);
-  if (rpc.error) throw new Error(rpc.error.message || "Chat Archive Orbismo initialize failed.");
-  const sessionId = res.headers.get("mcp-session-id") || "";
-  if (sessionId) {
-    const notify = await fetch(CHAT_ARCHIVE_MCP_URL, {
-      method: "POST",
-      headers: chatArchiveHeaders(env, sessionId),
-      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized", params: {} })
-    });
-    if (!notify.ok) throw new Error("Chat Archive Orbismo initialization acknowledgement failed.");
-  }
-  return { sessionId, nextId: 2 };
-}
-
-async function chatArchiveTool(session, env, name, args, attempt = 0) {
-  const res = await fetch(CHAT_ARCHIVE_MCP_URL, {
-    method: "POST",
-    headers: chatArchiveHeaders(env, session.sessionId),
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: session.nextId++,
-      method: "tools/call",
-      params: { name, arguments: args || {} }
-    })
-  });
-
-  if (res.status === 429 && attempt < 2) {
-    const delay = Math.min(30000, Math.max(2000, Number(res.headers.get("retry-after") || 5) * 1000));
-    await new Promise(resolve => setTimeout(resolve, delay));
-    return chatArchiveTool(session, env, name, args, attempt + 1);
-  }
-
-  const rpc = await parseMcpResponse(res);
-  if (rpc.error) throw new Error(rpc.error.message || ("Chat Archive Orbismo tool failed: " + name));
-  const result = rpc.result || {};
-  if (result.isError) {
-    const msg = Array.isArray(result.content)
-      ? result.content.map(x => x?.text || "").filter(Boolean).join(" ")
-      : "Chat Archive Orbismo tool returned an error.";
-    throw new Error(msg || ("Chat Archive Orbismo tool returned an error: " + name));
-  }
-  if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent;
-  if (Array.isArray(result.content)) {
-    const txt = result.content.filter(x => x && x.type === "text").map(x => x.text || "").join("\n").trim();
-    if (txt) { try { return JSON.parse(txt); } catch { return { text: txt }; } }
-  }
-  return result;
-}
-
-function archiveSourceTime(value) {
-  if (value === null || value === undefined || value === "") return "";
-  const n = Number(value);
-  const d = Number.isFinite(n)
-    ? new Date(n > 100000000000 ? n : n * 1000)
-    : new Date(String(value));
-  return Number.isNaN(d.getTime()) ? "" : d.toISOString();
-}
-
-function archiveMessageBlock(m) {
-  const header = "[[message index=" + m.index + " role=" + m.role + " time=" + (m.time || "unavailable") + " id=" + (m.id || "unavailable") + "]]";
-  let body = m.text || "";
-  if (m.attachments?.length) {
-    body += (body ? "\n\n" : "") + "[[attachments]]\n" + m.attachments.map(a => JSON.stringify(a)).join("\n");
-  }
-  return header + "\n" + body;
-}
-
-function buildArchiveChunks(messages, maxChars = 9000) {
-  const chunks = [];
-  let current = [];
-  let size = 0;
-  const flush = () => {
-    if (!current.length) return;
-    chunks.push({
-      first: current[0].message,
-      last: current[current.length - 1].message,
-      content: current.map(x => x.block).join("\n\n-----\n\n")
-    });
-    current = [];
-    size = 0;
-  };
-
-  for (const message of messages) {
-    const block = archiveMessageBlock(message);
-    if (block.length <= maxChars) {
-      if (current.length && size + block.length + 9 > maxChars) flush();
-      current.push({ message, block });
-      size += block.length + 9;
-      continue;
-    }
-
-    flush();
-    const header = "[[message index=" + message.index + " role=" + message.role + " time=" + (message.time || "unavailable") + " id=" + (message.id || "unavailable") + "]]";
-    const partSize = Math.max(1000, maxChars - header.length - 100);
-    const total = Math.max(1, Math.ceil((message.text || "").length / partSize));
-    for (let p = 0; p < total; p++) {
-      let content = header + " part=" + (p + 1) + "/" + total + "\n" + (message.text || "").slice(p * partSize, (p + 1) * partSize);
-      if (p === total - 1 && message.attachments?.length) {
-        content += "\n\n[[attachments]]\n" + message.attachments.map(a => JSON.stringify(a)).join("\n");
-      }
-      chunks.push({ first: message, last: message, content });
-    }
-  }
-  flush();
-  return chunks;
-}
-
-function archiveChunkTitle(chunk, index, total) {
-  const first = chunk.first?.index ?? index;
-  const last = chunk.last?.index ?? first;
-  return "Transcript " + String(index + 1).padStart(3, "0") + "/" + String(total).padStart(3, "0") + " · messages " + (first === last ? first : first + "-" + last);
-}
-
-async function listArchiveLoreIds(session, env, entityId) {
-  const ids = [];
-  let cursor = null;
-  do {
-    const got = await chatArchiveTool(session, env, "get_entities", {
-      entity_ids: [entityId],
-      view: "full",
-      active_only: false,
-      relationships: { limit: 1, embed_target: "name" },
-      lore: { limit: 50, include_content: false, ...(cursor ? { cursor } : {}) }
-    });
-    const entity = got.entities?.[0];
-    if (!entity) break;
-    for (const item of entity.lore?.items || []) if (item.lore_id) ids.push(item.lore_id);
-    cursor = entity.lore?.next_cursor || null;
-  } while (cursor);
-  return ids;
-}
 
 const HOT_GUYS_WORLD_ID = "0b8b5a5d-42bb-4e12-a143-046eff715257";
 const HOT_GUYS_MCP_URL = "https://app.orbismo.com/api/v1/worlds/" + HOT_GUYS_WORLD_ID + "/mcp";
@@ -2224,50 +1976,9 @@ load().catch(showError);setInterval(()=>load().catch(()=>{}),60000);
 </script></body></html>`;
 }
 
-function chatArchivePage() {
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>ChatGPT Archive · DC1993</title>
-<style>
-:root{--bg:#101112;--panel:#191b1d;--panel2:#222528;--line:rgba(255,255,255,.1);--text:#f4f5f5;--muted:#a8adaf;--accent:#8fcfc5;--danger:#f08f8f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}.shell{width:min(980px,calc(100% - 28px));margin:auto;padding:28px 0 70px}button,input{font:inherit}a{color:inherit}
-.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:22px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:800;margin:0 0 9px}.top h1{font:700 clamp(40px,7vw,66px)/1 Georgia,serif;margin:0}.sub{color:var(--muted);line-height:1.55;max-width:650px}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none}.btn.primary{background:var(--accent);border-color:transparent;color:#0e1715}.btn:disabled{opacity:.5}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat,.box{background:var(--panel);border:1px solid var(--line);border-radius:18px}.stat{padding:16px}.stat b{font:700 30px Georgia,serif;display:block}.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.box{padding:20px;margin-top:12px}.box h2{font:700 25px Georgia,serif;margin:0 0 8px}.hint{color:var(--muted);line-height:1.55}.file{display:block;width:100%;border:1px dashed rgba(143,207,197,.5);border-radius:14px;background:#121516;color:var(--muted);padding:18px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.progress{height:10px;border:1px solid var(--line);background:#0e1011;border-radius:999px;overflow:hidden;margin-top:16px}.bar{height:100%;width:0;background:var(--accent);transition:width .2s}.log{margin-top:12px;padding:12px;border-radius:12px;background:#111315;color:var(--muted);white-space:pre-wrap;font:12px/1.5 monospace;max-height:260px;overflow:auto}.search{display:grid;grid-template-columns:1fr auto;gap:8px}.search input{width:100%;border:1px solid var(--line);background:#111315;color:var(--text);border-radius:12px;padding:13px 14px}.result{background:var(--panel2);padding:14px;border-radius:13px;margin-top:10px}.result strong{font:700 18px Georgia,serif}.result small{display:block;color:var(--muted);margin-top:4px}.result p{white-space:pre-wrap;line-height:1.5}.bad{color:var(--danger)}
-@media(max-width:700px){.top{display:block}.top .btn{display:inline-block;margin-top:14px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.search{grid-template-columns:1fr}.box{padding:18px 15px}}
-</style></head><body><div class="shell">
-<div class="top"><div><p class="eyebrow">PRIVATE · VERBATIM</p><h1>ChatGPT Archive</h1><p class="sub">A searchable copy of your conversations, preserved as they were written.</p></div><a class="btn" href="/admin">Admin</a></div>
-<div class="stats"><div class="stat"><b id="convs">0</b><span>Conversations</span></div><div class="stat"><b id="msgs">0</b><span>Messages</span></div><div class="stat"><b id="chunks">0</b><span>Transcript chunks</span></div></div>
-
-<div class="box"><h2>Import</h2><p class="hint">Extract your ChatGPT export ZIP and select <b>conversations.json</b>. If the export contains numbered conversation JSON files, select all of them. Re-imports are incremental: unchanged conversations are skipped.</p>
-<input class="file" id="files" type="file" accept=".json,application/json" multiple>
-<div class="actions"><button class="btn primary" id="scan">Scan files</button><button class="btn" id="import" disabled>Import / update</button></div>
-<div class="progress"><div class="bar" id="bar"></div></div><div class="log" id="log">Waiting for an export file.</div></div>
-
-<div class="box"><h2>Search</h2><p class="hint">Search the transcript semantically through Orbismo.</p><div class="search"><input id="q" type="search" placeholder="What did I say about…"><button class="btn primary" id="search">Search</button></div><div id="results"></div></div>
-</div><script>
-let DATA=[];
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-async function api(path,opt={}){const r=await fetch(path,opt);if(r.status===401){location="/chat-archive";throw new Error("Unauthorized")}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}
-function addLog(t){const e=$("log");e.textContent+=(e.textContent?"\\n":"")+t;e.scrollTop=e.scrollHeight}
-function iso(v){if(v===null||v===undefined||v==="")return"";const n=Number(v);const d=Number.isFinite(n)?new Date(n>100000000000?n:n*1000):new Date(String(v));return Number.isNaN(d.getTime())?"":d.toISOString()}
-function att(p){if(!p||typeof p!=="object")return null;const o={};for(const k of ["name","mime_type","asset_pointer","size_bytes","width","height"])if(p[k]!==undefined&&p[k]!==null)o[k]=p[k];return Object.keys(o).length?o:null}
-function content(m){const c=m?.content||{};const text=[],attachments=[];for(const p of (Array.isArray(c.parts)?c.parts:[])){if(typeof p==="string")text.push(p);else if(p&&typeof p==="object"){if(typeof p.text==="string")text.push(p.text);const a=att(p);if(a)attachments.push(a)}}if(!text.length&&typeof c.text==="string")text.push(c.text);return{text:text.join("\\n"),attachments}}
-function nodes(c){const map=c?.mapping||{},out=[],seen=new Set();let id=c?.current_node;if(id&&map[id]){while(id&&map[id]&&!seen.has(id)){seen.add(id);out.push(map[id]);id=map[id].parent}return out.reverse()}return Object.values(map).filter(n=>n?.message).sort((a,b)=>Number(a.message?.create_time||0)-Number(b.message?.create_time||0))}
-function norm(c,fi,ci){const messages=[];for(const n of nodes(c)){const m=n?.message;if(!m)continue;const role=m.author?.role;if(role!=="user"&&role!=="assistant")continue;if(m.metadata?.is_visually_hidden_from_conversation)continue;if(role==="assistant"&&m.recipient&&m.recipient!=="all")continue;const x=content(m);if(!x.text&&!x.attachments.length)continue;messages.push({id:String(m.id||n.id||""),role,time:iso(m.create_time),text:x.text,attachments:x.attachments,index:messages.length})}const id=String(c.id||c.conversation_id||"");return{archive_key:id||("derived:"+String(c.create_time||"")+":"+String(c.title||"Untitled")+":"+fi+":"+ci),conversation_id:id,title:String(c.title||"Untitled conversation"),created_at:c.create_time??"",updated_at:c.update_time??"",messages}}
-async function scanFiles(){const fs=[...$("files").files];if(!fs.length)throw new Error("Choose conversations.json first.");const all=[];for(let fi=0;fi<fs.length;fi++){const parsed=JSON.parse(await fs[fi].text());const arr=Array.isArray(parsed)?parsed:(Array.isArray(parsed?.conversations)?parsed.conversations:[]);for(let ci=0;ci<arr.length;ci++){const c=norm(arr[ci],fi,ci);if(c.messages.length)all.push(c)}}const map=new Map();for(const c of all)map.set(c.archive_key,c);return[...map.values()]}
-async function stats(){const s=await api("/api/chat-archive/status");$("convs").textContent=s.conversations;$("msgs").textContent=s.messages;$("chunks").textContent=s.chunks}
-$("scan").onclick=async()=>{try{$("log").textContent="Scanning…";DATA=await scanFiles();const count=DATA.reduce((n,c)=>n+c.messages.length,0);$("log").textContent="Found "+DATA.length+" conversations and "+count+" visible user/assistant messages.\\nReady to import.";$("import").disabled=!DATA.length;$("bar").style.width="0%"}catch(e){$("log").innerHTML='<span class="bad">'+esc(e.message)+'</span>'}};
-$("import").onclick=async()=>{if(!DATA.length)return;const b=$("import");b.disabled=true;$("scan").disabled=true;$("log").textContent="Import started…";let changed=0,skip=0,fail=0;for(let i=0;i<DATA.length;i++){const c=DATA[i];try{const r=await api("/api/chat-archive/import-conversation",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(c)});if(r.skipped)skip++;else changed++;addLog((i+1)+"/"+DATA.length+" · "+(r.skipped?"unchanged":"archived")+" · "+c.title)}catch(e){fail++;addLog((i+1)+"/"+DATA.length+" · FAILED · "+c.title+" · "+e.message)}$("bar").style.width=Math.round(((i+1)/DATA.length)*100)+"%";await new Promise(r=>setTimeout(r,500))}addLog("Finished. Archived/updated: "+changed+" · unchanged: "+skip+" · failed: "+fail);await stats();b.disabled=false;$("scan").disabled=false};
-async function doSearch(){const q=$("q").value.trim();if(!q)return;const root=$("results");root.innerHTML='<p class="hint">Searching…</p>';try{const d=await api("/api/chat-archive/search?q="+encodeURIComponent(q));const rows=d.results||[];root.innerHTML=rows.map(r=>{const name=r.entity_name||r.name||r.entity_id||"Conversation",title=r.title||r.lore_title||"",txt=r.content||r.text||r.snippet||r.preview||"";return'<div class="result"><strong>'+esc(name)+'</strong>'+(title?'<small>'+esc(title)+'</small>':'')+(txt?'<p>'+esc(txt)+'</p>':'')+'</div>'}).join("")||'<p class="hint">No matching transcript found.</p>'}catch(e){root.innerHTML='<p class="bad">'+esc(e.message)+'</p>'}}
-$("search").onclick=doSearch;$("q").onkeydown=e=>{if(e.key==="Enter")doSearch()};stats().catch(e=>{$("log").textContent=e.message});
-</script></body></html>`;
-}
-
 function loginPage(next = "/admin") {
-  const target = next === "/story-bible" ? "/story-bible" : next === "/chat-archive" ? "/chat-archive" : "/admin";
-  const heading = target === "/story-bible" ? "Story Bible" : target === "/chat-archive" ? "ChatGPT Archive" : "Site Admin";
+  const target = next === "/story-bible" ? "/story-bible" : "/admin";
+  const heading = target === "/story-bible" ? "Story Bible" : "Site Admin";
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>${heading} · DC1993</title><style>
@@ -2277,7 +1988,7 @@ h1{font-family:Georgia,serif;font-size:40px;margin:0 0 8px}.sub{color:#aaa198;li
 label{display:block;font-size:13px;margin-bottom:8px}.input{width:100%;padding:14px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#12100f;color:white;font-size:16px}
 button{width:100%;margin-top:14px;padding:14px;border:0;border-radius:999px;background:#c09b73;color:#17120f;font-weight:700;font-size:15px}
 #error{color:#ff9b9b;min-height:20px;margin-top:12px;font-size:13px}</style></head>
-<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : target === "/chat-archive" ? "Private conversation archive. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
+<body><form class="card" id="f"><h1>${heading}</h1><div class="sub">${target === "/story-bible" ? "Private story reference. Sign in with your site admin password." : "Edit dc1993.com without touching code."}</div><label for="p">Admin password</label><input class="input" id="p" type="password" autocomplete="current-password" required><button>Sign in</button><div id="error"></div></form>
 <script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:document.getElementById("p").value})});if(r.ok){location=${JSON.stringify(target)}}else{const j=await r.json().catch(()=>({}));document.getElementById("error").textContent=j.error||"Could not sign in."}}</script>
 </body></html>`;
 }
@@ -2305,9 +2016,21 @@ textarea{min-height:120px;resize:vertical;line-height:1.5}input:focus,textarea:f
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#ece5dd;color:#18130f;padding:12px 16px;border-radius:999px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
 hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.box{padding:20px 16px}.bookrow{grid-template-columns:58px minmax(0,1fr)}.thumb{width:58px;height:86px}.rowBtns{grid-column:1/-1;justify-content:flex-start}.check{margin-top:0}.top h1{font-size:22px}}
+/* Responsive, dependency-free private traffic chart */
+.traffic-graph{border:1px solid var(--line);border-radius:16px;padding:18px 12px 10px;margin:12px 0 16px}
+.traffic-bars{height:170px;display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:4px;align-items:end;border-bottom:1px solid var(--line)}
+.traffic-bar{display:flex;align-items:flex-end;justify-content:center;min-width:0;height:100%}
+.traffic-bar i{display:block;width:100%;max-width:24px;background:#c09b73;border-radius:4px 4px 0 0;min-height:0}
+.traffic-labels{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:4px;color:var(--muted);font-size:9px;margin-top:8px}
+.traffic-labels span{white-space:nowrap;overflow:visible}
+.traffic-table{border-collapse:collapse;width:100%;font-size:13px;margin-top:12px}
+.traffic-table th,.traffic-table td{text-align:left;border-bottom:1px solid var(--line);padding:9px 6px}
+.traffic-table td:nth-child(n+2),.traffic-table th:nth-child(n+2){text-align:right}
+.traffic-table th{color:var(--muted)}
+@media(max-width:620px){.traffic-bars,.traffic-labels{gap:2px}.traffic-graph{padding:12px 5px 8px}}
 </style></head>
 <body><div class="shell">
-<div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/chat-archive">Archive</a><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
+<div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
 <div class="tabs">
 <button class="active" data-tab="home">Homepage</button>
 <button data-tab="books">Books</button>
@@ -2424,7 +2147,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <section class="panel" id="updates"><div class="box"><h2>Updates</h2><p class="hint">Control the update/newsletter area on the homepage.</p>
 <div class="grid"><div class="full"><label>Small heading</label><input id="updates_eyebrow" type="text"></div><div class="full"><label>Heading</label><input id="updates_heading" type="text"></div><div class="full"><label>Text</label><textarea id="updates_text"></textarea></div><div class="full"><hr><h2 style="font-size:24px">Featured Instagram</h2><p class="hint">Post 1 stays pinned first. Posts 2–4 are filled automatically from your latest Instagram uploads. The manual fields for 2–4 remain as fallbacks if the Instagram API is unavailable.</p></div><div class="full"><label>Instagram section heading</label><input id="instagram_heading" type="text"></div><div class="full"><label>Pinned Instagram post 1</label><input id="instagram_post_url_1" type="url" placeholder="Paid/ad post stays first"></div><div class="full"><label>Fallback post 2</label><input id="instagram_post_url_2" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 3</label><input id="instagram_post_url_3" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 4</label><input id="instagram_post_url_4" type="url" placeholder="Used only if automatic Instagram loading fails"></div></div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save updates section</button></div></div></section>
-<section class="panel" id="traffic"><div class="box"><h2>Website Traffic</h2><p class="hint">Private statistics. Tracking starts after deployment, excludes common bots and your logged-in visits, and uses UTC dates. No IP addresses are stored.</p><div class="grid" id="trafficCards">Loading…</div><hr><h2 style="font-size:24px">Last 30 days</h2><div id="trafficDays" class="hint">No visits yet.</div><hr><h2 style="font-size:24px">Pages</h2><div id="trafficPages" class="hint">No visits yet.</div><div class="actions"><button class="btn secondary" id="refreshTraffic">Refresh</button></div></div></section>
+<section class="panel" id="traffic"><div class="box"><h2>Engaged Website Traffic</h2><p class="hint">Counts browsers that interact or keep a page visible for 7 seconds, with automated-request filtering. These are <strong>engaged-browser estimates, not verified humans</strong>. Logged-in admin visits are excluded. UTC dates; no IP addresses stored. The old request-only counter is not mixed into these totals.</p><div class="grid" id="trafficCards">Loading…</div><hr><h2 style="font-size:24px">Last 30 days</h2><div class="traffic-graph" id="trafficChart" aria-label="30-day engaged page view chart">Loading chart…</div><details><summary style="cursor:pointer;padding:6px 0">Show daily numbers</summary><div id="trafficDays">No visits yet.</div></details><hr><h2 style="font-size:24px">Pages</h2><div id="trafficPages">No visits yet.</div><div class="actions"><button class="btn secondary" id="refreshTraffic">Refresh</button></div></div></section>
 </div><div class="toast" id="toast"></div>
 
 <script>
@@ -2435,10 +2158,16 @@ async function loadTraffic(){
   $("trafficCards").textContent="Loading…";
   try {
     const t=await api("/api/admin/traffic"),n=t.totals||{};
-    const cards=[["Today",n.today],["Past 7 days",n.week],["Past 30 days",n.month],["All-time page views",n.all_views],["Unique visitors (30 days)",n.monthly_visitors]];
-    $("trafficCards").innerHTML=cards.map(([k,v])=>'<div class="box" style="margin:0;padding:18px"><label>'+esc(k)+'</label><strong style="font-size:30px">'+Number(v||0).toLocaleString()+'</strong></div>').join("");
-    $("trafficDays").innerHTML=(t.daily||[]).length?t.daily.map(x=>'<p>'+esc(x.day)+': '+Number(x.views||0)+' views, '+Number(x.visitors||0)+' visitors</p>').join(""):"No visits yet.";
-    $("trafficPages").innerHTML=(t.pages||[]).length?t.pages.map(x=>'<p>'+esc(x.page)+': '+Number(x.views||0)+' views</p>').join(""):"No visits yet.";
+    const cards=[["Today",n.today],["Past 7 days",n.week],["Past 30 days",n.month],["All-time engaged views",n.all_views],["Unique browsers (30 days)",n.monthly_visitors]];
+    $("trafficCards").innerHTML=cards.map(([k,v])=>'<div class="box" style="margin:0;padding:18px"><label>'+esc(k)+'</label><strong style="font-size:30px;display:block">'+Number(v||0).toLocaleString()+'</strong></div>').join("");
+    const rows=new Map((t.daily||[]).map(x=>[x.day,x]));
+    const dates=Array.from({length:30},(_,i)=>new Date(Date.now()-(29-i)*86400000).toISOString().slice(0,10));
+    const data=dates.map(day=>({day,views:Number(rows.get(day)?.views||0),visitors:Number(rows.get(day)?.visitors||0)}));
+    const max=Math.max(1,...data.map(x=>x.views));
+    $("trafficChart").innerHTML='<div class="traffic-bars">'+data.map(x=>'<div class="traffic-bar" title="'+esc(x.day)+': '+x.views+' views, '+x.visitors+' browsers"><i style="height:'+Math.round(x.views/max*100)+'%"></i></div>').join("")+'</div><div class="traffic-labels">'+data.map((x,i)=>'<span>'+((i%5===0||i===29)?esc(x.day.slice(5)):"")+'</span>').join("")+'</div>';
+    const table=(items,first,empty)=>items.length?'<table class="traffic-table"><thead><tr><th>'+first+'</th><th>Views</th><th>Browsers</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.day||x.page)+'</td><td>'+Number(x.views||0).toLocaleString()+'</td><td>'+Number(x.visitors||0).toLocaleString()+'</td></tr>').join("")+'</tbody></table>':empty;
+    $("trafficDays").innerHTML=table(data.filter(x=>x.views).reverse(),"UTC day","No engaged visits yet.");
+    $("trafficPages").innerHTML=table(t.pages||[],"Page","No engaged visits yet.");
   }catch(e){$("trafficCards").textContent="Traffic unavailable: "+e.message}
 }
 $("refreshTraffic").onclick=loadTraffic;
