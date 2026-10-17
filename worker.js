@@ -57,34 +57,62 @@ export default {
 };
 
 
-const TRAFFIC_SQL = "CREATE TABLE IF NOT EXISTS traffic_daily (day TEXT NOT NULL, page TEXT NOT NULL, visitor TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(day,page,visitor))";
-function trafficVisitor(request) {
-  const ua=request.headers.get("user-agent")||"";
-  if (!ua || /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|headless|lighthouse|monitor|uptime|curl|wget/i.test(ua)) return null;
-  if ((request.headers.get("cookie")||"").includes("dc1993_admin=")) return null;
-  const cookie=(request.headers.get("cookie")||"").split(";").map(x=>x.trim()).find(x=>x.startsWith("dc1993_visitor="));
-  const id=cookie?.slice(15);
-  if (id && /^[0-9a-f-]{36}$/i.test(id)) return {id,isNew:false};
-  return {id:crypto.randomUUID(),isNew:true};
+// The old request-only traffic_daily data remains historical; do not mix it
+// with browser engagement totals.
+const ENGAGED_TRAFFIC_SQL = "CREATE TABLE IF NOT EXISTS traffic_engaged_daily (day TEXT NOT NULL, page TEXT NOT NULL, visitor TEXT NOT NULL, views INTEGER NOT NULL DEFAULT 1, last_seen INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day,page,visitor))";
+const PUBLIC_TRAFFIC_PAGES = new Set(["/", "/books", "/projects", "/about"]);
+const TRACKER_COOKIE = "dc1993_engaged";
+
+function allowedTrafficBrowser(request) {
+  const ua = request.headers.get("user-agent") || "";
+  if (!ua || /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|headless|lighthouse|monitor|uptime|curl|wget|python|httpclient|node-fetch|axios|go-http-client|okhttp|aiohttp|bytespider|facebookcatalog/i.test(ua)) return false;
+  if (/(?:^|;\s*)dc1993_admin=/.test(request.headers.get("cookie") || "")) return false;
+  // Bot Management is optional; the tracker works without a paid plan.
+  const bm = request.cf?.botManagement;
+  if (bm?.verifiedBot || (typeof bm?.score === "number" && bm.score < 30)) return false;
+  return true;
 }
-async function recordTraffic(env,page,id) {
-  if(!env.DB)return;
-  await env.DB.prepare(TRAFFIC_SQL).run();
-  const day=new Date().toISOString().slice(0,10);
-  await env.DB.prepare("INSERT INTO traffic_daily(day,page,visitor,views) VALUES(?,?,?,1) ON CONFLICT(day,page,visitor) DO UPDATE SET views=views+1").bind(day,page,id).run();
+
+async function engagedTrafficEvent(request, env) {
+  const headers = { "cache-control": "no-store" };
+  if (!allowedTrafficBrowser(request)) return new Response(null, { status: 204, headers });
+  const origin = request.headers.get("origin");
+  const self = new URL(request.url).origin;
+  if (origin && origin !== self) return new Response(null, { status: 403, headers });
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (fetchSite && fetchSite !== "same-origin") return new Response(null, { status: 403, headers });
+  if (!(request.headers.get("content-type") || "").startsWith("application/json")) return new Response(null, { status: 415, headers });
+  if (Number(request.headers.get("content-length") || 0) > 256) return new Response(null, { status: 413, headers });
+  const body = await request.json().catch(() => null);
+  const page = body && typeof body.page === "string" ? body.page : "";
+  if (!PUBLIC_TRAFFIC_PAGES.has(page)) return new Response(null, { status: 400, headers });
+  if (!env.DB) return new Response(null, { status: 503, headers });
+  const existing = (request.headers.get("cookie") || "").split(";").map(x => x.trim()).find(x => x.startsWith(TRACKER_COOKIE + "="));
+  const candidate = existing?.slice(TRACKER_COOKIE.length + 1);
+  const known = candidate && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate);
+  const visitor = known ? candidate : crypto.randomUUID();
+  const day = new Date().toISOString().slice(0, 10);
+  const now = Math.floor(Date.now() / 1000);
+  await env.DB.prepare(ENGAGED_TRAFFIC_SQL).run();
+  // Ignore repeated events for the same browser/page within 30 seconds.
+  await env.DB.prepare("INSERT INTO traffic_engaged_daily(day,page,visitor,views,last_seen) VALUES(?,?,?,1,?) ON CONFLICT(day,page,visitor) DO UPDATE SET views=CASE WHEN excluded.last_seen-traffic_engaged_daily.last_seen>=30 THEN traffic_engaged_daily.views+1 ELSE traffic_engaged_daily.views END,last_seen=excluded.last_seen").bind(day,page,visitor,now).run();
+  if (!known) headers["set-cookie"] = TRACKER_COOKIE + "=" + visitor + "; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax";
+  return new Response(null, { status: 204, headers });
 }
+
 async function trafficSummary(env) {
-  await env.DB.prepare(TRAFFIC_SQL).run();
-  const day=new Date().toISOString().slice(0,10);
-  const week=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
-  const month=new Date(Date.now()-29*86400000).toISOString().slice(0,10);
-  const results=await env.DB.batch([
-    env.DB.prepare("SELECT COALESCE(SUM(views),0) AS all_views, COALESCE(SUM(CASE WHEN day=? THEN views ELSE 0 END),0) AS today, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS week, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS month, COUNT(DISTINCT CASE WHEN day>=? THEN visitor END) AS monthly_visitors FROM traffic_daily").bind(day,week,month,month),
-    env.DB.prepare("SELECT day,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_daily WHERE day>=? GROUP BY day ORDER BY day").bind(month),
-    env.DB.prepare("SELECT page,SUM(views) AS views FROM traffic_daily GROUP BY page ORDER BY views DESC")
+  await env.DB.prepare(ENGAGED_TRAFFIC_SQL).run();
+  const day = new Date().toISOString().slice(0,10);
+  const week = new Date(Date.now()-6*86400000).toISOString().slice(0,10);
+  const month = new Date(Date.now()-29*86400000).toISOString().slice(0,10);
+  const results = await env.DB.batch([
+    env.DB.prepare("SELECT COALESCE(SUM(views),0) AS all_views, COALESCE(SUM(CASE WHEN day=? THEN views ELSE 0 END),0) AS today, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS week, COALESCE(SUM(CASE WHEN day>=? THEN views ELSE 0 END),0) AS month, COUNT(DISTINCT CASE WHEN day>=? THEN visitor END) AS monthly_visitors FROM traffic_engaged_daily").bind(day,week,month,month),
+    env.DB.prepare("SELECT day,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_engaged_daily WHERE day>=? GROUP BY day ORDER BY day").bind(month),
+    env.DB.prepare("SELECT page,SUM(views) AS views,COUNT(DISTINCT visitor) AS visitors FROM traffic_engaged_daily GROUP BY page ORDER BY views DESC")
   ]);
-  return {totals:results[0].results?.[0]||{},daily:results[1].results||[],pages:results[2].results||[]};
+  return { totals: results[0].results?.[0] || {}, daily: results[1].results || [], pages: results[2].results || [] };
 }
+
 async function ensureSchema(env) {
   if (!env.DB) throw new Error("D1 binding DB is missing.");
 
@@ -390,6 +418,10 @@ async function getSiteData(env, includeHidden = false) {
 
 async function handleApi(request, env, url) {
   const path = url.pathname;
+
+  if (path === "/api/traffic/event" && request.method === "POST") {
+    return engagedTrafficEvent(request, env);
+  }
 
   if (path === "/api/site" && request.method === "GET") {
     return json(await getSiteData(env, false));
