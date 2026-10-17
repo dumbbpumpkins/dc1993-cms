@@ -37,15 +37,7 @@ export default {
       if (url.pathname === "/chat-archive" || url.pathname === "/chat-archive/") {
         return new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
       }
-      const response = html(publicPage(url.pathname));
-      if (request.method === "GET" && ["/", "/books", "/projects", "/about"].includes(url.pathname)) {
-        const v = trafficVisitor(request);
-        if (v) {
-          ctx.waitUntil(recordTraffic(env, url.pathname, v.id).catch(e => console.error("Traffic:", e)));
-          if (v.isNew) response.headers.append("set-cookie", "dc1993_visitor=" + v.id + "; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax");
-        }
-      }
-      return response;
+      return html(publicPage(url.pathname));
     } catch (err) {
       return new Response("Server error: " + (err?.message || String(err)), { status: 500 });
     }
@@ -1289,7 +1281,32 @@ const photoKey=String(s.author_photo_key||"").trim(),photo=document.getElementBy
 const books=data.books||[],hero=document.getElementById("heroBooks");if(hero){const heroCovers=books.filter(b=>b.cover_key||safeUrl(b.cover_url)).slice(0,2);if(heroCovers.length)hero.innerHTML=heroCovers.map(b=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<img class="hero-cover" src="'+esc(src)+'" alt="'+esc(b.title)+' cover">'}).join("")}
 const homeShelf=document.getElementById("homeShelf");if(homeShelf){const featured=books.slice(0,3);homeShelf.innerHTML=featured.map((b,i)=>{const src=b.cover_key?mediaUrl(b.cover_key):safeUrl(b.cover_url);return '<a class="home-shelf-book" href="/books" aria-label="'+esc(b.title)+'">'+(src?'<img src="'+esc(src)+'" alt="'+esc(b.title)+' cover">':'<span class="home-shelf-placeholder">'+esc(b.title)+'</span>')+'</a>'}).join("")}
 const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML=books.length?books.map((b,i)=>'<article class="card"><div class="cover '+(i%3===1?"alt":i%3===2?"warm":"")+'">'+coverMarkup(b,i)+'</div><div class="info"><div class="genre">'+esc(b.genre)+'</div><h3>'+esc(b.title)+'</h3>'+(b.subtitle?'<div style="color:var(--muted);margin-top:-7px;margin-bottom:12px">'+esc(b.subtitle)+'</div>':"")+'<p>'+esc(b.description)+'</p>'+storeLinks(b)+reviewNote(b,s)+'</div></article>').join(""):'<div class="empty">Books will appear here soon.</div>'}).catch(()=>{const grid=document.getElementById("bookGrid");if(grid)grid.innerHTML='<div class="empty">The book list could not load.</div>'});
-</script></body></html>`;
+</script>
+<script>
+(() => {
+  if (!["/", "/books", "/projects", "/about"].includes(location.pathname)) return;
+  let sent = false;
+  const send = () => {
+    if (sent || document.visibilityState !== "visible") return;
+    sent = true;
+    const data = new Blob([JSON.stringify({page: location.pathname})], {type: "application/json"});
+    if (!navigator.sendBeacon || !navigator.sendBeacon("/api/traffic/event", data)) {
+      fetch("/api/traffic/event", {method: "POST", body: data, credentials: "same-origin", keepalive: true}).catch(() => {});
+    }
+  };
+  // A visit must show engagement: interaction or at least seven visible seconds.
+  let visibleTimer = null;
+  const onVisibility = () => {
+    clearTimeout(visibleTimer);
+    if (!sent && document.visibilityState === "visible") visibleTimer = setTimeout(send, 7000);
+  };
+  onVisibility();
+  document.addEventListener("visibilitychange", onVisibility);
+  document.addEventListener("pointerdown", send, {once: true, passive: true});
+  document.addEventListener("keydown", send, {once: true});
+  document.addEventListener("scroll", send, {once: true, passive: true});
+})();
+</body></html>`;
 }
 
 
@@ -1999,6 +2016,18 @@ textarea{min-height:120px;resize:vertical;line-height:1.5}input:focus,textarea:f
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#ece5dd;color:#18130f;padding:12px 16px;border-radius:999px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1}
 hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.box{padding:20px 16px}.bookrow{grid-template-columns:58px minmax(0,1fr)}.thumb{width:58px;height:86px}.rowBtns{grid-column:1/-1;justify-content:flex-start}.check{margin-top:0}.top h1{font-size:22px}}
+/* Responsive, dependency-free private traffic chart */
+.traffic-graph{border:1px solid var(--line);border-radius:16px;padding:18px 12px 10px;margin:12px 0 16px}
+.traffic-bars{height:170px;display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:4px;align-items:end;border-bottom:1px solid var(--line)}
+.traffic-bar{display:flex;align-items:flex-end;justify-content:center;min-width:0;height:100%}
+.traffic-bar i{display:block;width:100%;max-width:24px;background:#c09b73;border-radius:4px 4px 0 0;min-height:0}
+.traffic-labels{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:4px;color:var(--muted);font-size:9px;margin-top:8px}
+.traffic-labels span{white-space:nowrap;overflow:visible}
+.traffic-table{border-collapse:collapse;width:100%;font-size:13px;margin-top:12px}
+.traffic-table th,.traffic-table td{text-align:left;border-bottom:1px solid var(--line);padding:9px 6px}
+.traffic-table td:nth-child(n+2),.traffic-table th:nth-child(n+2){text-align:right}
+.traffic-table th{color:var(--muted)}
+@media(max-width:620px){.traffic-bars,.traffic-labels{gap:2px}.traffic-graph{padding:12px 5px 8px}}
 </style></head>
 <body><div class="shell">
 <div class="top"><h1>dc1993.com Admin</h1><div style="display:flex;gap:14px"><a href="/" target="_blank">View site ↗</a><a href="#" id="logout">Sign out</a></div></div>
@@ -2118,7 +2147,7 @@ hr{border:0;border-top:1px solid var(--line);margin:24px 0}
 <section class="panel" id="updates"><div class="box"><h2>Updates</h2><p class="hint">Control the update/newsletter area on the homepage.</p>
 <div class="grid"><div class="full"><label>Small heading</label><input id="updates_eyebrow" type="text"></div><div class="full"><label>Heading</label><input id="updates_heading" type="text"></div><div class="full"><label>Text</label><textarea id="updates_text"></textarea></div><div class="full"><hr><h2 style="font-size:24px">Featured Instagram</h2><p class="hint">Post 1 stays pinned first. Posts 2–4 are filled automatically from your latest Instagram uploads. The manual fields for 2–4 remain as fallbacks if the Instagram API is unavailable.</p></div><div class="full"><label>Instagram section heading</label><input id="instagram_heading" type="text"></div><div class="full"><label>Pinned Instagram post 1</label><input id="instagram_post_url_1" type="url" placeholder="Paid/ad post stays first"></div><div class="full"><label>Fallback post 2</label><input id="instagram_post_url_2" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 3</label><input id="instagram_post_url_3" type="url" placeholder="Used only if automatic Instagram loading fails"></div><div class="full"><label>Fallback post 4</label><input id="instagram_post_url_4" type="url" placeholder="Used only if automatic Instagram loading fails"></div></div>
 <div class="actions"><button class="btn primary" onclick="saveSettings()">Save updates section</button></div></div></section>
-<section class="panel" id="traffic"><div class="box"><h2>Website Traffic</h2><p class="hint">Private statistics. Tracking starts after deployment, excludes common bots and your logged-in visits, and uses UTC dates. No IP addresses are stored.</p><div class="grid" id="trafficCards">Loading…</div><hr><h2 style="font-size:24px">Last 30 days</h2><div id="trafficDays" class="hint">No visits yet.</div><hr><h2 style="font-size:24px">Pages</h2><div id="trafficPages" class="hint">No visits yet.</div><div class="actions"><button class="btn secondary" id="refreshTraffic">Refresh</button></div></div></section>
+<section class="panel" id="traffic"><div class="box"><h2>Engaged Website Traffic</h2><p class="hint">Counts browsers that interact or keep a page visible for 7 seconds, with automated-request filtering. These are <strong>engaged-browser estimates, not verified humans</strong>. Logged-in admin visits are excluded. UTC dates; no IP addresses stored. The old request-only counter is not mixed into these totals.</p><div class="grid" id="trafficCards">Loading…</div><hr><h2 style="font-size:24px">Last 30 days</h2><div class="traffic-graph" id="trafficChart" aria-label="30-day engaged page view chart">Loading chart…</div><details><summary style="cursor:pointer;padding:6px 0">Show daily numbers</summary><div id="trafficDays">No visits yet.</div></details><hr><h2 style="font-size:24px">Pages</h2><div id="trafficPages">No visits yet.</div><div class="actions"><button class="btn secondary" id="refreshTraffic">Refresh</button></div></div></section>
 </div><div class="toast" id="toast"></div>
 
 <script>
@@ -2129,10 +2158,16 @@ async function loadTraffic(){
   $("trafficCards").textContent="Loading…";
   try {
     const t=await api("/api/admin/traffic"),n=t.totals||{};
-    const cards=[["Today",n.today],["Past 7 days",n.week],["Past 30 days",n.month],["All-time page views",n.all_views],["Unique visitors (30 days)",n.monthly_visitors]];
-    $("trafficCards").innerHTML=cards.map(([k,v])=>'<div class="box" style="margin:0;padding:18px"><label>'+esc(k)+'</label><strong style="font-size:30px">'+Number(v||0).toLocaleString()+'</strong></div>').join("");
-    $("trafficDays").innerHTML=(t.daily||[]).length?t.daily.map(x=>'<p>'+esc(x.day)+': '+Number(x.views||0)+' views, '+Number(x.visitors||0)+' visitors</p>').join(""):"No visits yet.";
-    $("trafficPages").innerHTML=(t.pages||[]).length?t.pages.map(x=>'<p>'+esc(x.page)+': '+Number(x.views||0)+' views</p>').join(""):"No visits yet.";
+    const cards=[["Today",n.today],["Past 7 days",n.week],["Past 30 days",n.month],["All-time engaged views",n.all_views],["Unique browsers (30 days)",n.monthly_visitors]];
+    $("trafficCards").innerHTML=cards.map(([k,v])=>'<div class="box" style="margin:0;padding:18px"><label>'+esc(k)+'</label><strong style="font-size:30px;display:block">'+Number(v||0).toLocaleString()+'</strong></div>').join("");
+    const rows=new Map((t.daily||[]).map(x=>[x.day,x]));
+    const dates=Array.from({length:30},(_,i)=>new Date(Date.now()-(29-i)*86400000).toISOString().slice(0,10));
+    const data=dates.map(day=>({day,views:Number(rows.get(day)?.views||0),visitors:Number(rows.get(day)?.visitors||0)}));
+    const max=Math.max(1,...data.map(x=>x.views));
+    $("trafficChart").innerHTML='<div class="traffic-bars">'+data.map(x=>'<div class="traffic-bar" title="'+esc(x.day)+': '+x.views+' views, '+x.visitors+' browsers"><i style="height:'+Math.round(x.views/max*100)+'%"></i></div>').join("")+'</div><div class="traffic-labels">'+data.map((x,i)=>'<span>'+((i%5===0||i===29)?esc(x.day.slice(5)):"")+'</span>').join("")+'</div>';
+    const table=(items,first,empty)=>items.length?'<table class="traffic-table"><thead><tr><th>'+first+'</th><th>Views</th><th>Browsers</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.day||x.page)+'</td><td>'+Number(x.views||0).toLocaleString()+'</td><td>'+Number(x.visitors||0).toLocaleString()+'</td></tr>').join("")+'</tbody></table>':empty;
+    $("trafficDays").innerHTML=table(data.filter(x=>x.views).reverse(),"UTC day","No engaged visits yet.");
+    $("trafficPages").innerHTML=table(t.pages||[],"Page","No engaged visits yet.");
   }catch(e){$("trafficCards").textContent="Traffic unavailable: "+e.message}
 }
 $("refreshTraffic").onclick=loadTraffic;
